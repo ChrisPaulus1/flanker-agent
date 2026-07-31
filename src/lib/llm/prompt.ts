@@ -52,6 +52,7 @@ function analysisFields(counterPrd: string): string {
   "feature_analysis": "what the change most likely does mechanically, and what you are inferring vs. what the notes actually say",
   "strategic_read": "the business goal you infer behind shipping this, and why now",
   "hn_reaction_summary": "2-4 sentences summarising the community reaction, or null if no relevant discussion was supplied",
+  "category_implication": "2-3 sentences: what this release implies for anyone building in this category. Third person, no 'we' or 'our'. Concrete — name the capability or expectation that just shifted, not 'companies should stay competitive'",
   "counter_prd": ${counterPrd}
 }`;
 }
@@ -138,6 +139,10 @@ YOUR TASK
 2. Infer the strategic goal behind the change: what business outcome does this
    company want, and why would they ship it now?
 3. Summarise community reaction from the supplied material only, or null.
+4. State what this implies for the category: if a rival product team read this,
+   what expectation or baseline just moved? Name the specific capability at
+   stake. If the release genuinely changes nothing for anyone, say that plainly
+   rather than manufacturing significance.
 
 Write in the third person about the company being analysed. Do not use "we",
 "our", or "us" — you have no product and no team. Do not recommend actions to
@@ -189,7 +194,10 @@ YOUR TASK
 2. Infer the strategic goal behind the change: what business outcome does the
    analysed company want, and why would they ship it now?
 3. Summarise community reaction from the supplied material only, or null.
-4. Draft a one-page counter-PRD for ${viewer.name} specifically. Write it from
+4. State what this implies for the category generally, in the third person and
+   independent of any one company. Name the specific capability or expectation
+   that moved.
+5. Draft a one-page counter-PRD for ${viewer.name} specifically. Write it from
    ${viewer.name}'s position — refer to their product by name, and take their
    actual category into account. The proposed feature must be concrete enough
    to hand to an engineer. "Monitor the situation" and "conduct user research"
@@ -197,8 +205,9 @@ YOUR TASK
    response, say that in the problem statement and still propose the smallest
    sensible defensive action.
 
-Keep the two products distinct. Steps 1-3 are about ${app.name}. Step 4 is
-about ${viewer.name}. Do not write the counter-PRD for ${app.name}.
+Keep the two products distinct. Steps 1-4 are about ${app.name} and its
+category. Step 5 is about ${viewer.name}. Do not write the counter-PRD for
+${app.name}.
 
 ${SIGNAL_GUIDANCE}
 

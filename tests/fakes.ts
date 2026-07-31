@@ -50,6 +50,8 @@ export function makeTriage(overrides: Partial<LlmTriage> = {}): LlmTriage {
     feature_analysis: "Short-term liquidity product fronting earned wages.",
     strategic_read: "Deepens primary-account behaviour ahead of a bank charter.",
     hn_reaction_summary: null,
+    category_implication:
+      "Earned-wage access is becoming a baseline expectation for consumer banking apps rather than a differentiator.",
     counter_prd: {
       problem_statement: "Users bridge shortfalls with high-cost credit.",
       why_now: "Competitor has set a $500 anchor.",

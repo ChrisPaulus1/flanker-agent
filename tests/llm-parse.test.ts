@@ -7,6 +7,7 @@ const valid = {
   feature_analysis: "Short-term liquidity product fronting earned wages.",
   strategic_read: "Deepens primary-account behaviour ahead of a bank charter.",
   hn_reaction_summary: null,
+  category_implication: "Earned-wage access is becoming table stakes for consumer banking apps.",
   counter_prd: {
     problem_statement: "Users bridge shortfalls with high-cost credit.",
     why_now: "Competitor has set a $500 anchor.",
@@ -81,6 +82,7 @@ describe("parseTriageResponse", () => {
       "feature_analysis": "x",
       "strategic_read": "x",
       "hn_reaction_summary": null,
+      "category_implication": "x",
       "counter_prd": {
         "problem_statement": "x",
         "why_now": "x",
@@ -98,6 +100,23 @@ describe("parseTriageResponse", () => {
   it("accepts a populated hn_reaction_summary", () => {
     const withReaction = JSON.stringify({ ...valid, hn_reaction_summary: "Mostly sceptical." });
     expect(parseTriageResponse(withReaction).hn_reaction_summary).toBe("Mostly sceptical.");
+  });
+
+  it("accepts a null category_implication", () => {
+    const legacy = JSON.stringify({ ...valid, category_implication: null });
+    expect(parseTriageResponse(legacy).category_implication).toBeNull();
+  });
+
+  it("accepts an analysis stored before category_implication existed", () => {
+    // A missing key is `undefined`, not `null` — a merely nullable schema
+    // rejects it, and every pre-existing row would fail validation on read.
+    const { category_implication, ...legacy } = valid;
+    void category_implication;
+    expect(parseTriageResponse(JSON.stringify(legacy)).category_implication).toBeNull();
+  });
+
+  it("carries the category implication through", () => {
+    expect(parseTriageResponse(json).category_implication).toContain("table stakes");
   });
 
   it("accepts a null counter_prd, which is the teardown case", () => {

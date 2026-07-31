@@ -37,6 +37,21 @@ export const llmTriageSchema = z.object({
    */
   hn_reaction_summary: z.string().min(1).nullable(),
   /**
+   * What the release implies for anyone competing in this category.
+   *
+   * Written in both modes, and it's what keeps the advice section from being
+   * empty by default: a category-level read needs no named reader, so a
+   * visitor who hasn't said what they build still gets something real rather
+   * than an explanation of why there's nothing.
+   *
+   * `.default(null)` rather than just `.nullable()`, because those are not the
+   * same thing: an analysis stored before this field existed has the key
+   * *missing*, which is `undefined`, and a nullable schema rejects that. Rows
+   * written by the old prompt would have failed validation on read and taken
+   * the page down with them.
+   */
+  category_implication: z.string().min(1).nullable().default(null),
+  /**
    * Null unless the viewer has told us what they build.
    *
    * A counter-PRD is advice to a specific product team — "our app should ship

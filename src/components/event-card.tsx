@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ChevronDown, ExternalLink } from "lucide-react";
-import { CounterPrdSection } from "@/components/counter-prd";
+import { AdviceSection } from "@/components/counter-prd";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -162,20 +162,12 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
               )}
             </Section>
 
-            {/*
-              A counter-PRD is advice to a specific team. Without knowing who is
-              reading, the honest output is a teardown and no advice — and the
-              gap doubles as the prompt to tell us what you build.
-            */}
-            <div className="rounded-xl border border-border/70 bg-gradient-to-br from-indigo/[0.07] via-teal/[0.05] to-tangerine/[0.07] p-4">
-              <h4 className="mb-3 text-sm font-semibold tracking-tight">Counter-PRD</h4>
-              <CounterPrdSection
-                stored={triage.counter_prd}
-                trackId={event.app.itunesTrackId}
-                version={event.version}
-                appName={event.app.name}
-              />
-            </div>
+            <AdviceSection
+              categoryImplication={triage.category_implication}
+              trackId={event.app.itunesTrackId}
+              version={event.version}
+              appName={event.app.name}
+            />
 
             <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4 text-xs text-muted-foreground">
               <span>

@@ -32,8 +32,8 @@ export default async function HomePage() {
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           {/* Singular when the count is unavailable, or this reads "any App Store apps". */}
           Search {total && total > 0 ? `${total.toLocaleString()} App Store apps` : "any App Store app"}{" "}
-          to see what a company actually shipped — release notes reverse-engineered into a strategic
-          read, with the filler separated from the releases that matter.
+          and find out what a company actually shipped. Flanker turns release notes into a strategic
+          read, so real launches stand out from routine maintenance.
         </p>
 
         <div className="mx-auto mt-8 max-w-xl">

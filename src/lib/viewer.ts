@@ -20,6 +20,24 @@ export interface ViewerProduct {
 
 const STORAGE_KEY = "flanker.viewer";
 const CHANGE_EVENT = "flanker:viewer-change";
+const OPEN_EVENT = "flanker:open-picker";
+
+/**
+ * Ask the header picker to open.
+ *
+ * Lets a card put the control where the user is looking instead of telling
+ * them to go find it — any copy containing the word "above" is usually a
+ * missing button.
+ */
+export function openProductPicker(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(OPEN_EVENT));
+}
+
+export function onOpenProductPicker(handler: () => void): () => void {
+  window.addEventListener(OPEN_EVENT, handler);
+  return () => window.removeEventListener(OPEN_EVENT, handler);
+}
 
 export function readViewer(): ViewerProduct | null {
   if (typeof window === "undefined") return null;

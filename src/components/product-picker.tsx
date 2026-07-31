@@ -4,7 +4,7 @@ import * as React from "react";
 import { Check, ChevronDown, Loader2, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useViewer, type ViewerProduct } from "@/lib/viewer";
+import { onOpenProductPicker, useViewer, type ViewerProduct } from "@/lib/viewer";
 import type { Suggestion } from "@/lib/catalog/search";
 
 /**
@@ -57,6 +57,10 @@ export function ProductPicker() {
       controller.abort();
     };
   }, [query, open]);
+
+  // A card can ask to open this, so the control appears where the user is
+  // looking rather than needing to be hunted for in the header.
+  React.useEffect(() => onOpenProductPicker(() => setOpen(true)), []);
 
   React.useEffect(() => {
     function onPointerDown(e: MouseEvent) {
