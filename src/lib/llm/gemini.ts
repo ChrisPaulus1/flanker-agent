@@ -26,37 +26,48 @@ export class GeminiTriageEngine implements TriageEngine {
   }
 
   /**
-   * The models to try, best first. Resolved once per process.
+   * The models to try, best first.
    *
-   * A pinned GEMINI_MODEL goes first but does NOT replace the chain: pinning
-   * is about avoiding a ListModels round trip and about reproducibility, not
-   * about giving up the ability to degrade when the daily free quota runs out.
-   * Discovery only happens if the pinned model actually fails.
+   * A pinned GEMINI_MODEL is used immediately and discovery is skipped
+   * entirely — that is the point of pinning, and an earlier version claimed
+   * this in a comment while calling ListModels unconditionally, costing an
+   * extra network round trip on every cold start for no benefit.
+   *
+   * Pinning still doesn't give up the fallback chain. If the pinned model
+   * fails, `discoverFallbacks` runs then and appends the ranked alternatives,
+   * so quota exhaustion still degrades rather than erroring.
    */
   private async getCandidates(): Promise<string[]> {
     if (this.candidates) return this.candidates;
 
-    let ranked: string[] = [];
-    try {
-      ranked = rankModels(await listAvailableModels(this.apiKey));
-    } catch (error) {
-      // If we have a pinned model we can still work; if not, this is fatal.
-      if (!this.pinnedModel) throw error;
-      console.warn(`[flanker] ListModels failed, falling back to pinned model: ${String(error)}`);
+    if (this.pinnedModel) {
+      this.candidates = [this.pinnedModel];
+      return this.candidates;
     }
 
-    const candidates = this.pinnedModel
-      ? [this.pinnedModel, ...ranked.filter((m) => m !== this.pinnedModel)]
-      : ranked;
-
-    if (candidates.length === 0) {
+    const ranked = rankModels(await listAvailableModels(this.apiKey));
+    if (ranked.length === 0) {
       throw new Error(
         "No usable Gemini text model is available to this API key — check the key's project has Generative Language API access.",
       );
     }
 
-    this.candidates = candidates;
-    return candidates;
+    this.candidates = ranked;
+    return ranked;
+  }
+
+  /**
+   * Called only after the pinned model has failed, so the cost of discovery is
+   * paid by the rare bad case rather than by every request.
+   */
+  private async discoverFallbacks(tried: string[]): Promise<string[]> {
+    try {
+      const ranked = rankModels(await listAvailableModels(this.apiKey));
+      return ranked.filter((m) => !tried.includes(m));
+    } catch (error) {
+      console.warn(`[flanker] ListModels failed while looking for a fallback: ${String(error)}`);
+      return [];
+    }
   }
 
   async triage({
@@ -71,15 +82,20 @@ export class GeminiTriageEngine implements TriageEngine {
     viewer?: ViewerContext | null;
   }): Promise<TriageResult> {
     const prompt = buildTriagePrompt({ app, release, reaction, viewer });
-    const candidates = await this.getCandidates();
+
+    const queue = [...(await this.getCandidates())];
+    const tried: string[] = [];
+    let discovered = false;
 
     let lastError: unknown;
 
-    // Walk down the ranked list on quota exhaustion. Free-tier daily caps are
-    // low enough (100-250/day depending on model) that a backfill plus a few
-    // demo triggers can genuinely exhaust the top choice, and degrading to a
-    // lighter model beats failing the run.
-    for (const model of candidates.slice(0, 4)) {
+    // Walk down the list on quota exhaustion. Free-tier daily caps are low
+    // enough that a burst of demand can genuinely exhaust the top choice, and
+    // degrading to a lighter model beats failing the request.
+    while (queue.length > 0 && tried.length < 4) {
+      const model = queue.shift()!;
+      tried.push(model);
+
       try {
         const response = await this.client.models.generateContent({
           model,
@@ -98,11 +114,16 @@ export class GeminiTriageEngine implements TriageEngine {
         return { output: parseTriageResponse(text), model };
       } catch (error) {
         lastError = error;
-        if (isQuotaError(error)) {
-          console.warn(`[flanker] ${model} quota exhausted, trying next candidate`);
-          continue;
+        if (!isQuotaError(error)) throw error;
+
+        console.warn(`[flanker] ${model} quota exhausted, trying next candidate`);
+
+        // First failure with a pinned model: this is the moment discovery is
+        // worth paying for, not on every cold start.
+        if (queue.length === 0 && !discovered) {
+          discovered = true;
+          queue.push(...(await this.discoverFallbacks(tried)));
         }
-        throw error;
       }
     }
 
