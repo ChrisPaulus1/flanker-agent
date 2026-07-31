@@ -2,6 +2,7 @@ import type { AppRelease } from "@/lib/sources/itunes";
 import type { HnReaction } from "@/lib/sources/hn";
 import type { LlmTriage } from "@/lib/llm/schema";
 import type {
+  CatalogApp,
   FlankerEvent,
   FlankerEventWithApp,
   FlankerRepo,
@@ -9,7 +10,6 @@ import type {
   TrackedApp,
 } from "@/lib/storage/types";
 import type {
-  AlertSender,
   ReactionSource,
   ReleaseSource,
   TriageEngine,
@@ -147,6 +147,81 @@ export class FakeRepo implements FlankerRepo {
     });
   }
 
+  async findTrackedByItunesId(itunesTrackId: number): Promise<TrackedApp | null> {
+    return this.apps.find((a) => a.itunesTrackId === itunesTrackId) ?? null;
+  }
+
+  async createTrackedApp(input: {
+    itunesTrackId: number;
+    name: string;
+    hnQuery: string | null;
+  }): Promise<TrackedApp> {
+    const existing = this.apps.find((a) => a.itunesTrackId === input.itunesTrackId);
+    if (existing) return existing;
+    const app: TrackedApp = {
+      id: `app-${this.apps.length + 1}`,
+      itunesTrackId: input.itunesTrackId,
+      name: input.name,
+      hnQuery: input.hnQuery,
+      lastSeenVersion: null,
+      lastCheckedAt: null,
+      enabled: true,
+    };
+    this.apps.push(app);
+    return app;
+  }
+
+  async countEventsSince(sinceIso: string): Promise<number> {
+    return this.events.filter((e) => e.detectedAt >= sinceIso).length;
+  }
+
+  async listEventsForApp(appId: string, limit = 50): Promise<FlankerEventWithApp[]> {
+    const all = await this.listRecentEvents(1000);
+    return all.filter((e) => e.appId === appId).slice(0, limit);
+  }
+
+  // --- catalog ---------------------------------------------------------
+  catalog: CatalogApp[] = [];
+
+  async upsertCatalogApps(apps: CatalogApp[]): Promise<number> {
+    for (const app of apps) {
+      const i = this.catalog.findIndex((c) => c.itunesTrackId === app.itunesTrackId);
+      if (i >= 0) this.catalog[i] = app;
+      else this.catalog.push(app);
+    }
+    return apps.length;
+  }
+
+  private rank(a: CatalogApp) {
+    return a.popularityRank ?? Number.MAX_SAFE_INTEGER;
+  }
+
+  async searchCatalogPrefix(prefix: string, limit: number): Promise<CatalogApp[]> {
+    const q = prefix.trim().toLowerCase();
+    if (!q) return [];
+    return this.catalog
+      .filter((a) => a.name.toLowerCase().startsWith(q))
+      .sort((a, b) => this.rank(a) - this.rank(b) || a.name.localeCompare(b.name))
+      .slice(0, limit);
+  }
+
+  async searchCatalog(query: string, limit: number): Promise<CatalogApp[]> {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return this.catalog
+      .filter((a) => a.name.toLowerCase().includes(q))
+      .sort((a, b) => this.rank(a) - this.rank(b) || a.name.localeCompare(b.name))
+      .slice(0, limit);
+  }
+
+  async getCatalogApp(itunesTrackId: number): Promise<CatalogApp | null> {
+    return this.catalog.find((a) => a.itunesTrackId === itunesTrackId) ?? null;
+  }
+
+  async countCatalogApps(): Promise<number> {
+    return this.catalog.length;
+  }
+
   async deleteEvent(appId: string, version: string): Promise<boolean> {
     const before = this.events.length;
     this.events = this.events.filter((e) => !(e.appId === appId && e.version === version));
@@ -189,17 +264,6 @@ export class FakeTriageEngine implements TriageEngine {
     this.calls++;
     if (this.result instanceof Error) throw this.result;
     return { output: this.result, model: this.model };
-  }
-}
-
-export class FakeAlertSender implements AlertSender {
-  calls = 0;
-  sent: string[] = [];
-  constructor(private readonly failure: Error | null = null) {}
-  async send({ event }: { event: FlankerEvent }): Promise<void> {
-    this.calls++;
-    if (this.failure) throw this.failure;
-    this.sent.push(event.id);
   }
 }
 

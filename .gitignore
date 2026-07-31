@@ -151,3 +151,6 @@ next-env.d.ts
 # Re-asserted last: `vercel link` appends `.env*`, which would otherwise
 # re-ignore the template on a fresh checkout.
 !.env.example
+
+# Local catalog build cache — large, regenerable.
+.catalog-cache.json

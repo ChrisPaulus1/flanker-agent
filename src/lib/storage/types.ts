@@ -44,6 +44,18 @@ export interface NewEventInput {
   model: string;
 }
 
+export interface CatalogApp {
+  itunesTrackId: number;
+  name: string;
+  developer: string | null;
+  genre: string | null;
+  iconUrl: string | null;
+  version: string | null;
+  releaseNotes: string | null;
+  releaseDate: string | null;
+  popularityRank: number | null;
+}
+
 /**
  * The storage seam.
  *
@@ -61,6 +73,18 @@ export interface FlankerRepo {
   /** Records that we looked, without moving the cursor. */
   touchLastChecked(appId: string, checkedAt: string): Promise<void>;
   listRecentEvents(limit?: number): Promise<FlankerEventWithApp[]>;
+  /** Tracked-app row for a store id, if this app has ever been analysed. */
+  findTrackedByItunesId(itunesTrackId: number): Promise<TrackedApp | null>;
+  /** Promote a catalog app into the monitored set on first view. */
+  createTrackedApp(input: {
+    itunesTrackId: number;
+    name: string;
+    hnQuery: string | null;
+  }): Promise<TrackedApp>;
+  /** Generations since a timestamp, for the daily budget guard. */
+  countEventsSince(sinceIso: string): Promise<number>;
+  /** Every stored release for one app, newest first. */
+  listEventsForApp(appId: string, limit?: number): Promise<FlankerEventWithApp[]>;
   /** Demo affordance: rewind the cursor so the next run re-detects current data. */
   setLastSeenVersion(appId: string, version: string | null): Promise<void>;
   /**
@@ -69,4 +93,14 @@ export interface FlankerRepo {
    * would short-circuit the run as already-processed.
    */
   deleteEvent(appId: string, version: string): Promise<boolean>;
+
+  // --- catalog ---------------------------------------------------------
+  /** Bulk insert/update. Chunked internally; safe to re-run. */
+  upsertCatalogApps(apps: CatalogApp[]): Promise<number>;
+  /** Prefix match for type-ahead, popularity-ranked, hard-capped. */
+  searchCatalogPrefix(prefix: string, limit: number): Promise<CatalogApp[]>;
+  /** Substring match for the full search page. */
+  searchCatalog(query: string, limit: number): Promise<CatalogApp[]>;
+  getCatalogApp(itunesTrackId: number): Promise<CatalogApp | null>;
+  countCatalogApps(): Promise<number>;
 }
