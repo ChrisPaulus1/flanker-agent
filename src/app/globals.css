@@ -36,6 +36,13 @@
     --radius: 0.625rem;
 
     /*
+      Brand bar (3px) + header row (3.5rem) + bottom border (1px). Declared
+      once so the landing page's optical centring can compensate for it without
+      the two drifting apart.
+    */
+    --header-h: 3.75rem;
+
+    /*
       Two weights per accent. The bright value is the mark — rails, bars,
       icons; the ink value is the only one dark enough to set text at 4.5:1.
     */

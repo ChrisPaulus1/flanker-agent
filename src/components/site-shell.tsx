@@ -44,10 +44,19 @@ export function SiteShell({
         </div>
       </header>
 
+      {/*
+        `main` is flex-1 *below* the header, so justify-center centres within
+        the leftover space rather than the viewport — which lands the content
+        half a header-height too low (measured: 30px at every viewport size).
+        The extra bottom padding of one header height pulls it back up by half
+        of that, putting the block on the true centre of the screen.
+      */}
       <main
         className={cn(
           "container flex-1",
-          center ? "flex flex-col items-center justify-center py-16" : "py-8 md:py-12",
+          center
+            ? "flex flex-col items-center justify-center py-16 pb-[calc(4rem+var(--header-h))]"
+            : "py-8 md:py-12",
         )}
       >
         {children}
