@@ -147,6 +147,12 @@ export class FakeRepo implements FlankerRepo {
     });
   }
 
+  async deleteEvent(appId: string, version: string): Promise<boolean> {
+    const before = this.events.length;
+    this.events = this.events.filter((e) => !(e.appId === appId && e.version === version));
+    return this.events.length < before;
+  }
+
   async setLastSeenVersion(appId: string, version: string | null): Promise<void> {
     const app = this.apps.find((a) => a.id === appId);
     if (app) app.lastSeenVersion = version;

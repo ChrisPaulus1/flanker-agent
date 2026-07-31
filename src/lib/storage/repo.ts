@@ -172,6 +172,18 @@ export class SupabaseFlankerRepo implements FlankerRepo {
     });
   }
 
+  async deleteEvent(appId: string, version: string): Promise<boolean> {
+    const { data, error } = await this.db
+      .from("events")
+      .delete()
+      .eq("app_id", appId)
+      .eq("version", version)
+      .select("id");
+
+    if (error) fail("deleteEvent", error);
+    return (data?.length ?? 0) > 0;
+  }
+
   async setLastSeenVersion(appId: string, version: string | null): Promise<void> {
     const { error } = await this.db
       .from("tracked_apps")

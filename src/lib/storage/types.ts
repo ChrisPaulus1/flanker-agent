@@ -63,4 +63,10 @@ export interface FlankerRepo {
   listRecentEvents(limit?: number): Promise<FlankerEventWithApp[]>;
   /** Demo affordance: rewind the cursor so the next run re-detects current data. */
   setLastSeenVersion(appId: string, version: string | null): Promise<void>;
+  /**
+   * Demo affordance: forget a stored event so the pipeline genuinely re-runs
+   * for that version. Rewinding the cursor alone isn't enough — the event row
+   * would short-circuit the run as already-processed.
+   */
+  deleteEvent(appId: string, version: string): Promise<boolean>;
 }
