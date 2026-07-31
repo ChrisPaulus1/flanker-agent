@@ -47,13 +47,20 @@ const config: Config = {
           medium: "hsl(var(--signal-medium))",
           low: "hsl(var(--signal-low))",
         },
+        // Gold, in three weights: hairline outlines every box, `gold` is for
+        // rails, `ink` is the only one dark enough to set text in.
+        gold: {
+          hairline: "hsl(var(--gold-hairline))",
+          DEFAULT: "hsl(var(--gold))",
+          ink: "hsl(var(--gold-ink))",
+        },
         // Gradient stops, exposed to utilities so one-off gradients don't get
         // written with raw hex values.
         grad: {
-          violet: "hsl(var(--grad-violet))",
-          periwinkle: "hsl(var(--grad-periwinkle))",
-          lilac: "hsl(var(--grad-lilac))",
-          haze: "hsl(var(--grad-haze))",
+          champagne: "hsl(var(--grad-champagne))",
+          blush: "hsl(var(--grad-blush))",
+          mist: "hsl(var(--grad-mist))",
+          cream: "hsl(var(--grad-cream))",
         },
       },
       borderRadius: {

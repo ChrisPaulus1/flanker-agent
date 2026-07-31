@@ -4,76 +4,94 @@
 
 @layer base {
   :root {
-    /* Near-white with a violet cast rather than pure #fff — it keeps the
-       gradients from looking like a stain on an otherwise neutral page. */
-    --background: 260 60% 99%;
-    --foreground: 250 30% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 250 30% 12%;
+    /*
+      Warm ivory rather than a cool near-white. The previous palette sat a
+      high-saturation violet on a cool base, which is the default look of every
+      AI product shipped lately; warming the neutrals and dropping the accent
+      saturation is what moves it toward considered-financial instead.
+    */
+    --background: 40 36% 97%;
+    --foreground: 224 32% 13%;
+    --card: 42 50% 99%;
+    --card-foreground: 224 32% 13%;
 
-    --primary: 258 82% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 258 40% 96%;
-    --secondary-foreground: 252 40% 26%;
-    --muted: 258 35% 96%;
-    --muted-foreground: 250 12% 46%;
-    --accent: 258 45% 95%;
-    --accent-foreground: 252 40% 26%;
-    --destructive: 0 78% 58%;
+    /* Navy carries structure, gold carries emphasis. */
+    --primary: 224 44% 22%;
+    --primary-foreground: 40 40% 98%;
+    --secondary: 40 26% 94%;
+    --secondary-foreground: 224 32% 20%;
+    --muted: 38 24% 94%;
+    --muted-foreground: 28 8% 42%;
+    --accent: 40 34% 93%;
+    --accent-foreground: 224 32% 20%;
+    --destructive: 0 68% 46%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 256 32% 91%;
-    --input: 256 32% 91%;
-    --ring: 258 82% 60%;
+    --border: 38 28% 87%;
+    --input: 38 28% 87%;
+    --ring: 38 62% 42%;
     --radius: 0.875rem;
 
-    /* Signal scale lives in the purple family so the brand colour and the
-       attention colour are the same thing: saturation carries the meaning,
-       and low signal simply drains out of it. */
-    --signal-high: 262 83% 58%;
-    --signal-medium: 232 68% 62%;
-    --signal-low: 250 10% 55%;
+    /*
+      Gold, in three weights. The hairline is what outlines every card; the
+      mid tone is for rails and dividers; `--gold-ink` is the only one dark
+      enough for text, which is why badges use it rather than the brighter
+      metal they sit on.
+    */
+    --gold-hairline: 40 48% 76%;
+    --gold: 38 58% 55%;
+    --gold-ink: 38 78% 30%;
 
-    /* Gradient stops, named so the page, header and cards can't drift. */
-    --grad-violet: 262 83% 58%;
-    --grad-periwinkle: 232 72% 66%;
-    --grad-lilac: 275 70% 72%;
-    --grad-haze: 258 60% 97%;
+    /* Signal scale: gold for high, navy for medium, warm grey for low. */
+    --signal-high: 38 78% 30%;
+    --signal-medium: 224 44% 34%;
+    --signal-low: 28 8% 44%;
+
+    /* Gradient stops — pastel and low-saturation, closer to tinted light than
+       to colour. */
+    --grad-champagne: 40 72% 88%;
+    --grad-blush: 20 66% 90%;
+    --grad-mist: 214 46% 91%;
+    --grad-cream: 42 60% 96%;
   }
 
   .dark {
-    /* Indigo-tinted near-black, not neutral slate — the light theme's violet
-       cast has to survive the switch or the two feel like different products. */
-    --background: 252 32% 7%;
-    --foreground: 258 30% 95%;
-    --card: 252 28% 11%;
-    --card-foreground: 258 30% 95%;
+    /* Warm charcoal, not blue-black — the ivory warmth has to survive the
+       switch or the two themes read as different products. */
+    --background: 30 12% 8%;
+    --foreground: 40 30% 94%;
+    --card: 30 11% 12%;
+    --card-foreground: 40 30% 94%;
 
-    --primary: 258 90% 72%;
-    --primary-foreground: 252 40% 10%;
-    --secondary: 252 22% 18%;
-    --secondary-foreground: 258 30% 95%;
-    --muted: 252 22% 16%;
-    --muted-foreground: 252 15% 66%;
-    --accent: 252 24% 20%;
-    --accent-foreground: 258 30% 95%;
-    --destructive: 0 62% 52%;
+    --primary: 40 40% 92%;
+    --primary-foreground: 30 20% 12%;
+    --secondary: 30 10% 19%;
+    --secondary-foreground: 40 30% 94%;
+    --muted: 30 10% 17%;
+    --muted-foreground: 36 10% 66%;
+    --accent: 30 10% 21%;
+    --accent-foreground: 40 30% 94%;
+    --destructive: 0 58% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 252 20% 22%;
-    --input: 252 20% 22%;
-    --ring: 258 90% 72%;
+    --border: 34 12% 23%;
+    --input: 34 12% 23%;
+    --ring: 40 62% 58%;
 
-    /* Lifted for contrast against the dark surface — the light-mode values
-       fall under 4.5:1 here. */
-    --signal-high: 262 95% 76%;
-    --signal-medium: 232 90% 76%;
-    --signal-low: 252 12% 62%;
+    /* Gold has to lift considerably to stay legible on charcoal — the
+       light-mode ink tone falls well under 4.5:1 here. */
+    --gold-hairline: 38 26% 30%;
+    --gold: 40 62% 58%;
+    --gold-ink: 42 78% 68%;
 
-    --grad-violet: 262 85% 62%;
-    --grad-periwinkle: 232 70% 58%;
-    --grad-lilac: 275 65% 62%;
-    --grad-haze: 252 30% 12%;
+    --signal-high: 42 78% 68%;
+    --signal-medium: 214 52% 72%;
+    --signal-low: 36 8% 60%;
+
+    --grad-champagne: 40 42% 22%;
+    --grad-blush: 18 34% 20%;
+    --grad-mist: 214 28% 22%;
+    --grad-cream: 32 16% 12%;
   }
 }
 
@@ -90,9 +108,10 @@
 
 @layer components {
   /*
-    Page wash. Two soft radial pools bleeding down from the top, fixed so they
-    don't slide under the timeline while scrolling. Kept low-opacity: this
-    should read as tinted paper, not as a decorative background.
+    Page wash: warm champagne and blush pooling from the top with a cool mist
+    to keep it from going sepia. Fixed, so it doesn't travel under the
+    timeline on scroll. Low opacity throughout — this should read as tinted
+    paper, not as a decorative background.
   */
   .page-wash {
     position: relative;
@@ -107,72 +126,89 @@
     pointer-events: none;
     background:
       radial-gradient(
-        68rem 38rem at 8% -10%,
-        hsl(var(--grad-violet) / 0.22),
-        transparent 60%
-      ),
-      radial-gradient(
-        58rem 34rem at 92% -14%,
-        hsl(var(--grad-lilac) / 0.2),
+        70rem 40rem at 6% -12%,
+        hsl(var(--grad-champagne) / 0.75),
         transparent 58%
       ),
       radial-gradient(
-        44rem 26rem at 50% 4%,
-        hsl(var(--grad-periwinkle) / 0.1),
-        transparent 62%
+        60rem 34rem at 94% -14%,
+        hsl(var(--grad-blush) / 0.6),
+        transparent 56%
       ),
-      linear-gradient(180deg, hsl(var(--grad-haze) / 0.95), transparent 44%);
+      radial-gradient(
+        50rem 30rem at 52% 2%,
+        hsl(var(--grad-mist) / 0.45),
+        transparent 60%
+      ),
+      linear-gradient(180deg, hsl(var(--grad-cream) / 0.9), transparent 46%);
   }
 
   .dark .page-wash::before {
-    /* The same pools need more punch on a dark surface to stay perceptible. */
     background:
       radial-gradient(
-        62rem 34rem at 12% -8%,
-        hsl(var(--grad-violet) / 0.22),
-        transparent 60%
-      ),
-      radial-gradient(
-        54rem 30rem at 88% -12%,
-        hsl(var(--grad-lilac) / 0.16),
+        70rem 40rem at 6% -12%,
+        hsl(var(--grad-champagne) / 0.55),
         transparent 58%
       ),
-      linear-gradient(180deg, hsl(var(--grad-haze) / 0.9), transparent 42%);
+      radial-gradient(
+        60rem 34rem at 94% -14%,
+        hsl(var(--grad-blush) / 0.45),
+        transparent 56%
+      ),
+      radial-gradient(
+        50rem 30rem at 52% 2%,
+        hsl(var(--grad-mist) / 0.4),
+        transparent 60%
+      ),
+      linear-gradient(180deg, hsl(var(--grad-cream) / 0.85), transparent 46%);
   }
 
-  /* Card surface: a barely-there vertical gradient so cards read as raised
-     paper rather than flat fills. */
+  /*
+    Every box carries a gold hairline. Done with an inset ring rather than a
+    border so it sits inside the radius and doesn't fight the layout's box
+    sizing, and so the card's own border stays available for state changes.
+  */
+  .box-gold {
+    border-color: hsl(var(--gold-hairline) / 0.85);
+    box-shadow:
+      inset 0 0 0 1px hsl(var(--gold-hairline) / 0.35),
+      0 1px 2px hsl(224 40% 20% / 0.04),
+      0 10px 28px -18px hsl(224 40% 20% / 0.18);
+  }
+
+  .box-gold-raised {
+    border-color: hsl(var(--gold) / 0.55);
+    box-shadow:
+      inset 0 0 0 1px hsl(var(--gold) / 0.28),
+      0 1px 2px hsl(38 60% 30% / 0.07),
+      0 14px 34px -18px hsl(38 60% 30% / 0.28);
+  }
+
+  /* Barely-there vertical gradient so cards read as paper, not flat fill. */
   .surface-card {
     background-image: linear-gradient(
       168deg,
       hsl(var(--card)) 0%,
-      hsl(var(--grad-haze) / 0.55) 100%
+      hsl(var(--grad-cream) / 0.7) 100%
     );
   }
 
-  /* Accent rail for high/medium signal, replacing a flat border colour. */
   .rail-high {
-    background-image: linear-gradient(
-      180deg,
-      hsl(var(--grad-violet)),
-      hsl(var(--grad-lilac))
-    );
+    background-image: linear-gradient(180deg, hsl(var(--gold)), hsl(var(--gold-ink)));
   }
 
   .rail-medium {
     background-image: linear-gradient(
       180deg,
-      hsl(var(--grad-periwinkle)),
-      hsl(var(--grad-violet) / 0.7)
+      hsl(var(--signal-medium)),
+      hsl(var(--signal-medium) / 0.5)
     );
   }
 
   /*
-    Gradient text, with the solid colour as the base rather than the fallback.
-    `background-clip: text` requires `color: transparent`, so if the clip isn't
-    supported the heading renders invisible rather than merely un-gradiented.
-    Gating the whole treatment behind @supports means the failure mode is a
-    plain foreground-coloured heading.
+    Gradient text needs `color: transparent`, so an unsupported
+    background-clip renders the heading invisible rather than merely flat.
+    Solid colour is the base; the gradient sits behind @supports.
   */
   .text-gradient {
     color: hsl(var(--foreground));
@@ -182,8 +218,8 @@
     .text-gradient {
       background-image: linear-gradient(
         100deg,
-        hsl(var(--foreground)) 20%,
-        hsl(var(--grad-violet))
+        hsl(var(--foreground)) 28%,
+        hsl(var(--gold-ink))
       );
       -webkit-background-clip: text;
       background-clip: text;
@@ -194,9 +230,9 @@
 
 @layer utilities {
   /*
-    Honour the OS reduced-motion setting globally. The dashboard's motion is
-    decorative (collapsible expand, hover lifts), so removing it costs nothing
-    and leaving it in costs users who asked for less.
+    Honour the OS reduced-motion setting globally. The motion here is
+    decorative, so removing it costs nothing and leaving it in costs users who
+    explicitly asked for less.
   */
   @media (prefers-reduced-motion: reduce) {
     *,

@@ -15,8 +15,8 @@ const badgeVariants = cva(
         // place and can't drift between the timeline and the detail view.
         // High and medium carry a soft gradient wash; low deliberately doesn't,
         // so the eye reads saturation as importance.
-        high: "border-signal-high/25 bg-gradient-to-r from-grad-violet/15 to-grad-lilac/15 text-signal-high",
-        medium: "border-signal-medium/25 bg-gradient-to-r from-grad-periwinkle/15 to-grad-violet/10 text-signal-medium",
+        high: "border-gold/40 bg-gradient-to-r from-grad-champagne/70 to-grad-blush/50 text-signal-high",
+        medium: "border-signal-medium/25 bg-gradient-to-r from-grad-mist/70 to-grad-mist/40 text-signal-medium",
         low: "border-transparent bg-muted text-muted-foreground",
       },
     },

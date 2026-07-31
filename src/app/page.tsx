@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 function StatTile({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <Card className="surface-card p-4 shadow-[0_1px_2px_hsl(var(--grad-violet)/0.05),0_6px_20px_-14px_hsl(var(--grad-violet)/0.25)]">
+    <Card className="box-gold surface-card p-4">
       <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </div>
@@ -25,8 +25,8 @@ function StatTile({ label, value, hint }: { label: string; value: string; hint?:
 
 function EmptyState() {
   return (
-    <Card className="surface-card flex flex-col items-center gap-3 p-12 text-center">
-      <Radio className="h-7 w-7 text-signal-medium" aria-hidden />
+    <Card className="box-gold surface-card flex flex-col items-center gap-3 p-12 text-center">
+      <Radio className="h-7 w-7 text-gold-ink" aria-hidden />
       <div>
         <h2 className="font-semibold">No releases detected yet</h2>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
       <header className="sticky top-0 z-10 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Activity className="h-5 w-5 text-signal-high" aria-hidden />
+            <Activity className="h-5 w-5 text-gold-ink" aria-hidden />
             <span className="font-semibold tracking-tight">Flanker</span>
             <Badge variant="outline" className="hidden font-normal sm:inline-flex">
               Competitive intelligence
