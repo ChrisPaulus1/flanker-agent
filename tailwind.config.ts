@@ -57,10 +57,10 @@ const config: Config = {
         // Gradient stops, exposed to utilities so one-off gradients don't get
         // written with raw hex values.
         grad: {
-          champagne: "hsl(var(--grad-champagne))",
-          blush: "hsl(var(--grad-blush))",
-          mist: "hsl(var(--grad-mist))",
-          cream: "hsl(var(--grad-cream))",
+          violet: "hsl(var(--grad-violet))",
+          lilac: "hsl(var(--grad-lilac))",
+          periwinkle: "hsl(var(--grad-periwinkle))",
+          veil: "hsl(var(--grad-veil))",
         },
       },
       borderRadius: {

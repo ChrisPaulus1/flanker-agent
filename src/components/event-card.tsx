@@ -5,14 +5,14 @@ import { ChevronDown, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { SIGNAL_META, formatDate, relativeTime } from "@/lib/format";
+import { SIGNAL_META, formatDate, formatVersion, relativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { FlankerEventWithApp } from "@/lib/storage/types";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-gold-ink/85">
+      <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-signal-medium">
         {title}
       </h4>
       <div className="text-[15px] leading-relaxed text-foreground/90">{children}</div>
@@ -65,7 +65,7 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
                 {event.app.name}
               </span>
               <span className="rounded-md border border-border/70 bg-secondary/60 px-1.5 py-0.5 font-mono text-xs text-secondary-foreground/80">
-                v{event.version}
+                v{formatVersion(event.version)}
               </span>
               <Badge variant={meta.badge}>{meta.label}</Badge>
             </div>
@@ -112,7 +112,7 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
         <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
           <div className="space-y-6 border-t px-5 pb-6 pl-6 pt-5">
             <Section title="What shipped — release notes, verbatim">
-              <blockquote className="whitespace-pre-wrap rounded-lg border-l-2 border-l-gold/50 bg-muted/60 px-3.5 py-3 font-mono text-[13px] leading-relaxed text-muted-foreground">
+              <blockquote className="whitespace-pre-wrap rounded-lg border-l-2 border-l-primary/35 bg-muted/60 px-3.5 py-3 font-mono text-[13px] leading-relaxed text-muted-foreground">
                 {event.releaseNotes?.trim() || "The developer published no release notes for this version."}
               </blockquote>
             </Section>
@@ -161,7 +161,7 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
               )}
             </Section>
 
-            <div className="rounded-xl border border-border/70 bg-gradient-to-br from-grad-champagne/40 to-grad-blush/25 p-4">
+            <div className="rounded-xl border border-border/70 bg-gradient-to-br from-grad-violet/25 to-grad-lilac/20 p-4">
               <h4 className="mb-3 text-sm font-semibold tracking-tight">Counter-PRD</h4>
               <dl className="space-y-3">
                 {[

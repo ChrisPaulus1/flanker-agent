@@ -4,6 +4,7 @@ import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { formatVersion } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { TrackedApp } from "@/lib/storage/types";
 
@@ -15,11 +16,11 @@ function AppChip({ app }: { app: TrackedApp }) {
       href={`https://apps.apple.com/us/app/id${app.itunesTrackId}`}
       target="_blank"
       rel="noreferrer"
-      className="group inline-flex items-center gap-2 rounded-full border border-gold-hairline/60 bg-gradient-to-r from-grad-cream/80 to-grad-champagne/40 px-3 py-1.5 text-sm transition-colors hover:border-gold/70 hover:to-grad-champagne/70"
+      className="group inline-flex items-center gap-2 rounded-full border border-gold-hairline/60 bg-gradient-to-r from-grad-veil to-grad-violet/35 px-3 py-1.5 text-sm transition-colors hover:border-gold/70 hover:to-grad-violet/60"
     >
       <span className="font-medium text-foreground/90">{app.name}</span>
       <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
-        {app.lastSeenVersion ? `v${app.lastSeenVersion}` : "not yet seen"}
+        {app.lastSeenVersion ? `v${formatVersion(app.lastSeenVersion)}` : "not yet seen"}
       </span>
     </a>
   );
@@ -45,11 +46,11 @@ export function TrackedApps({ apps }: { apps: TrackedApp[] }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Apps tracked
-            <span className="ml-2 font-mono text-xs tabular-nums text-gold-ink">{apps.length}</span>
+            <span className="ml-2 font-mono text-xs tabular-nums text-primary">{apps.length}</span>
           </div>
 
           {hidden.length > 0 && (
-            <CollapsibleTrigger className="inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-gold-ink transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <CollapsibleTrigger className="inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {open ? "See less" : `See ${hidden.length} more`}
               <ChevronDown
                 className={cn("h-3.5 w-3.5 transition-transform duration-200", open && "rotate-180")}

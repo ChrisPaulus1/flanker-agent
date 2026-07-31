@@ -79,20 +79,42 @@ grant select, insert, update, delete on public.tracked_apps to service_role;
 grant select, insert, update, delete on public.events       to service_role;
 
 -- ---------------------------------------------------------------------------
--- Seed the tracked competitor set. Re-running updates the name/query but never
+-- Seed the tracked competitor set (30 apps, produced by scripts/discover-apps.ts). Re-running updates the name/query but never
 -- clobbers last_seen_version, so seeding can't accidentally replay alerts.
 -- ---------------------------------------------------------------------------
 alter table public.tracked_apps alter column hn_query drop not null;
 
 insert into public.tracked_apps (itunes_track_id, name, hn_query) values
-  (836215269,  'Chime',     'Chime'),
-  (932493382,  'Revolut',   'Revolut'),
-  (938003185,  'Robinhood', 'Robinhood'),
-  (711923939,  'Cash App',  'Cash App'),
-  (1517676784, 'Varo Bank', 'Varo'),
-  -- NULL: "Current" matches 18k unrelated HN stories, so HN is skipped for it.
-  (1077366211, 'Current',   null),
-  (1204112719, 'Public',    'Public.com')
+  (836215269,  'Chime',       'Chime'),
+  (932493382,  'Revolut',     'Revolut'),
+  (1517676784, 'Varo Bank',   'Varo'),
+  (1077366211, 'Current',     null),
+  (1191985736, 'SoFi',        'SoFi'),
+  (1052238659, 'Monzo',       'Monzo'),
+  (956857223,  'N26',         'N26'),
+  (514374715,  'Ally',        'Ally Bank'),
+  (1193801909, 'Dave',        null),
+  (1057771088, 'Albert',      null),
+  (1064677082, 'MoneyLion',   'MoneyLion'),
+  (723815926,  'EarnIn',      'EarnIn'),
+  (1341884073, 'Brigit',      null),
+  (711923939,  'Cash App',    'Cash App'),
+  (351727428,  'Venmo',       'Venmo'),
+  (283646709,  'PayPal',      'PayPal'),
+  (612261027,  'Wise',        null),
+  (674258465,  'Remitly',     'Remitly'),
+  (1115120118, 'Klarna',      'Klarna'),
+  (967040652,  'Affirm',      null),
+  (1401019110, 'Afterpay',    'Afterpay'),
+  (938003185,  'Robinhood',   'Robinhood'),
+  (1204112719, 'Public',      'Public.com'),
+  (883324671,  'Acorns',      'Acorns'),
+  (393156562,  'Betterment',  'Betterment'),
+  (816020992,  'Wealthfront', 'Wealthfront'),
+  (1179213067, 'Webull',      'Webull'),
+  (886427730,  'Coinbase',    'Coinbase'),
+  (1628197245, 'Ramp',        null),
+  (1472905508, 'Brex',        'Brex')
 on conflict (itunes_track_id) do update
   set name = excluded.name,
       hn_query = excluded.hn_query;

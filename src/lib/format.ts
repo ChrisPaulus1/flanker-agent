@@ -67,3 +67,14 @@ export function relativeTime(iso: string | null, now: Date = new Date()): string
   const months = Math.floor(days / 30);
   return months < 12 ? `${months}mo ago` : `${Math.floor(months / 12)}y ago`;
 }
+
+/**
+ * Render a version with exactly one leading "v".
+ *
+ * Some publishers ship a version string that already starts with one — eToro's
+ * is literally "v651.1310.0" — which rendered as "vv651.1310.0".
+ */
+export function formatVersion(version: string): string {
+  const trimmed = version.trim();
+  return trimmed.replace(/^v/i, "");
+}

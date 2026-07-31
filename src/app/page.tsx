@@ -27,7 +27,7 @@ function StatTile({ label, value, hint }: { label: string; value: string; hint?:
 function EmptyState() {
   return (
     <Card className="box-gold surface-card flex flex-col items-center gap-3 p-12 text-center">
-      <Radio className="h-7 w-7 text-gold-ink" aria-hidden />
+      <Radio className="h-7 w-7 text-primary" aria-hidden />
       <div>
         <h2 className="font-semibold">No releases detected yet</h2>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
       <header className="sticky top-0 z-10 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Activity className="h-5 w-5 text-gold-ink" aria-hidden />
+            <Activity className="h-5 w-5 text-primary" aria-hidden />
             <span className="font-semibold tracking-tight">Flanker</span>
             <Badge variant="outline" className="hidden font-normal sm:inline-flex">
               Competitive intelligence
@@ -89,11 +89,18 @@ export default async function DashboardPage() {
       </header>
 
       <main className="container py-8 md:py-12">
-        <div className="hero-glow max-w-2xl">
-          <h1 className="text-gradient text-2xl font-semibold tracking-tight md:text-3xl">Release timeline</h1>
-          <p className="mt-2 text-muted-foreground">
-            Every App Store release detected across the tracked FinTech set, reverse-engineered into
-            a strategic read and a counter-PRD. Expand any card for the full analysis.
+        <div className="max-w-3xl">
+          {/* The glow is scoped to the heading rather than the whole block —
+              across the description it washed out the body copy and made the
+              paragraph look like it was floating on the gradient. */}
+          <div className="hero-glow inline-block">
+            <h1 className="text-gradient text-3xl font-semibold tracking-tight md:text-4xl">
+              Release timeline
+            </h1>
+          </div>
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+            Every App Store release across {apps.length} tracked FinTech competitors,
+            reverse-engineered into a strategic read and a one-page counter-PRD.
           </p>
         </div>
 
