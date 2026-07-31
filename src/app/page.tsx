@@ -30,9 +30,8 @@ export default async function HomePage() {
         <h1 className="text-gradient text-4xl font-semibold tracking-tight md:text-5xl">Flanker</h1>
 
         {/*
-          Two emphases only: the scale, which is the credibility claim, and the
-          output, which is the part that isn't just a changelog reader. Bolding
-          four phrases out of thirty words emphasised nothing.
+          One emphasis only: the scale, which is the credibility claim.
+          Bolding several phrases out of thirty words emphasised nothing.
         */}
         <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl md:leading-relaxed">
           {/* Singular when the count is unavailable, or this reads "any iOS apps". */}
@@ -41,8 +40,7 @@ export default async function HomePage() {
             {total && total > 0 ? `${total.toLocaleString()} iOS apps` : "any iOS app"}
           </span>{" "}
           to see exactly what companies are shipping. Flanker decodes product updates into
-          strategic insights and{" "}
-          <span className="font-semibold text-foreground">actionable counter-PRDs</span>.
+          strategic insights and actionable counter-PRDs.
         </p>
 
         <div className="mx-auto mt-9 max-w-xl">
