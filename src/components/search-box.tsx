@@ -128,7 +128,7 @@ export function SearchBox({ autoFocus = false }: { autoFocus?: boolean }) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             onFocus={() => results.length > 0 && setOpen(true)}
-            placeholder="Search any App Store app…"
+            placeholder="Search any iOS app…"
             aria-label="Search apps"
             role="combobox"
             aria-expanded={open}

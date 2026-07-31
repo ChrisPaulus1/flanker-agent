@@ -35,10 +35,10 @@ export default async function HomePage() {
           product, so it's sized to be read comfortably rather than scanned.
         */}
         <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl md:leading-relaxed">
-          {/* Singular when the count is unavailable, or this reads "any App Store apps". */}
+          {/* Singular when the count is unavailable, or this reads "any iOS apps". */}
           Search{" "}
           <span className="font-semibold text-foreground">
-            {total && total > 0 ? `${total.toLocaleString()} App Store apps` : "any App Store app"}
+            {total && total > 0 ? `${total.toLocaleString()} iOS apps` : "any iOS app"}
           </span>{" "}
           to see <span className="font-semibold text-foreground">exactly what companies are shipping</span>.
           Flanker decodes product updates into{" "}

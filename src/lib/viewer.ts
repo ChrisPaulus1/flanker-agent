@@ -95,6 +95,16 @@ export function useViewer(): [ViewerProduct | null, (v: ViewerProduct | null) =>
  * per viewer permutation would multiply the events table by the number of
  * distinct readers for no benefit the browser can't provide.
  */
+/**
+ * Bump when the prompt or output shape changes.
+ *
+ * Without this, a counter-PRD generated under older logic is served from the
+ * browser forever — a fix ships, the page still shows the old answer, and it
+ * looks like the fix didn't work. That happened with the relationship
+ * classification: pairs already cached kept rendering as competitors.
+ */
+const PRD_LOGIC_VERSION = "v2";
+
 export function counterPrdCacheKey(trackId: number, version: string, viewerId: number): string {
-  return `flanker.prd.${trackId}.${version}.${viewerId}`;
+  return `flanker.prd.${PRD_LOGIC_VERSION}.${trackId}.${version}.${viewerId}`;
 }

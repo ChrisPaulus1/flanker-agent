@@ -43,7 +43,16 @@ export function AdviceSection({
     if (!cacheKey) return;
     try {
       const raw = window.localStorage.getItem(cacheKey);
-      if (raw) setGenerated(JSON.parse(raw) as CounterPrd);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as CounterPrd;
+      // Belt and braces alongside the versioned key: an entry written before
+      // `relationship` existed can't be rendered correctly, so regenerate
+      // rather than show it under a heading that may be wrong.
+      if (!parsed?.relationship) {
+        window.localStorage.removeItem(cacheKey);
+        return;
+      }
+      setGenerated(parsed);
     } catch {
       /* an unreadable cache entry isn't worth surfacing */
     }
