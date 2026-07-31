@@ -29,21 +29,31 @@ export default async function HomePage() {
         */}
         <h1 className="text-gradient text-4xl font-semibold tracking-tight md:text-5xl">Flanker</h1>
 
-        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+        {/*
+          Set larger than typical body copy and with the load-bearing phrases at
+          full contrast. This is the one paragraph that has to explain the whole
+          product, so it's sized to be read comfortably rather than scanned.
+        */}
+        <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl md:leading-relaxed">
           {/* Singular when the count is unavailable, or this reads "any App Store apps". */}
-          Search {total && total > 0 ? `${total.toLocaleString()} App Store apps` : "any App Store app"}{" "}
-          and find out what a company actually shipped. Flanker turns release notes into a strategic
-          read, so real launches stand out from routine maintenance.
+          Search{" "}
+          <span className="font-semibold text-foreground">
+            {total && total > 0 ? `${total.toLocaleString()} App Store apps` : "any App Store app"}
+          </span>{" "}
+          to see <span className="font-semibold text-foreground">exactly what companies are shipping</span>.
+          Flanker decodes product updates into{" "}
+          <span className="font-semibold text-foreground">strategic insights</span> and{" "}
+          <span className="font-semibold text-foreground">actionable counter-PRDs</span>.
         </p>
 
-        <div className="mx-auto mt-8 max-w-xl">
+        <div className="mx-auto mt-9 max-w-xl">
           <SearchBox autoFocus />
         </div>
 
-        <p className="mt-4 text-xs text-muted-foreground">
-          Try <span className="font-medium text-foreground">Snapchat</span>,{" "}
-          <span className="font-medium text-foreground">Spotify</span> or{" "}
-          <span className="font-medium text-foreground">Robinhood</span>
+        <p className="mt-5 text-sm text-muted-foreground">
+          Try <span className="font-semibold text-foreground">Snapchat</span>,{" "}
+          <span className="font-semibold text-foreground">Spotify</span> or{" "}
+          <span className="font-semibold text-foreground">Robinhood</span>
         </p>
       </div>
     </SiteShell>

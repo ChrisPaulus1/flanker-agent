@@ -169,12 +169,7 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
               appName={event.app.name}
             />
 
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4 text-xs text-muted-foreground">
-              <span>
-                Analyzed by{" "}
-                <span className="font-mono">{event.model ?? "an unrecorded model"}</span> · inferred
-                from public release notes and may be wrong
-              </span>
+            <div className="flex flex-wrap items-center justify-end gap-2 border-t pt-4 text-xs text-muted-foreground">
               <a
                 href={`https://apps.apple.com/us/app/id${event.app.itunesTrackId}`}
                 target="_blank"
