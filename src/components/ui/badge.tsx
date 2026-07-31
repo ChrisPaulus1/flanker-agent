@@ -15,8 +15,8 @@ const badgeVariants = cva(
         // place and can't drift between the timeline and the detail view.
         // High and medium carry a tinted fill and a coloured edge; low is a
         // flat grey, so the presence of colour alone signals importance.
-        high: "border-flare/35 bg-flare/10 text-signal-high",
-        medium: "border-cobalt/30 bg-cobalt/10 text-signal-medium",
+        high: "border-gold/45 bg-gold/[0.12] text-signal-high",
+        medium: "border-violet/35 bg-violet/[0.12] text-signal-medium",
         low: "border-transparent bg-muted text-muted-foreground",
       },
     },

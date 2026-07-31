@@ -49,19 +49,23 @@ const config: Config = {
         },
         // Two accents, two weights each. The bright value marks; the `ink`
         // value is the only one dark enough to set text on white.
+        violet: {
+          DEFAULT: "hsl(var(--violet))",
+          ink: "hsl(var(--violet-ink))",
+        },
         cobalt: {
           DEFAULT: "hsl(var(--cobalt))",
           ink: "hsl(var(--cobalt-ink))",
         },
-        flare: {
-          DEFAULT: "hsl(var(--signal-orange))",
-          ink: "hsl(var(--signal-orange-ink))",
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          ink: "hsl(var(--gold-ink))",
         },
-        // Structural tints for the page wash and card surfaces.
-        tint: {
-          cool: "hsl(var(--tint-cool))",
-          warm: "hsl(var(--tint-warm))",
-          veil: "hsl(var(--tint-veil))",
+        // The three bands of the page gradient.
+        wash: {
+          top: "hsl(var(--wash-top))",
+          mid: "hsl(var(--wash-mid))",
+          bottom: "hsl(var(--wash-bottom))",
         },
       },
       borderRadius: {
