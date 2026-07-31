@@ -6,7 +6,9 @@ with market-reaction context — delivered by email.
 
 Built with Next.js, Supabase, Gemini, Vercel Cron & Resend.
 
-<!-- Add a screenshot of the dashboard here once deployed. -->
+**Live dashboard: https://flanker-agent.vercel.app**
+
+<!-- Add a screenshot of the dashboard here. -->
 
 ## What it does
 
