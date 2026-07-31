@@ -137,8 +137,8 @@ export function AdviceSection({
         <>
           {unrelated && viewer && (
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-              {appName} isn&apos;t a competitor to {viewer.name}. There&apos;s no threat to answer
-              here, so this is the mechanic worth stealing rather than a feature to match.
+              {appName} isn&apos;t a competitor to {viewer.name}. What follows adapts the
+              underlying mechanic to {viewer.name} rather than matching the feature itself.
             </p>
           )}
           <dl className="space-y-3">
