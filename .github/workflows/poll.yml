@@ -39,6 +39,13 @@ jobs:
             --header "Authorization: Bearer ${CRON_SECRET}" \
             "${DEPLOYMENT_URL%/}/api/cron/poll" > response.json
 
+          # Detection sweep first: it costs no model budget, and analysing a
+          # release we haven't observed yet is pointless.
+          curl --silent --show-error --fail-with-body --max-time 300 \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "${DEPLOYMENT_URL%/}/api/cron/watch" > watch.json || true
+          jq -r '"watch: \(.appsChecked // 0) apps, \(.newReleases // 0) new releases"' watch.json 2>/dev/null || true
+
           jq -r '"summary: \(.summary | tostring)"' response.json
           jq -r '.results[] | "  \(.app)  \(.status)  \(.version // "")\(if .detail then "  — " + .detail else "" end)"' response.json
 

@@ -3,6 +3,8 @@ import { isAuthorizedCronRequest } from "@/lib/auth";
 import { config } from "@/lib/config";
 import { createPipelineDeps } from "@/lib/pipeline/factory";
 import { runPipeline } from "@/lib/pipeline/run";
+import { SupabaseFlankerRepo } from "@/lib/storage/repo";
+import { budgetState, pacificDayStart } from "@/lib/pipeline/budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,6 +32,28 @@ async function handle(request: Request) {
   const startedAt = Date.now();
 
   try {
+    /*
+      Scheduled work yields to visitors.
+
+      This job and the page share one daily quota, and without a check the
+      background run could spend all of it before anyone opened the site —
+      leaving live visitors on "analysis paused" because a cron drained the
+      budget analysing apps nobody had asked for. It stops at the scheduled
+      ceiling and leaves the remainder for interactive requests.
+    */
+    const repo = new SupabaseFlankerRepo();
+    const usedToday = await repo.countEventsSince(pacificDayStart().toISOString());
+    const budget = budgetState(usedToday, new Date(), "scheduled");
+
+    if (budget.exhausted) {
+      console.log(`[flanker] scheduled budget spent (${usedToday} today), yielding to visitors`);
+      return NextResponse.json({
+        ok: true,
+        skipped: "scheduled-budget-exhausted",
+        budget,
+      });
+    }
+
     const results = await runPipeline(createPipelineDeps());
     const durationMs = Date.now() - startedAt;
 

@@ -90,3 +90,92 @@ export async function fetchLatestRelease(
   const payload = JSON.parse(await response.text()) as unknown;
   return mapLookupResponse(payload, trackId);
 }
+
+// ---------------------------------------------------------------------------
+// Batched lookup.
+//
+// `/lookup` accepts a comma-separated list of ids, which is what makes watching
+// a large catalogue affordable: 2,000 apps cost 10 requests rather than 2,000,
+// and none of them cost an LLM call. Detection and analysis are separate
+// budgets, and this is the cheap one.
+// ---------------------------------------------------------------------------
+
+/** Apple accepts more, but 200 keeps the URL well inside safe length limits. */
+export const ITUNES_LOOKUP_BATCH_SIZE = 200;
+
+export function chunkTrackIds(
+  trackIds: number[],
+  size: number = ITUNES_LOOKUP_BATCH_SIZE,
+): number[][] {
+  // Duplicates would consume slots in a capped batch and return one merged
+  // result anyway, so they're collapsed before chunking.
+  const unique = [...new Set(trackIds)];
+  const batches: number[][] = [];
+  for (let i = 0; i < unique.length; i += size) {
+    batches.push(unique.slice(i, i + size));
+  }
+  return batches;
+}
+
+/**
+ * Map a multi-id lookup payload to releases, keyed by track id.
+ *
+ * Unlike the single lookup this never throws on an empty result: a batch
+ * legitimately comes back short when ids in it have been delisted from the
+ * store, and one dead app must not fail the other 199.
+ */
+export function mapBatchLookupResponse(payload: unknown): Map<number, AppRelease> {
+  const out = new Map<number, AppRelease>();
+  const results = (payload as { results?: unknown[] } | null)?.results;
+  if (!Array.isArray(results)) return out;
+
+  for (const raw of results) {
+    const result = raw as Record<string, unknown>;
+    const trackId = typeof result.trackId === "number" ? result.trackId : null;
+    if (trackId === null) continue;
+
+    // A blank version would be stored as its own release and never match
+    // again, leaving a permanent phantom entry in that app's history.
+    const version = asString(result.version);
+    if (!version) continue;
+
+    out.set(trackId, {
+      trackId,
+      appName: asString(result.trackName) ?? `App ${trackId}`,
+      version,
+      releaseNotes: asString(result.releaseNotes),
+      releaseDate: asString(result.currentVersionReleaseDate) ?? new Date().toISOString(),
+      trackViewUrl:
+        asString(result.trackViewUrl) ?? `https://apps.apple.com/us/app/id${trackId}`,
+      artworkUrl: asString(result.artworkUrl100) ?? asString(result.artworkUrl512),
+      sellerName: asString(result.sellerName),
+      genre: asString(result.primaryGenreName),
+    });
+  }
+
+  return out;
+}
+
+export async function fetchReleasesForBatch(
+  trackIds: number[],
+  { country = "us", signal }: { country?: string; signal?: AbortSignal } = {},
+): Promise<Map<number, AppRelease>> {
+  if (trackIds.length === 0) return new Map();
+
+  const url =
+    `${LOOKUP_ENDPOINT}?id=${trackIds.join(",")}` +
+    `&country=${encodeURIComponent(country)}&entity=software&limit=${trackIds.length}`;
+
+  const response = await fetch(url, {
+    signal,
+    headers: { accept: "application/json" },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`iTunes batch lookup failed: HTTP ${response.status}`);
+  }
+
+  // The endpoint answers with text/javascript, so response.json() is unreliable.
+  return mapBatchLookupResponse(JSON.parse(await response.text()));
+}

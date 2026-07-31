@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { EventCard } from "@/components/event-card";
+import { DetectedRelease } from "@/components/detected-release";
 import { AnalyzeButton } from "@/components/analyze-button";
 import { SearchBox } from "@/components/search-box";
 import { SiteShell } from "@/components/site-shell";
@@ -8,7 +9,8 @@ import { Card } from "@/components/ui/card";
 import { SupabaseFlankerRepo } from "@/lib/storage/repo";
 import { formatVersion, relativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { CatalogApp, FlankerEventWithApp } from "@/lib/storage/types";
+import { buildHistory, newestUnanalyzed } from "@/lib/pipeline/history";
+import type { CatalogApp, FlankerEventWithApp, ObservedRelease } from "@/lib/storage/types";
 
 export const dynamic = "force-dynamic";
 
@@ -146,6 +148,7 @@ export default async function AppPage({ params }: { params: { trackId: string } 
 
   let app: CatalogApp | null = null;
   let events: FlankerEventWithApp[] = [];
+  let releases: ObservedRelease[] = [];
   let error: string | null = null;
 
   try {
@@ -154,7 +157,10 @@ export default async function AppPage({ params }: { params: { trackId: string } 
 
     if (app) {
       const tracked = await repo.findTrackedByItunesId(trackId);
-      if (tracked) events = await repo.listEventsForApp(tracked.id, 50);
+      [releases, events] = await Promise.all([
+        repo.listReleases(trackId, 25),
+        tracked ? repo.listEventsForApp(tracked.id, 50) : Promise.resolve([]),
+      ]);
     }
   } catch (caught) {
     error = caught instanceof Error ? caught.message : String(caught);
@@ -162,8 +168,10 @@ export default async function AppPage({ params }: { params: { trackId: string } 
 
   if (!app && !error) notFound();
 
+  const history = buildHistory(releases, events);
+  const pendingVersion = newestUnanalyzed(history);
   const highSignal = events.filter((e) => e.signalLevel === "high").length;
-  const lastChecked = events[0]?.detectedAt ?? null;
+  const lastChecked = events[0]?.detectedAt ?? releases[0]?.firstSeenAt ?? null;
 
   return (
     <SiteShell>
@@ -182,13 +190,13 @@ export default async function AppPage({ params }: { params: { trackId: string } 
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
               <StatTile
                 label="Releases detected"
-                value={String(events.length)}
+                value={String(history.length)}
                 accent="indigo"
               />
               <StatTile
                 label="High signal"
                 value={String(highSignal)}
-                hint={events.length > 0 ? `of ${events.length} releases` : undefined}
+                hint={history.length > 1 ? `of ${history.length} releases` : undefined}
                 accent="tangerine"
               />
               <StatTile
@@ -203,10 +211,27 @@ export default async function AppPage({ params }: { params: { trackId: string } 
             </div>
 
             <div className="mt-8 space-y-3">
-              {events.length === 0 ? (
+              {history.length === 0 ? (
                 <NoAnalysisYet app={app} />
               ) : (
-                events.map((event) => <EventCard key={event.id} event={event} />)
+                history.map((entry) =>
+                  entry.kind === "analyzed" ? (
+                    <EventCard key={entry.event.id} event={entry.event} />
+                  ) : (
+                    <DetectedRelease
+                      key={`detected-${entry.version}`}
+                      trackId={app!.itunesTrackId}
+                      appName={app!.name}
+                      version={entry.version}
+                      releaseDate={entry.releaseDate}
+                      releaseNotes={entry.releaseNotes}
+                      /* Only the newest gap analyses itself. Backfilling every
+                         gap on a page view would spend the daily budget on
+                         history nobody asked to read. */
+                      autoRun={entry.version === pendingVersion}
+                    />
+                  ),
+                )
               )}
             </div>
           </>

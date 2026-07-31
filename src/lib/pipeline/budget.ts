@@ -29,6 +29,20 @@ export function pacificDayStart(now: Date = new Date()): Date {
   return new Date(midnightPacific.getTime() + offsetMs);
 }
 
+/**
+ * Share of the day reserved for people actually using the site.
+ *
+ * Background work and visitor requests draw on the same quota, so without a
+ * reserve a busy day of scheduled analysis could spend the budget before
+ * anyone opened the page — the background job starving the interactive path,
+ * which is the one that matters. Scheduled callers stop at 75%; visitors keep
+ * the rest.
+ */
+export const INTERACTIVE_RESERVE = 0.25;
+
+/** Who is asking. Scheduled work yields to visitors, not the other way round. */
+export type BudgetCaller = "interactive" | "scheduled";
+
 export interface BudgetState {
   used: number;
   limit: number;
@@ -37,15 +51,24 @@ export interface BudgetState {
   resetsAt: string;
 }
 
-export function budgetState(used: number, now: Date = new Date()): BudgetState {
-  const remaining = Math.max(0, DAILY_GENERATION_BUDGET - used);
+export function budgetState(
+  used: number,
+  now: Date = new Date(),
+  caller: BudgetCaller = "interactive",
+): BudgetState {
+  const ceiling =
+    caller === "scheduled"
+      ? Math.floor(DAILY_GENERATION_BUDGET * (1 - INTERACTIVE_RESERVE))
+      : DAILY_GENERATION_BUDGET;
+
+  const remaining = Math.max(0, ceiling - used);
 
   const reset = pacificDayStart(now);
   reset.setDate(reset.getDate() + 1);
 
   return {
     used,
-    limit: DAILY_GENERATION_BUDGET,
+    limit: ceiling,
     remaining,
     exhausted: remaining === 0,
     resetsAt: reset.toISOString(),

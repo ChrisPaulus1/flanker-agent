@@ -118,3 +118,35 @@ insert into public.tracked_apps (itunes_track_id, name, hn_query) values
 on conflict (itunes_track_id) do update
   set name = excluded.name,
       hn_query = excluded.hn_query;
+
+-- ---------------------------------------------------------------------------
+-- releases: every version Flanker has observed, whether or not it was analysed.
+--
+-- This is the decoupling that lets the catalogue be watched without spending
+-- LLM budget. Detection is a batched iTunes lookup (200 IDs per request, no
+-- key, no model call); analysis is a Gemini call that happens on demand. Keyed
+-- by itunes_track_id rather than tracked_apps.id on purpose: recording a
+-- release must not require an app to have been analysed first.
+--
+-- History cannot be backfilled — Apple's public API exposes only the current
+-- version — so this table only ever grows forward from the moment an app
+-- enters the watch set.
+-- ---------------------------------------------------------------------------
+create table if not exists public.releases (
+  id              uuid primary key default gen_random_uuid(),
+  itunes_track_id bigint      not null,
+  version         text        not null,
+  release_notes   text,
+  release_date    timestamptz,
+  first_seen_at   timestamptz not null default now(),
+
+  -- The sweep re-reads the same current version every run; this makes
+  -- "record what you see" idempotent without a read-before-write.
+  constraint releases_track_version_unique unique (itunes_track_id, version)
+);
+
+create index if not exists releases_track_date_idx
+  on public.releases (itunes_track_id, release_date desc nulls last);
+
+alter table public.releases enable row level security;
+grant select, insert, update, delete on public.releases to service_role;

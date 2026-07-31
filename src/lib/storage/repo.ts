@@ -8,6 +8,7 @@ import type {
   FlankerEventWithApp,
   FlankerRepo,
   NewEventInput,
+  ObservedRelease,
   TrackedApp,
 } from "@/lib/storage/types";
 
@@ -289,6 +290,68 @@ export class SupabaseFlankerRepo implements FlankerRepo {
         },
       };
     });
+  }
+
+  /**
+   * Record observed versions in bulk.
+   *
+   * `ignoreDuplicates` leans on the unique (itunes_track_id, version)
+   * constraint so the sweep can blindly write whatever it sees: re-reading the
+   * same current version every run is the common case, and this makes that a
+   * no-op without a read-before-write round trip.
+   */
+  async recordReleases(releases: Omit<ObservedRelease, "firstSeenAt">[]): Promise<number> {
+    if (releases.length === 0) return 0;
+
+    const { data, error } = await this.db
+      .from("releases")
+      .upsert(
+        releases.map((r) => ({
+          itunes_track_id: r.itunesTrackId,
+          version: r.version,
+          release_notes: r.releaseNotes,
+          release_date: r.releaseDate,
+        })),
+        { onConflict: "itunes_track_id,version", ignoreDuplicates: true },
+      )
+      .select("id");
+
+    if (error) fail("recordReleases", error);
+    return data?.length ?? 0;
+  }
+
+  async listPopularTrackIds(limit: number): Promise<number[]> {
+    const { data, error } = await this.db
+      .from("catalog_apps")
+      .select("itunes_track_id")
+      // Chart-ranked apps first; unranked ones have no popularity signal and
+      // are the long tail nobody searches for.
+      .order("popularity_rank", { ascending: true, nullsFirst: false })
+      .limit(limit);
+
+    if (error) fail("listPopularTrackIds", error);
+    return (data ?? []).map((row) => Number(row.itunes_track_id));
+  }
+
+  async listReleases(itunesTrackId: number, limit = 20): Promise<ObservedRelease[]> {
+    const { data, error } = await this.db
+      .from("releases")
+      .select("itunes_track_id, version, release_notes, release_date, first_seen_at")
+      .eq("itunes_track_id", itunesTrackId)
+      // Nulls last so an app with no release date doesn't outrank dated ones.
+      .order("release_date", { ascending: false, nullsFirst: false })
+      .order("first_seen_at", { ascending: false })
+      .limit(limit);
+
+    if (error) fail("listReleases", error);
+
+    return (data ?? []).map((row) => ({
+      itunesTrackId: Number(row.itunes_track_id),
+      version: row.version as string,
+      releaseNotes: (row.release_notes as string | null) ?? null,
+      releaseDate: (row.release_date as string | null) ?? null,
+      firstSeenAt: row.first_seen_at as string,
+    }));
   }
 
   async setLastSeenVersion(appId: string, version: string | null): Promise<void> {

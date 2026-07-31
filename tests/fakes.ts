@@ -7,6 +7,7 @@ import type {
   FlankerEventWithApp,
   FlankerRepo,
   NewEventInput,
+  ObservedRelease,
   TrackedApp,
 } from "@/lib/storage/types";
 import type {
@@ -224,6 +225,34 @@ export class FakeRepo implements FlankerRepo {
 
   async countCatalogApps(): Promise<number> {
     return this.catalog.length;
+  }
+
+  releases: ObservedRelease[] = [];
+
+  async recordReleases(input: Omit<ObservedRelease, "firstSeenAt">[]): Promise<number> {
+    let inserted = 0;
+    for (const r of input) {
+      const exists = this.releases.some(
+        (x) => x.itunesTrackId === r.itunesTrackId && x.version === r.version,
+      );
+      // Mirrors the unique (itunes_track_id, version) constraint, so tests
+      // exercise the real guarantee rather than a permissive stand-in.
+      if (exists) continue;
+      this.releases.push({ ...r, firstSeenAt: "2026-07-31T00:00:00.000Z" });
+      inserted++;
+    }
+    return inserted;
+  }
+
+  async listPopularTrackIds(limit: number): Promise<number[]> {
+    return this.apps.slice(0, limit).map((a) => a.itunesTrackId);
+  }
+
+  async listReleases(itunesTrackId: number, limit = 20): Promise<ObservedRelease[]> {
+    return this.releases
+      .filter((r) => r.itunesTrackId === itunesTrackId)
+      .sort((a, b) => (b.releaseDate ?? "").localeCompare(a.releaseDate ?? ""))
+      .slice(0, limit);
   }
 
   async deleteEvent(appId: string, version: string): Promise<boolean> {

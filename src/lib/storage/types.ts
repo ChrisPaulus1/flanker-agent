@@ -12,6 +12,21 @@ export interface TrackedApp {
   enabled: boolean;
 }
 
+/**
+ * A version Flanker has observed, analysed or not.
+ *
+ * Detection is cheap and unbounded; analysis is expensive and lazy. Keeping
+ * them in separate tables is what lets the catalogue be watched without
+ * spending model budget on apps nobody has opened.
+ */
+export interface ObservedRelease {
+  itunesTrackId: number;
+  version: string;
+  releaseNotes: string | null;
+  releaseDate: string | null;
+  firstSeenAt: string;
+}
+
 export interface FlankerEvent {
   id: string;
   appId: string;
@@ -93,6 +108,12 @@ export interface FlankerRepo {
    * would short-circuit the run as already-processed.
    */
   deleteEvent(appId: string, version: string): Promise<boolean>;
+  /** Bulk-record observed versions. Existing (track, version) pairs are left alone. */
+  recordReleases(releases: Omit<ObservedRelease, "firstSeenAt">[]): Promise<number>;
+  /** Track IDs of the most popular catalogue apps — the watch set. */
+  listPopularTrackIds(limit: number): Promise<number[]>;
+  /** Observed history for one app, newest release first. */
+  listReleases(itunesTrackId: number, limit?: number): Promise<ObservedRelease[]>;
 
   // --- catalog ---------------------------------------------------------
   /** Bulk insert/update. Chunked internally; safe to re-run. */
