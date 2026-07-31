@@ -18,6 +18,11 @@ async function main() {
     console.log(`  released: ${release.releaseDate}`);
     console.log(`  notes   : ${(release.releaseNotes ?? "<none>").slice(0, 120).replace(/\n/g, " ")}`);
 
+    if (!app.hnQuery) {
+      console.log("  hn query: <skipped — brand name too generic to search>");
+      continue;
+    }
+
     const reaction = await fetchReaction(app.hnQuery, { sinceDaysAgo: 180 });
     console.log(`  hn query: ${app.hnQuery}`);
     console.log(`  hn hits : ${reaction.stories.length} stories, ${reaction.comments.length} comments`);

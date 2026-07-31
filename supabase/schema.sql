@@ -12,7 +12,9 @@ create table if not exists public.tracked_apps (
   name              text        not null,
   -- Plain phrase, not an Algolia boolean expression: the HN index has no
   -- AND/OR support and would match the operators as literal words.
-  hn_query          text        not null,
+  -- NULL means the brand name is too generic to search usefully (see "Current",
+  -- whose name returns 18k unrelated hits) and HN is skipped for that app.
+  hn_query          text,
   -- NULL means "never checked" — the backfill treats that as the bootstrap
   -- case rather than as a new release.
   last_seen_version text,
@@ -80,11 +82,17 @@ grant select, insert, update, delete on public.events       to service_role;
 -- Seed the tracked competitor set. Re-running updates the name/query but never
 -- clobbers last_seen_version, so seeding can't accidentally replay alerts.
 -- ---------------------------------------------------------------------------
+alter table public.tracked_apps alter column hn_query drop not null;
+
 insert into public.tracked_apps (itunes_track_id, name, hn_query) values
-  (836215269, 'Chime',     'Chime'),
-  (932493382, 'Revolut',   'Revolut'),
-  (938003185, 'Robinhood', 'Robinhood'),
-  (711923939, 'Cash App',  'Cash App')
+  (836215269,  'Chime',     'Chime'),
+  (932493382,  'Revolut',   'Revolut'),
+  (938003185,  'Robinhood', 'Robinhood'),
+  (711923939,  'Cash App',  'Cash App'),
+  (1517676784, 'Varo Bank', 'Varo'),
+  -- NULL: "Current" matches 18k unrelated HN stories, so HN is skipped for it.
+  (1077366211, 'Current',   null),
+  (1204112719, 'Public',    'Public.com')
 on conflict (itunes_track_id) do update
   set name = excluded.name,
       hn_query = excluded.hn_query;

@@ -5,7 +5,8 @@ export interface TrackedApp {
   id: string;
   itunesTrackId: number;
   name: string;
-  hnQuery: string;
+  /** Null when the brand name is too generic to search HN reliably. */
+  hnQuery: string | null;
   lastSeenVersion: string | null;
   lastCheckedAt: string | null;
   enabled: boolean;

@@ -209,6 +209,18 @@ describe("runPipelineForApp", () => {
       expect(h.repo.apps[0].lastSeenVersion).toBe("5.337.0");
     });
 
+    it("skips HN entirely when the app has no usable query", async () => {
+      // Some brand names ("Current") are too generic to search — the honest
+      // move is to skip, not to summarise 18k unrelated stories.
+      const h = harness({ app: makeApp({ hnQuery: null }) });
+
+      const result = await runPipelineForApp(h.app, h.deps);
+
+      expect(result.status).toBe("processed");
+      expect(h.reactions.calls).toBe(0);
+      expect(h.repo.events[0].hnStoryRefs).toEqual([]);
+    });
+
     it("stores no summary when there was no discussion to summarise", async () => {
       const h = harness();
       await runPipelineForApp(h.app, h.deps);

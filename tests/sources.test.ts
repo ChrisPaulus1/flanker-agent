@@ -117,7 +117,7 @@ describe("SEED_APPS", () => {
   // bug caught by a live check, so it gets a guard.
   it("never configures an hnQuery with boolean operators", () => {
     for (const app of SEED_APPS) {
-      expect(app.hnQuery, `${app.name} hnQuery`).not.toMatch(/\b(AND|OR|NOT)\b|[()]/);
+      if (app.hnQuery) expect(app.hnQuery, `${app.name} hnQuery`).not.toMatch(/\b(AND|OR|NOT)\b|[()]/);
     }
   });
 

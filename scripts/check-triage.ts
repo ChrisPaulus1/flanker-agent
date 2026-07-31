@@ -32,10 +32,12 @@ async function main() {
 
     const release = await fetchLatestRelease(app.itunesTrackId);
     let reaction = null;
-    try {
-      reaction = await fetchReaction(app.hnQuery);
-    } catch {
-      reaction = null;
+    if (app.hnQuery) {
+      try {
+        reaction = await fetchReaction(app.hnQuery);
+      } catch {
+        reaction = null;
+      }
     }
 
     console.log(`\n${"=".repeat(70)}`);

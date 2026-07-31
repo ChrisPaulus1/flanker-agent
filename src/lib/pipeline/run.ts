@@ -83,12 +83,16 @@ export async function runPipelineForApp(
       return { app: app.name, status: "already-processed", version };
     }
 
-    // Enrichment: a failure here costs us context, not the alert.
+    // Enrichment: a failure here costs us context, not the alert. A null
+    // hnQuery means this brand can't be searched usefully, so we skip rather
+    // than hand the model noise to summarise.
     let reaction: HnReaction | null = null;
-    try {
-      reaction = await reactions.fetchReaction(app.hnQuery);
-    } catch {
-      reaction = null;
+    if (app.hnQuery) {
+      try {
+        reaction = await reactions.fetchReaction(app.hnQuery);
+      } catch {
+        reaction = null;
+      }
     }
 
     const { output: llmOutput, model } = await triage.triage({ app, release, reaction });
