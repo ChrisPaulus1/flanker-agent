@@ -39,6 +39,7 @@ export function makeRelease(overrides: Partial<AppRelease> = {}): AppRelease {
     trackViewUrl: "https://apps.apple.com/us/app/id836215269",
     artworkUrl: null,
     sellerName: "Chime Financial, Inc.",
+    genre: "Finance",
     ...overrides,
   };
 }
@@ -53,6 +54,7 @@ export function makeTriage(overrides: Partial<LlmTriage> = {}): LlmTriage {
     category_implication:
       "Earned-wage access is becoming a baseline expectation for consumer banking apps rather than a differentiator.",
     counter_prd: {
+      relationship: "direct-competitor" as const,
       problem_statement: "Users bridge shortfalls with high-cost credit.",
       why_now: "Competitor has set a $500 anchor.",
       proposed_feature: "Earned-wage access tied to direct deposit history.",

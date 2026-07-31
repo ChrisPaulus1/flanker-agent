@@ -19,6 +19,9 @@ export interface AppRelease {
   trackViewUrl: string;
   artworkUrl: string | null;
   sellerName: string | null;
+  /** App Store category, e.g. "Finance". Used to judge whether the reader's
+   *  product actually competes with this one. */
+  genre: string | null;
 }
 
 function asString(value: unknown): string | null {
@@ -62,6 +65,7 @@ export function mapLookupResponse(payload: unknown, expectedTrackId: number): Ap
       asString(result.trackViewUrl) ?? `https://apps.apple.com/us/app/id${expectedTrackId}`,
     artworkUrl: asString(result.artworkUrl100) ?? asString(result.artworkUrl512),
     sellerName: asString(result.sellerName),
+    genre: asString(result.primaryGenreName),
   };
 }
 

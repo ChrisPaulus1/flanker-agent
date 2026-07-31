@@ -15,7 +15,21 @@ export type SignalLevel = (typeof SIGNAL_LEVELS)[number];
 /** Release notes are frequently filler, so "low" is the expected common case. */
 export const signalLevelSchema = z.enum(SIGNAL_LEVELS);
 
+/**
+ * How the reader's product relates to the one being analysed.
+ *
+ * Drives what kind of advice is honest. "Counter" presupposes a competitive
+ * threat, and across a general App Store catalogue most pairings have none —
+ * a banking app has no competitive response to a dating app's ranking tab. It
+ * does have something to learn from the mechanic, which is a different and
+ * honestly-labelled output.
+ */
+export const RELATIONSHIPS = ["direct-competitor", "adjacent", "unrelated"] as const;
+export type Relationship = (typeof RELATIONSHIPS)[number];
+
 export const counterPrdSchema = z.object({
+  /** Nullable for counter-PRDs stored before this field existed. */
+  relationship: z.enum(RELATIONSHIPS).nullable(),
   problem_statement: z.string().min(1),
   why_now: z.string().min(1),
   proposed_feature: z.string().min(1),

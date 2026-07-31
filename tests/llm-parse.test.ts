@@ -9,6 +9,7 @@ const valid = {
   hn_reaction_summary: null,
   category_implication: "Earned-wage access is becoming table stakes for consumer banking apps.",
   counter_prd: {
+    relationship: "direct-competitor",
     problem_statement: "Users bridge shortfalls with high-cost credit.",
     why_now: "Competitor has set a $500 anchor.",
     proposed_feature: "Earned-wage access tied to direct deposit history.",
@@ -84,6 +85,7 @@ describe("parseTriageResponse", () => {
       "hn_reaction_summary": null,
       "category_implication": "x",
       "counter_prd": {
+        "relationship": "unrelated",
         "problem_statement": "x",
         "why_now": "x",
         "proposed_feature": "x",

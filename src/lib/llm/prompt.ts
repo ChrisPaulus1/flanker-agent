@@ -58,6 +58,7 @@ function analysisFields(counterPrd: string): string {
 }
 
 const COUNTER_PRD_SHAPE = `{
+    "relationship": "direct-competitor | adjacent | unrelated — see the rubric above",
     "problem_statement": "the user problem the reader's product should address in response",
     "why_now": "why this is worth acting on in this cycle",
     "proposed_feature": "a concrete, buildable response — not 'investigate' or 'monitor'",
@@ -95,7 +96,7 @@ reacted to this update unless the text shows that.`;
 function subject(app: TrackedApp, release: AppRelease): string {
   const notes = release.releaseNotes?.trim();
 
-  return `APP: ${app.name}
+  return `APP: ${app.name}${release.genre ? `\nCATEGORY: ${release.genre}` : ""}
 VERSION: ${release.version}
 RELEASED: ${release.releaseDate}
 APP STORE: ${release.trackViewUrl}
@@ -197,7 +198,34 @@ YOUR TASK
 4. State what this implies for the category generally, in the third person and
    independent of any one company. Name the specific capability or expectation
    that moved.
-5. Draft a one-page counter-PRD for ${viewer.name} specifically. Write it from
+5. First classify how the two products relate, then write the response that
+   classification allows:
+
+   direct-competitor — same category, competing for the same users. Write a
+     genuine counter-PRD: this release moves a bar ${viewer.name} is measured
+     against.
+   adjacent — different category, but overlapping users or a plausible
+     expansion path. Write a counter-PRD framed as staying ahead of an
+     encroachment, not as matching a rival feature-for-feature.
+   unrelated — different category, different users, no competitive overlap.
+     Do NOT pretend there is a threat. Say plainly in problem_statement that
+     ${app.name} does not compete with ${viewer.name}, then treat the release
+     as a transferable mechanic: name the underlying pattern (ranking signal,
+     onboarding trick, retention loop) and propose how ${viewer.name} could
+     apply that pattern to its own users. The proposal must still be concrete
+     and buildable.
+
+   Be honest in this classification. A banking app and a dating app are
+   unrelated however tempting it is to manufacture a rivalry. Most pairings
+   across a general App Store catalogue are unrelated.
+
+   The classification describes how the two PRODUCTS relate, not whether this
+   particular release matters. Two apps in the same category are
+   direct-competitor even when the release is pure filler. If the products
+   genuinely compete but this release warrants no response, keep
+   "direct-competitor", say so in why_now, and propose the smallest sensible
+   defensive action — do not deny the competitive relationship, and never write
+   that they do not compete when you have classified them as competitors. Write it from
    ${viewer.name}'s position — refer to their product by name, and take their
    actual category into account. The proposed feature must be concrete enough
    to hand to an engineer. "Monitor the situation" and "conduct user research"

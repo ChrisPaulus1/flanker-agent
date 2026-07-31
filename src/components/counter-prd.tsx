@@ -105,18 +105,38 @@ export function AdviceSection({
     was never about.
   */
   const prd = generated;
-  const heading = prd && viewer ? `Counter-PRD for ${viewer.name}` : "What this means for competitors";
+
+  /*
+    "Counter" presupposes a competitive threat, and most pairings across a
+    general App Store catalogue have none — a banking app has no competitive
+    response to a dating app's ranking tab. When the model classifies the two
+    as unrelated, the section says what it actually is: a transferable pattern,
+    not a threat to answer.
+  */
+  const unrelated = prd?.relationship === "unrelated";
+  const heading = !prd || !viewer
+    ? "What this means for competitors"
+    : unrelated
+      ? `What ${viewer.name} could borrow`
+      : `Counter-PRD for ${viewer.name}`;
 
   return (
     <div className="rounded-xl border border-border/70 bg-gradient-to-br from-indigo/[0.07] via-teal/[0.05] to-tangerine/[0.07] p-4">
       <h4 className="mb-3 text-sm font-semibold tracking-tight">{heading}</h4>
 
       {prd ? (
-        <dl className="space-y-3">
+        <>
+          {unrelated && viewer && (
+            <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+              {appName} isn&apos;t a competitor to {viewer.name}. There&apos;s no threat to answer
+              here, so this is the mechanic worth stealing rather than a feature to match.
+            </p>
+          )}
+          <dl className="space-y-3">
           {[
             ["Problem statement", prd.problem_statement],
             ["Why now", prd.why_now],
-            ["Proposed response", prd.proposed_feature],
+            [unrelated ? "Pattern to borrow" : "Proposed response", prd.proposed_feature],
             ["Success metric", prd.success_metric],
           ].map(([label, value]) => (
             <div key={label}>
@@ -124,7 +144,8 @@ export function AdviceSection({
               <dd className="mt-0.5 text-[15px] leading-relaxed text-foreground/90">{value}</dd>
             </div>
           ))}
-        </dl>
+          </dl>
+        </>
       ) : (
         <>
           <p className="text-[15px] leading-relaxed text-foreground/90">

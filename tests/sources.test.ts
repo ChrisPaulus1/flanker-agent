@@ -22,6 +22,7 @@ const chimeLookup = {
       trackViewUrl: "https://apps.apple.com/us/app/id836215269",
       artworkUrl100: "https://example.test/artwork.png",
       sellerName: "Chime Financial, Inc.",
+      primaryGenreName: "Finance",
     },
   ],
 };
@@ -38,6 +39,7 @@ describe("mapLookupResponse", () => {
       trackViewUrl: "https://apps.apple.com/us/app/id836215269",
       artworkUrl: "https://example.test/artwork.png",
       sellerName: "Chime Financial, Inc.",
+      genre: "Finance",
     });
   });
 
