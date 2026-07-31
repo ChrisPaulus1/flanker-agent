@@ -29,9 +29,20 @@ export async function GET(request: Request) {
       { query, results },
       {
         headers: {
-          // Short shared cache: identical prefixes are hammered while typing,
-          // and the catalog only changes when a refresh runs.
-          "cache-control": "public, max-age=30, s-maxage=300, stale-while-revalidate=600",
+          /*
+            Cache hits, never misses.
+
+            An empty result is almost always transient — the catalog hadn't
+            been built, or the database blipped — and caching it for five
+            minutes converts a moment's gap into a sustained one. That is not
+            hypothetical: a query for "s" issued before the catalog existed was
+            still being served from the edge as an empty array long after
+            16,729 apps had landed, while every other prefix worked.
+          */
+          "cache-control":
+            results.length > 0
+              ? "public, max-age=30, s-maxage=300, stale-while-revalidate=600"
+              : "no-store",
         },
       },
     );
