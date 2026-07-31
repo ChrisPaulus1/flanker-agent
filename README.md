@@ -8,20 +8,32 @@ Built with Next.js, Supabase, Gemini, Vercel Cron & Resend.
 
 **Live dashboard: https://flanker-agent.vercel.app**
 
-<!-- Add a screenshot of the dashboard here. -->
+## Architecture
+
+<!-- GitHub swaps these automatically with the reader's colour scheme. -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.png">
+  <img src="docs/architecture.png" alt="Flanker system architecture: scheduling via Vercel Cron and GitHub Actions into an idempotent six-stage pipeline — detect, reconcile, enrich, triage, persist and alert, advance cursor — backed by Supabase, Gemini and Resend, with a Next.js dashboard.">
+</picture>
+
+The diagram is authored as HTML in [docs/architecture.html](docs/architecture.html) and rendered
+with `npm run diagram`, so it stays reviewable in a diff and can be regenerated when the system
+changes. It shares the app's design tokens, so the two can't drift apart.
 
 ## What it does
 
-For each tracked app, on every run:
+For each of the 30 tracked competitors, on every run:
 
 1. **Detect** — look up the current version via the iTunes Search API and
    compare it to the stored cursor.
-2. **Enrich** — search Hacker News for organic discussion of that competitor.
-3. **Triage** — send the release notes plus reaction to Gemini with a structured
+2. **Reconcile** — an event already stored for that version short-circuits the
+   run, which is what makes a re-run safe.
+3. **Enrich** — search Hacker News for organic discussion of that competitor.
+4. **Triage** — send the release notes plus reaction to Gemini with a structured
    prompt, and get back a signal level, feature analysis, strategic read and
    counter-PRD.
-4. **Alert** — send a formatted HTML email.
-5. **Persist** — store the event so the dashboard shows full history.
+5. **Persist & alert** — store the event, then send a formatted HTML email.
+6. **Advance the cursor** — last, and only after the alert has gone out.
 
 The version cursor advances **only after** the alert has been sent, so a failure
 anywhere in the pipeline means the release is retried rather than silently
@@ -41,7 +53,7 @@ dropped.
 
 Every external service is on a free tier and none require a credit card.
 
-## Architecture
+## Code layout
 
 ```
 src/lib/
@@ -93,6 +105,9 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/poll
 | `npm run backfill` | Populate history from every app's current version |
 | `npm run simulate-release <app>` | Rewind memory so the next run re-detects a release |
 | `npm run resolve-model` | Discover and verify an available Gemini model |
+| `npm run discover-apps` | Resolve and validate competitor candidates against the App Store |
+| `npm run seed-apps` | Sync the validated competitor set into Supabase |
+| `npm run diagram` | Re-render the architecture diagram to PNG |
 
 `simulate-release` fakes no API data. It only rewinds Flanker's own memory; the
 pipeline then re-runs against whatever the App Store and HN actually return at

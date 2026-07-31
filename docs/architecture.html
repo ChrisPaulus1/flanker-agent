@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Flanker — System Architecture</title>
+<style>
+  /*
+    Source for docs/architecture.png. Rendered to PNG by
+    scripts/render-architecture.ts so the diagram stays versionable and can be
+    regenerated when the system changes, rather than being a binary nobody can
+    edit. Tokens mirror src/app/globals.css so the diagram and the product
+    can't drift apart.
+  */
+  :root {
+    --bg: hsl(220 44% 98%);
+    --ink: hsl(222 55% 12%);
+    --muted: hsl(220 14% 42%);
+    --card: #ffffff;
+    --border: hsl(218 32% 90%);
+
+    --violet: hsl(266 72% 60%);
+    --violet-ink: hsl(266 62% 46%);
+    --cobalt: hsl(225 79% 50%);
+    --cobalt-ink: hsl(225 79% 42%);
+    --gold: hsl(40 92% 46%);
+    --gold-ink: hsl(34 88% 33%);
+
+    --wash-top: hsl(268 74% 92%);
+    --wash-mid: hsl(224 74% 93%);
+    --wash-bottom: hsl(42 84% 90%);
+  }
+
+  html.dark {
+    --bg: hsl(232 28% 12%);
+    --ink: hsl(216 40% 96%);
+    --muted: hsl(220 18% 68%);
+    --card: hsl(231 24% 16%);
+    --border: hsl(230 18% 27%);
+
+    --violet: hsl(266 88% 76%);
+    --violet-ink: hsl(266 90% 80%);
+    --cobalt: hsl(222 92% 72%);
+    --cobalt-ink: hsl(222 92% 76%);
+    --gold: hsl(44 92% 60%);
+    --gold-ink: hsl(44 94% 66%);
+
+    --wash-top: hsl(268 48% 26%);
+    --wash-mid: hsl(226 50% 22%);
+    --wash-bottom: hsl(40 44% 22%);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1680px;
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    position: relative;
+    padding: 52px 56px 44px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Same lavender -> periwinkle -> gold journey as the product. */
+  body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(60rem 26rem at 8% 0%, color-mix(in srgb, var(--wash-top) 80%, transparent), transparent 60%),
+      radial-gradient(46rem 22rem at 94% 2%, color-mix(in srgb, var(--wash-mid) 60%, transparent), transparent 62%),
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--wash-top) 70%, transparent) 0%,
+        color-mix(in srgb, var(--wash-mid) 42%, transparent) 34%,
+        color-mix(in srgb, var(--wash-mid) 20%, transparent) 58%,
+        color-mix(in srgb, var(--wash-bottom) 46%, transparent) 84%,
+        color-mix(in srgb, var(--wash-bottom) 68%, transparent) 100%);
+  }
+
+  .sheet { position: relative; z-index: 1; }
+
+  /* ---------- header ---------- */
+  header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 34px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .mark {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(140deg, var(--violet), var(--cobalt) 55%, var(--gold));
+    display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 17px;
+  }
+  h1 { font-size: 30px; letter-spacing: -0.02em; font-weight: 700; }
+  .sub { font-size: 15px; color: var(--muted); margin-top: 3px; max-width: 720px; line-height: 1.5; }
+  .meta { text-align: right; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+  .meta b { color: var(--ink); font-weight: 650; }
+
+  /* ---------- shared blocks ---------- */
+  .band { margin-bottom: 20px; }
+  .band-label {
+    font-size: 10.5px; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 9px; display: flex; align-items: center; gap: 9px;
+  }
+  .band-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+  }
+  .card h3 { font-size: 14.5px; font-weight: 680; letter-spacing: -0.01em; }
+  .card p { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-top: 5px; }
+  .card code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+
+  .tag {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 3px 7px; border-radius: 999px; margin-bottom: 7px;
+  }
+  .t-free   { background: color-mix(in srgb, var(--cobalt) 13%, transparent); color: var(--cobalt-ink); }
+  .t-key    { background: color-mix(in srgb, var(--violet) 15%, transparent); color: var(--violet-ink); }
+  .t-out    { background: color-mix(in srgb, var(--gold) 18%, transparent); color: var(--gold-ink); }
+
+  /* ---------- triggers ---------- */
+  .triggers { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 14px; align-items: stretch; }
+  .endpoint {
+    border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--violet) 10%, var(--card)),
+      color-mix(in srgb, var(--cobalt) 8%, var(--card)));
+  }
+  /* .endpoint isn't .card, so it needs the same type scale explicitly. */
+  .endpoint h3 { font-size: 14.5px; font-weight: 680; letter-spacing: -0.01em; }
+  .endpoint p { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-top: 5px; }
+  .endpoint code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+
+  /* ---------- pipeline ---------- */
+  .pipeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; align-items: stretch; }
+  .step { position: relative; padding-right: 26px; }
+  .step:last-child { padding-right: 0; }
+  .step::after {
+    content: ""; position: absolute; top: 50%; right: 9px; width: 9px; height: 9px;
+    border-top: 2px solid var(--border); border-right: 2px solid var(--border);
+    transform: translateY(-50%) rotate(45deg);
+  }
+  .step:last-child::after { display: none; }
+  .step-inner {
+    height: 100%; background: var(--card); border: 1px solid var(--border);
+    border-top: 3px solid var(--accent-col, var(--cobalt));
+    border-radius: 12px; padding: 13px 14px; box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+  }
+  .num {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px; font-weight: 700; color: var(--accent-col, var(--cobalt));
+  }
+  .step h3 { font-size: 14px; margin-top: 2px; }
+  .step p { font-size: 11.8px; margin-top: 6px; }
+  .src {
+    margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10.5px; color: var(--muted);
+  }
+
+  /* ---------- outputs ---------- */
+  .outputs { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 14px; }
+  .schema {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.7; margin-top: 8px;
+  }
+  .schema b { color: var(--ink); font-weight: 600; }
+  .pill {
+    display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px; padding: 2px 6px; border-radius: 5px;
+    background: color-mix(in srgb, var(--gold) 20%, transparent); color: var(--gold-ink);
+  }
+
+  /* ---------- guarantees ---------- */
+  .guarantees { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .g {
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px;
+    background: color-mix(in srgb, var(--card) 72%, transparent);
+  }
+  .g h4 { font-size: 12.5px; font-weight: 680; display: flex; align-items: center; gap: 7px; }
+  .g h4::before {
+    content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--gold);
+  }
+  .g p { font-size: 11.5px; color: var(--muted); line-height: 1.55; margin-top: 6px; }
+
+  footer {
+    margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted);
+  }
+  .legend { display: flex; gap: 18px; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 999px; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <div>
+      <div class="brand">
+        <div class="mark">F</div>
+        <h1>Flanker — System Architecture</h1>
+      </div>
+      <p class="sub">
+        An autonomous competitive-intelligence agent. Polls the App Store for competitor releases,
+        gathers community reaction, reverse-engineers what shipped with an LLM, and delivers a
+        strategic read plus a counter-PRD by email and dashboard.
+      </p>
+    </div>
+    <div class="meta">
+      <b>30</b> FinTech competitors tracked<br />
+      <b>108</b> unit tests · TDD on detection &amp; idempotency<br />
+      <b>Every</b> external service on a free tier, no card
+    </div>
+  </header>
+
+  <!-- TRIGGERS -->
+  <div class="band">
+    <div class="band-label">1 · Scheduling</div>
+    <div class="triggers">
+      <div class="card">
+        <span class="tag t-free">Vercel Cron</span>
+        <h3>Daily, 13:00 UTC</h3>
+        <p>Hobby caps cron at once per day and drifts up to 59 min. More frequent expressions fail at deploy.</p>
+      </div>
+      <div class="card">
+        <span class="tag t-free">GitHub Actions</span>
+        <h3>Hourly, :17</h3>
+        <p>Covers the Hobby gap. Off-the-hour because GitHub delays workflows queued on the hour.</p>
+      </div>
+      <div class="endpoint">
+        <span class="tag t-key">Next.js Route Handler</span>
+        <h3><code>GET /api/cron/poll</code></h3>
+        <p>
+          Bearer-token auth, timing-safe, fails closed on an empty secret. Both schedulers hit the
+          same endpoint — safe only because the run is idempotent.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="band">
+    <div class="band-label">2 · Pipeline — per app, sequential, order is the guarantee</div>
+    <div class="pipeline">
+
+      <div class="step" style="--accent-col: var(--cobalt)">
+        <div class="step-inner">
+          <div class="num">01</div>
+          <h3>Detect</h3>
+          <p>
+            Look up the current version and compare to the stored cursor. Equality-based: versions
+            run <code>5.337.0</code>, <code>10.141</code> and <code>2026.30.1</code> side by side, so no
+            ordering comparison is correct.
+          </p>
+          <div class="src">iTunes Search API · keyless<br />~20 req/min</div>
+        </div>
+      </div>
+
+      <div class="step" style="--accent-col: var(--cobalt)">
+        <div class="step-inner">
+          <div class="num">02</div>
+          <h3>Reconcile</h3>
+          <p>
+            An existing event short-circuits everything downstream. Covers a crash mid-run and a
+            store rollback to a version already handled.
+          </p>
+          <div class="src">Supabase · events lookup</div>
+        </div>
+      </div>
+
+      <div class="step" style="--accent-col: var(--violet)">
+        <div class="step-inner">
+          <div class="num">03</div>
+          <h3>Enrich</h3>
+          <p>
+            Community reaction, title-filtered for relevance. Fails soft. Brands too generic to
+            search are skipped rather than summarised as noise.
+          </p>
+          <div class="src">HN Algolia API · keyless<br />no boolean operators</div>
+        </div>
+      </div>
+
+      <div class="step" style="--accent-col: var(--violet)">
+        <div class="step-inner">
+          <div class="num">04</div>
+          <h3>Triage</h3>
+          <p>
+            Model resolved at runtime, never hardcoded. Falls down a ranked chain on quota
+            exhaustion. Output parsed tolerantly, validated strictly.
+          </p>
+          <div class="src">Gemini API · free tier<br />per-model daily quota</div>
+        </div>
+      </div>
+
+      <div class="step" style="--accent-col: var(--gold)">
+        <div class="step-inner">
+          <div class="num">05</div>
+          <h3>Persist &amp; Alert</h3>
+          <p>
+            Insert the event, send the alert, stamp <code>email_sent_at</code>. A failed send throws so
+            the run is retried, not lost.
+          </p>
+          <div class="src">Supabase · Resend</div>
+        </div>
+      </div>
+
+      <div class="step" style="--accent-col: var(--gold)">
+        <div class="step-inner">
+          <div class="num">06</div>
+          <h3>Advance cursor</h3>
+          <p>
+            <b>Last.</b> Anything that throws before this leaves <code>last_seen_version</code> untouched,
+            so the release is retried rather than silently dropped.
+          </p>
+          <div class="src">Supabase · tracked_apps</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STORAGE + OUTPUTS -->
+  <div class="band">
+    <div class="band-label">3 · Storage &amp; delivery</div>
+    <div class="outputs">
+      <div class="card">
+        <span class="tag t-key">Supabase · Postgres</span>
+        <h3>Two tables, RLS on, no permissive policies</h3>
+        <div class="schema">
+          <b>tracked_apps</b> — itunes_track_id · name · hn_query<br />
+          &nbsp;&nbsp;last_seen_version · last_checked_at · enabled<br />
+          <b>events</b> — version · release_notes · hn_summary<br />
+          &nbsp;&nbsp;llm_output_json · signal_level · model · email_sent_at<br />
+          <span class="pill">UNIQUE (app_id, version)</span>
+        </div>
+      </div>
+      <div class="card">
+        <span class="tag t-out">Resend</span>
+        <h3>HTML + plain-text alert</h3>
+        <p>
+          Inline styles and table layout — mail clients strip <code>&lt;style&gt;</code> blocks. Release
+          notes are HTML-escaped: third-party text landing in our markup.
+          Signal level drives the colour.
+        </p>
+      </div>
+      <div class="card">
+        <span class="tag t-out">Next.js 14 · App Router</span>
+        <h3>Dashboard</h3>
+        <p>
+          Server component reading Postgres directly — no API route, no key in the browser.
+          Timeline of cards, expandable to the full counter-PRD, light and dark.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUARANTEES -->
+  <div class="band">
+    <div class="band-label">4 · What makes it safe to re-run</div>
+    <div class="guarantees">
+      <div class="g">
+        <h4>Cursor advances last</h4>
+        <p>The alert is sent before the version is recorded. A crash in between retries the release; the reverse would lose it forever.</p>
+      </div>
+      <div class="g">
+        <h4>Unique (app_id, version)</h4>
+        <p>The database, not application logic, is what makes a duplicate event physically impossible.</p>
+      </div>
+      <div class="g">
+        <h4>Recoverable half-runs</h4>
+        <p>Event stored but email failed → resend without paying for the LLM again. Both stored → reconcile the cursor, don't re-alert.</p>
+      </div>
+      <div class="g">
+        <h4>Failures are isolated</h4>
+        <p>One competitor failing is reported per-app and never aborts the run. Its cursor stays put for the next tick.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="legend">
+      <span><i class="dot" style="background: var(--cobalt)"></i> Detection</span>
+      <span><i class="dot" style="background: var(--violet)"></i> Enrichment &amp; analysis</span>
+      <span><i class="dot" style="background: var(--gold)"></i> Delivery &amp; state</span>
+    </div>
+    <div>github.com/ChrisPaulus1/flanker-agent · Next.js 14 · TypeScript · Supabase · Gemini · Resend</div>
+  </footer>
+
+</div>
+</body>
+</html>
