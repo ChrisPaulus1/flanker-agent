@@ -91,7 +91,7 @@ export async function runPipelineForApp(
       reaction = null;
     }
 
-    const llmOutput = await triage.triage({ app, release, reaction });
+    const { output: llmOutput, model } = await triage.triage({ app, release, reaction });
 
     const event = await repo.insertEvent({
       appId: app.id,
@@ -102,6 +102,7 @@ export async function runPipelineForApp(
       hnStoryRefs: reaction?.stories ?? [],
       llmOutput,
       signalLevel: llmOutput.signal_level,
+      model,
     });
 
     await alerts.send({ app, release, event });

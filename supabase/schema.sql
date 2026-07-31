@@ -34,6 +34,10 @@ create table if not exists public.events (
   hn_story_refs   jsonb       not null default '[]'::jsonb,
   llm_output_json jsonb       not null,
   signal_level    text        not null check (signal_level in ('high', 'medium', 'low')),
+  -- Which Gemini model produced llm_output_json. Recorded because the engine
+  -- silently degrades to a lighter model when the preferred one exhausts its
+  -- daily free quota, and that shouldn't be invisible after the fact.
+  model           text,
   detected_at     timestamptz not null default now(),
   -- NULL means the event was persisted but the alert never went out. The cron
   -- run uses this to resend without paying for the LLM call again.
@@ -44,6 +48,9 @@ create table if not exists public.events (
   -- in-process logic believes.
   constraint events_app_version_unique unique (app_id, version)
 );
+
+-- Additive migration for projects created before `model` existed.
+alter table public.events add column if not exists model text;
 
 create index if not exists events_detected_at_idx on public.events (detected_at desc);
 create index if not exists events_app_id_idx on public.events (app_id);

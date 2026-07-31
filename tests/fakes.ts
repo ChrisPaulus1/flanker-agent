@@ -8,7 +8,13 @@ import type {
   NewEventInput,
   TrackedApp,
 } from "@/lib/storage/types";
-import type { AlertSender, ReactionSource, ReleaseSource, TriageEngine } from "@/lib/pipeline/ports";
+import type {
+  AlertSender,
+  ReactionSource,
+  ReleaseSource,
+  TriageEngine,
+  TriageResult,
+} from "@/lib/pipeline/ports";
 
 export function makeApp(overrides: Partial<TrackedApp> = {}): TrackedApp {
   return {
@@ -98,6 +104,7 @@ export class FakeRepo implements FlankerRepo {
       hnStoryRefs: input.hnStoryRefs,
       llmOutput: input.llmOutput,
       signalLevel: input.signalLevel,
+      model: input.model,
       detectedAt: "2026-07-30T00:00:00.000Z",
       emailSentAt: null,
     };
@@ -168,11 +175,14 @@ export class FakeReactionSource implements ReactionSource {
 
 export class FakeTriageEngine implements TriageEngine {
   calls = 0;
-  constructor(private readonly result: LlmTriage | Error = makeTriage()) {}
-  async triage(): Promise<LlmTriage> {
+  constructor(
+    private readonly result: LlmTriage | Error = makeTriage(),
+    private readonly model = "fake-model",
+  ) {}
+  async triage(): Promise<TriageResult> {
     this.calls++;
     if (this.result instanceof Error) throw this.result;
-    return this.result;
+    return { output: this.result, model: this.model };
   }
 }
 

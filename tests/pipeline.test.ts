@@ -59,6 +59,15 @@ describe("runPipelineForApp", () => {
       await runPipelineForApp(h.app, h.deps);
       expect(h.repo.events[0].signalLevel).toBe("high");
     });
+
+    it("records which model produced the output", async () => {
+      // The engine falls back to a lighter model when the preferred one hits
+      // its daily free quota — which happens in practice — so the event has to
+      // say what actually answered.
+      const h = harness();
+      await runPipelineForApp(h.app, h.deps);
+      expect(h.repo.events[0].model).toBe("fake-model");
+    });
   });
 
   describe("when nothing has changed", () => {

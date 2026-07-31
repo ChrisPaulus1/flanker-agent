@@ -21,6 +21,8 @@ export interface FlankerEvent {
   hnStoryRefs: HnStory[];
   llmOutput: LlmTriage;
   signalLevel: SignalLevel;
+  /** Which Gemini model produced llmOutput; null for rows written before this was tracked. */
+  model: string | null;
   detectedAt: string;
   emailSentAt: string | null;
 }
@@ -38,6 +40,7 @@ export interface NewEventInput {
   hnStoryRefs: HnStory[];
   llmOutput: LlmTriage;
   signalLevel: SignalLevel;
+  model: string;
 }
 
 /**

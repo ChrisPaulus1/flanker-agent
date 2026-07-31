@@ -19,8 +19,22 @@ export interface ReactionSource {
   fetchReaction(query: string): Promise<HnReaction>;
 }
 
+export interface TriageResult {
+  output: LlmTriage;
+  /**
+   * The model that actually produced this. Recorded because the engine
+   * degrades to a lighter model when the preferred one hits its daily free
+   * quota, and that shouldn't be invisible after the fact.
+   */
+  model: string;
+}
+
 export interface TriageEngine {
-  triage(input: { app: TrackedApp; release: AppRelease; reaction: HnReaction | null }): Promise<LlmTriage>;
+  triage(input: {
+    app: TrackedApp;
+    release: AppRelease;
+    reaction: HnReaction | null;
+  }): Promise<TriageResult>;
 }
 
 export interface AlertSender {
