@@ -55,11 +55,15 @@ async function main() {
     console.log(`feature     : ${triage.feature_analysis}`);
     console.log(`strategic   : ${triage.strategic_read}`);
     console.log(`hn reaction : ${triage.hn_reaction_summary ?? "null (no discussion found)"}`);
-    console.log(`counter-PRD :`);
-    console.log(`  problem   : ${triage.counter_prd.problem_statement}`);
-    console.log(`  why now   : ${triage.counter_prd.why_now}`);
-    console.log(`  proposal  : ${triage.counter_prd.proposed_feature}`);
-    console.log(`  metric    : ${triage.counter_prd.success_metric}`);
+    if (triage.counter_prd) {
+      console.log(`counter-PRD :`);
+      console.log(`  problem   : ${triage.counter_prd.problem_statement}`);
+      console.log(`  why now   : ${triage.counter_prd.why_now}`);
+      console.log(`  proposal  : ${triage.counter_prd.proposed_feature}`);
+      console.log(`  metric    : ${triage.counter_prd.success_metric}`);
+    } else {
+      console.log(`counter-PRD : null (teardown mode — no viewer context)`);
+    }
   }
 }
 

@@ -36,7 +36,16 @@ export const llmTriageSchema = z.object({
    * release is usually genuinely absent.
    */
   hn_reaction_summary: z.string().min(1).nullable(),
-  counter_prd: counterPrdSchema,
+  /**
+   * Null unless the viewer has told us what they build.
+   *
+   * A counter-PRD is advice to a specific product team — "our app should ship
+   * X". Without knowing who "we" are, that advice is written for a company
+   * that doesn't exist, which is worse than no advice. So the default output
+   * is a teardown with no counter-PRD, and this is populated only when a
+   * viewer context is supplied.
+   */
+  counter_prd: counterPrdSchema.nullable(),
 });
 
 export type CounterPrd = z.infer<typeof counterPrdSchema>;

@@ -100,6 +100,21 @@ describe("parseTriageResponse", () => {
     expect(parseTriageResponse(withReaction).hn_reaction_summary).toBe("Mostly sceptical.");
   });
 
+  it("accepts a null counter_prd, which is the teardown case", () => {
+    // No viewer context means nobody to write advice for, so the model is told
+    // to return null rather than address a company that doesn't exist.
+    const teardown = JSON.stringify({ ...valid, counter_prd: null });
+    expect(parseTriageResponse(teardown).counter_prd).toBeNull();
+  });
+
+  it("still validates a counter_prd when one is present", () => {
+    const bad = JSON.stringify({
+      ...valid,
+      counter_prd: { ...valid.counter_prd, success_metric: "" },
+    });
+    expect(() => parseTriageResponse(bad)).toThrow(/success_metric/);
+  });
+
   describe("rejecting output that would corrupt an event row", () => {
     it("rejects a missing top-level field", () => {
       const { strategic_read, ...missing } = valid;

@@ -117,7 +117,9 @@ export function buildAlertHtml({
         ${section("Strategic read", paragraphs(triage.strategic_read))}
         ${section("Community reaction", hnBlock)}
 
-        <tr>
+        ${
+          triage.counter_prd
+            ? `<tr>
           <td style="padding:24px 28px 0;">
             <div style="border-top:1px solid #e1e7f0;padding-top:20px;">
               <div style="font:700 13px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0f172a;margin-bottom:14px;">Counter-PRD</div>
@@ -129,7 +131,9 @@ export function buildAlertHtml({
               </table>
             </div>
           </td>
-        </tr>
+        </tr>`
+            : ""
+        }
 
         <tr>
           <td style="padding:8px 28px 28px;">
@@ -182,12 +186,16 @@ export function buildAlertText({
     "COMMUNITY REACTION",
     t.hn_reaction_summary ?? "No relevant Hacker News discussion found for this release.",
     "",
-    "COUNTER-PRD",
-    `Problem statement: ${t.counter_prd.problem_statement}`,
-    `Why now: ${t.counter_prd.why_now}`,
-    `Proposed response: ${t.counter_prd.proposed_feature}`,
-    `Success metric: ${t.counter_prd.success_metric}`,
-    "",
+    ...(t.counter_prd
+      ? [
+          "COUNTER-PRD",
+          `Problem statement: ${t.counter_prd.problem_statement}`,
+          `Why now: ${t.counter_prd.why_now}`,
+          `Proposed response: ${t.counter_prd.proposed_feature}`,
+          `Success metric: ${t.counter_prd.success_metric}`,
+          "",
+        ]
+      : []),
     `Dashboard: ${dashboardUrl}`,
     `App Store: ${release.trackViewUrl}`,
     "",

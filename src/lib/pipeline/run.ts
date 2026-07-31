@@ -2,6 +2,7 @@ import type { HnReaction } from "@/lib/sources/hn";
 import type { FlankerRepo, TrackedApp } from "@/lib/storage/types";
 import { detectRelease } from "@/lib/pipeline/detect";
 import type { AlertSender, Clock, ReactionSource, ReleaseSource, TriageEngine } from "@/lib/pipeline/ports";
+import type { ViewerContext } from "@/lib/llm/prompt";
 
 export interface PipelineDeps {
   repo: FlankerRepo;
@@ -10,6 +11,8 @@ export interface PipelineDeps {
   triage: TriageEngine;
   alerts: AlertSender;
   clock?: Clock;
+  /** Scheduled runs have no reader, so they produce teardowns. */
+  viewer?: ViewerContext | null;
 }
 
 export type PipelineStatus =
@@ -47,7 +50,7 @@ export async function runPipelineForApp(
   app: TrackedApp,
   deps: PipelineDeps,
 ): Promise<PipelineResult> {
-  const { repo, releases, reactions, triage, alerts, clock = () => new Date() } = deps;
+  const { repo, releases, reactions, triage, alerts, clock = () => new Date(), viewer = null } = deps;
   const now = () => clock().toISOString();
 
   try {
@@ -95,7 +98,7 @@ export async function runPipelineForApp(
       }
     }
 
-    const { output: llmOutput, model } = await triage.triage({ app, release, reaction });
+    const { output: llmOutput, model } = await triage.triage({ app, release, reaction, viewer });
 
     const event = await repo.insertEvent({
       appId: app.id,

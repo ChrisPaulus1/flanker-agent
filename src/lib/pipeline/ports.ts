@@ -1,6 +1,7 @@
 import type { AppRelease } from "@/lib/sources/itunes";
 import type { HnReaction } from "@/lib/sources/hn";
 import type { LlmTriage } from "@/lib/llm/schema";
+import type { ViewerContext } from "@/lib/llm/prompt";
 import type { FlankerEvent, TrackedApp } from "@/lib/storage/types";
 
 /**
@@ -34,6 +35,11 @@ export interface TriageEngine {
     app: TrackedApp;
     release: AppRelease;
     reaction: HnReaction | null;
+    /**
+     * Who is reading. Null produces a teardown with no counter-PRD; supplying
+     * a product produces advice written from that product's position.
+     */
+    viewer?: ViewerContext | null;
   }): Promise<TriageResult>;
 }
 

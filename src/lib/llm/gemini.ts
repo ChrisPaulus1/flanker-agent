@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { config } from "@/lib/config";
-import { buildTriagePrompt } from "@/lib/llm/prompt";
+import { buildTriagePrompt, type ViewerContext } from "@/lib/llm/prompt";
 import { parseTriageResponse } from "@/lib/llm/parse";
 import { listAvailableModels, rankModels } from "@/lib/llm/model";
 import type { TriageEngine, TriageResult } from "@/lib/pipeline/ports";
@@ -63,12 +63,14 @@ export class GeminiTriageEngine implements TriageEngine {
     app,
     release,
     reaction,
+    viewer = null,
   }: {
     app: TrackedApp;
     release: AppRelease;
     reaction: HnReaction | null;
+    viewer?: ViewerContext | null;
   }): Promise<TriageResult> {
-    const prompt = buildTriagePrompt({ app, release, reaction });
+    const prompt = buildTriagePrompt({ app, release, reaction, viewer });
     const candidates = await this.getCandidates();
 
     let lastError: unknown;
