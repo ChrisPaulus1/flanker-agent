@@ -4,7 +4,7 @@
  *
  * No API data is faked. This only rewinds Flanker's own memory — the pipeline
  * then re-runs against whatever the App Store and Hacker News actually return
- * right now, calls the real LLM, and sends a real email.
+ * right now, calls the real LLM and stores a real event.
  *
  * Rewinding last_seen_version alone is not enough: the stored event for that
  * version would short-circuit the run as already-processed, which is exactly

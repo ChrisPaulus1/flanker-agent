@@ -1,7 +1,6 @@
 import { fetchLatestRelease } from "@/lib/sources/itunes";
 import { fetchReaction } from "@/lib/sources/hn";
 import { GeminiTriageEngine } from "@/lib/llm/gemini";
-import { ResendAlertSender } from "@/lib/email/resend";
 import { SupabaseFlankerRepo } from "@/lib/storage/repo";
 import type { PipelineDeps } from "@/lib/pipeline/run";
 
@@ -17,6 +16,5 @@ export function createPipelineDeps(): PipelineDeps {
     releases: { fetchLatestRelease: (trackId) => fetchLatestRelease(trackId) },
     reactions: { fetchReaction: (query) => fetchReaction(query) },
     triage: new GeminiTriageEngine(),
-    alerts: new ResendAlertSender(),
   };
 }

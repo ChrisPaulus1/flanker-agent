@@ -1,7 +1,7 @@
 import type { HnReaction } from "@/lib/sources/hn";
 import type { FlankerRepo, TrackedApp } from "@/lib/storage/types";
 import { detectRelease } from "@/lib/pipeline/detect";
-import type { AlertSender, Clock, ReactionSource, ReleaseSource, TriageEngine } from "@/lib/pipeline/ports";
+import type { Clock, ReactionSource, ReleaseSource, TriageEngine } from "@/lib/pipeline/ports";
 import type { ViewerContext } from "@/lib/llm/prompt";
 
 export interface PipelineDeps {
@@ -9,7 +9,6 @@ export interface PipelineDeps {
   releases: ReleaseSource;
   reactions: ReactionSource;
   triage: TriageEngine;
-  alerts: AlertSender;
   clock?: Clock;
   /** Scheduled runs have no reader, so they produce teardowns. */
   viewer?: ViewerContext | null;
@@ -34,23 +33,23 @@ export interface PipelineResult {
  *
  * The ordering here is the idempotency contract, and it is deliberate:
  *
- *   1. detect        — cheap, avoids all downstream work when nothing changed
- *   2. reconcile     — an existing event short-circuits the expensive steps
- *   3. enrich        — HN reaction, non-fatal
- *   4. triage        — the LLM call, the expensive step
- *   5. persist       — insert the event
- *   6. alert         — send the email, stamp email_sent_at
- *   7. advance       — move the cursor, LAST
+ *   1. detect     — cheap, avoids all downstream work when nothing changed
+ *   2. reconcile  — an existing event short-circuits the expensive steps
+ *   3. enrich     — HN reaction, non-fatal
+ *   4. triage     — the LLM call, the expensive step
+ *   5. persist    — insert the event
+ *   6. advance    — move the cursor, LAST
  *
- * Anything that throws before step 7 leaves `last_seen_version` where it was,
- * so the next run retries this release rather than skipping past it. That is
- * the property the whole "no silently dropped events" requirement rests on.
+ * Anything that throws before the last step leaves `last_seen_version` where
+ * it was, so the next run retries this release rather than skipping past it.
+ * That is the property the whole "no silently dropped events" requirement
+ * rests on.
  */
 export async function runPipelineForApp(
   app: TrackedApp,
   deps: PipelineDeps,
 ): Promise<PipelineResult> {
-  const { repo, releases, reactions, triage, alerts, clock = () => new Date(), viewer = null } = deps;
+  const { repo, releases, reactions, triage, clock = () => new Date(), viewer = null } = deps;
   const now = () => clock().toISOString();
 
   try {
@@ -75,13 +74,7 @@ export async function runPipelineForApp(
     // the database agree.
     const existing = await repo.findEvent(app.id, version);
     if (existing) {
-      if (!existing.emailSentAt) {
-        // Event survived, alert didn't. Resend without re-running the LLM.
-        await alerts.send({ app, release, event: existing });
-        await repo.markEmailSent(existing.id, now());
-        await repo.advanceLastSeenVersion(app.id, version, now());
-        return { app: app.name, status: "processed", version, detail: "resent pending alert" };
-      }
+      // Self-heal a cursor that never advanced, without re-running the LLM.
       await repo.advanceLastSeenVersion(app.id, version, now());
       return { app: app.name, status: "already-processed", version };
     }
@@ -112,8 +105,10 @@ export async function runPipelineForApp(
       model,
     });
 
-    await alerts.send({ app, release, event });
-    await repo.markEmailSent(event.id, now());
+    // The cursor advances only after the event is durably stored. With email
+    // gone there is no later step that can fail, but the ordering still
+    // matters: a crash before the insert must leave the cursor untouched so
+    // the release is retried rather than skipped.
     await repo.advanceLastSeenVersion(app.id, version, now());
 
     return { app: app.name, status: "processed", version };

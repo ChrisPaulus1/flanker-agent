@@ -40,17 +40,6 @@ export const config = {
       return optionalEnv("GEMINI_MODEL", "");
     },
   },
-  email: {
-    get apiKey() {
-      return requireEnv("RESEND_API_KEY");
-    },
-    get from() {
-      return optionalEnv("ALERT_EMAIL_FROM", "Flanker <onboarding@resend.dev>");
-    },
-    get to() {
-      return requireEnv("ALERT_EMAIL_TO");
-    },
-  },
   get cronSecret() {
     return requireEnv("CRON_SECRET");
   },

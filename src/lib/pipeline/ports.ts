@@ -2,7 +2,7 @@ import type { AppRelease } from "@/lib/sources/itunes";
 import type { HnReaction } from "@/lib/sources/hn";
 import type { LlmTriage } from "@/lib/llm/schema";
 import type { ViewerContext } from "@/lib/llm/prompt";
-import type { FlankerEvent, TrackedApp } from "@/lib/storage/types";
+import type { TrackedApp } from "@/lib/storage/types";
 
 /**
  * The dependencies pipeline/run.ts composes.
@@ -41,10 +41,6 @@ export interface TriageEngine {
      */
     viewer?: ViewerContext | null;
   }): Promise<TriageResult>;
-}
-
-export interface AlertSender {
-  send(input: { app: TrackedApp; release: AppRelease; event: FlankerEvent }): Promise<void>;
 }
 
 /** Injected so tests get deterministic timestamps. */

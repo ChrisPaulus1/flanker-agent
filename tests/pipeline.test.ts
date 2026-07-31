@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { runPipelineForApp, runPipeline } from "@/lib/pipeline/run";
 import {
-  FakeAlertSender,
   FakeReactionSource,
   FakeReleaseSource,
   FakeRepo,
@@ -19,39 +18,35 @@ function harness(options: {
   release?: ReturnType<typeof makeRelease> | Error;
   reaction?: ReturnType<typeof makeReaction> | Error;
   triage?: Error;
-  alert?: Error;
 } = {}) {
   const app = options.app ?? makeApp();
   const repo = new FakeRepo([app]);
   const releases = new FakeReleaseSource(options.release ?? makeRelease());
   const reactions = new FakeReactionSource(options.reaction ?? makeReaction());
   const triage = new FakeTriageEngine(options.triage ?? undefined);
-  const alerts = new FakeAlertSender(options.alert ?? null);
-  const deps = { repo, releases, reactions, triage, alerts, clock: fixedClock(NOW) };
-  return { app, repo, releases, reactions, triage, alerts, deps };
+  const deps = { repo, releases, reactions, triage, clock: fixedClock(NOW) };
+  return { app, repo, releases, reactions, triage, deps };
 }
 
 describe("runPipelineForApp", () => {
   describe("the happy path", () => {
-    it("stores the event, sends the alert, then advances the cursor", async () => {
+    it("stores the event, then advances the cursor", async () => {
       const h = harness();
 
       const result = await runPipelineForApp(h.app, h.deps);
 
       expect(result.status).toBe("processed");
       expect(h.repo.events).toHaveLength(1);
-      expect(h.alerts.sent).toEqual(["event-1"]);
       expect(h.repo.apps[0].lastSeenVersion).toBe("5.337.0");
-      expect(h.repo.events[0].emailSentAt).toBe(NOW);
     });
 
-    it("advances the cursor only after the alert has gone out", async () => {
+    it("advances the cursor only after the event is durably stored", async () => {
       const h = harness();
       await runPipelineForApp(h.app, h.deps);
 
-      // Ordering is the whole guarantee: if advanceLastSeenVersion ran before
-      // markEmailSent, a crash in between would drop the release silently.
-      expect(h.repo.calls).toEqual(["insertEvent", "markEmailSent", "advanceLastSeenVersion"]);
+      // Ordering is the whole guarantee: advancing first would mean a crash
+      // before the insert silently skips the release forever.
+      expect(h.repo.calls).toEqual(["insertEvent", "advanceLastSeenVersion"]);
     });
 
     it("records the signal level from the LLM output on the event", async () => {
@@ -78,7 +73,6 @@ describe("runPipelineForApp", () => {
 
       expect(result.status).toBe("unchanged");
       expect(h.triage.calls).toBe(0);
-      expect(h.alerts.calls).toBe(0);
       expect(h.repo.calls).toEqual(["touchLastChecked"]);
       expect(h.repo.apps[0].lastCheckedAt).toBe(NOW);
     });
@@ -91,7 +85,6 @@ describe("runPipelineForApp", () => {
 
       expect(second.status).toBe("unchanged");
       expect(h.repo.events).toHaveLength(1);
-      expect(h.alerts.sent).toHaveLength(1);
       expect(h.triage.calls).toBe(1);
     });
   });
@@ -117,14 +110,16 @@ describe("runPipelineForApp", () => {
       expect(h.repo.calls).toEqual([]);
     });
 
-    it("keeps the event but not the cursor when the email fails", async () => {
-      const h = harness({ alert: new Error("resend 500") });
+    it("leaves the cursor untouched when the event insert fails", async () => {
+      const h = harness();
+      h.repo.insertEvent = async () => {
+        throw new Error("postgres unavailable");
+      };
 
       const result = await runPipelineForApp(h.app, h.deps);
 
       expect(result.status).toBe("failed");
-      expect(h.repo.events).toHaveLength(1);
-      expect(h.repo.events[0].emailSentAt).toBeNull();
+      expect(h.repo.events).toHaveLength(0);
       expect(h.repo.apps[0].lastSeenVersion).toBeNull();
     });
 
@@ -143,30 +138,10 @@ describe("runPipelineForApp", () => {
   });
 
   describe("recovering a half-finished run", () => {
-    it("resends the alert without paying for the LLM again", async () => {
-      const h = harness({ alert: new Error("resend 500") });
-      await runPipelineForApp(h.app, h.deps);
-      expect(h.triage.calls).toBe(1);
-
-      // Second run: email works this time.
-      const retry = harness();
-      retry.repo.events = h.repo.events;
-      retry.repo.apps[0] = h.repo.apps[0];
-      retry.repo.calls = [];
-
-      const result = await runPipelineForApp(retry.repo.apps[0], retry.deps);
-
-      expect(result.status).toBe("processed");
-      expect(retry.triage.calls).toBe(0); // the expensive step is skipped
-      expect(retry.repo.events).toHaveLength(1); // and no duplicate row
-      expect(retry.repo.apps[0].lastSeenVersion).toBe("5.337.0");
-      expect(retry.repo.calls).toEqual(["markEmailSent", "advanceLastSeenVersion"]);
-    });
-
-    it("self-heals a stored event whose alert already went out", async () => {
-      // Crash between markEmailSent and advanceLastSeenVersion: the event is
-      // complete but the cursor never moved. Re-running must fix the cursor
-      // without re-alerting.
+    it("self-heals a cursor that never advanced, without re-running the LLM", async () => {
+      // Crash between insertEvent and advanceLastSeenVersion: the event is
+      // stored but the cursor never moved. Re-running must reconcile the
+      // cursor and must not pay for the analysis a second time.
       const h = harness();
       await runPipelineForApp(h.app, h.deps);
       h.repo.apps[0].lastSeenVersion = null; // simulate the lost write
@@ -175,15 +150,16 @@ describe("runPipelineForApp", () => {
       const result = await runPipelineForApp(h.repo.apps[0], h.deps);
 
       expect(result.status).toBe("already-processed");
-      expect(h.alerts.sent).toHaveLength(1); // not re-sent
       expect(h.triage.calls).toBe(1); // not re-run
+      expect(h.repo.events).toHaveLength(1); // no duplicate row
       expect(h.repo.apps[0].lastSeenVersion).toBe("5.337.0");
+      expect(h.repo.calls).toEqual(["advanceLastSeenVersion"]);
     });
 
-    it("does not re-alert when the store rolls back to a version already processed", async () => {
+    it("does not re-analyse when the store rolls back to a version already processed", async () => {
       // Apple pulls a build and the listing reverts. detectRelease sees a
       // difference and says "process"; the event store is what stops the
-      // duplicate alert.
+      // duplicate work.
       const h = harness();
       await runPipelineForApp(h.app, h.deps); // processes 5.337.0
       h.repo.apps[0].lastSeenVersion = "5.338.0"; // we'd since seen a newer one
@@ -191,7 +167,7 @@ describe("runPipelineForApp", () => {
       const result = await runPipelineForApp(h.repo.apps[0], h.deps); // store shows 5.337.0 again
 
       expect(result.status).toBe("already-processed");
-      expect(h.alerts.sent).toHaveLength(1);
+      expect(h.triage.calls).toBe(1);
       expect(h.repo.events).toHaveLength(1);
     });
   });
@@ -258,7 +234,6 @@ describe("runPipeline", () => {
       },
       reactions: new FakeReactionSource(),
       triage: new FakeTriageEngine(),
-      alerts: new FakeAlertSender(),
       clock: fixedClock(NOW),
     };
 

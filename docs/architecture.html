@@ -18,16 +18,16 @@
     --card: #ffffff;
     --border: hsl(36 24% 88%);
 
-    --violet: hsl(18 92% 54%);
-    --violet-ink: hsl(15 86% 40%);
-    --cobalt: hsl(244 62% 52%);
-    --cobalt-ink: hsl(244 58% 38%);
-    --gold: hsl(184 86% 30%);
-    --gold-ink: hsl(185 90% 24%);
+    --tangerine: hsl(18 92% 54%);
+    --tangerine-ink: hsl(15 86% 40%);
+    --indigo: hsl(244 62% 52%);
+    --indigo-ink: hsl(244 58% 38%);
+    --teal: hsl(184 86% 30%);
+    --teal-ink: hsl(185 90% 24%);
 
-    --wash-top: hsl(244 60% 94%);
-    --wash-mid: hsl(180 60% 92%);
-    --wash-bottom: hsl(30 90% 92%);
+    --wash-c: hsl(244 60% 94%);
+    --wash-b: hsl(180 60% 92%);
+    --wash-a: hsl(30 90% 92%);
   }
 
   html.dark {
@@ -37,16 +37,16 @@
     --card: hsl(231 24% 16%);
     --border: hsl(230 18% 27%);
 
-    --violet: hsl(266 88% 76%);
-    --violet-ink: hsl(266 90% 80%);
-    --cobalt: hsl(222 92% 72%);
-    --cobalt-ink: hsl(222 92% 76%);
-    --gold: hsl(44 92% 60%);
-    --gold-ink: hsl(44 94% 66%);
+    --tangerine: hsl(266 88% 76%);
+    --tangerine-ink: hsl(266 90% 80%);
+    --indigo: hsl(222 92% 72%);
+    --indigo-ink: hsl(222 92% 76%);
+    --teal: hsl(44 92% 60%);
+    --teal-ink: hsl(44 94% 66%);
 
-    --wash-top: hsl(268 48% 26%);
-    --wash-mid: hsl(226 50% 22%);
-    --wash-bottom: hsl(40 44% 22%);
+    --wash-c: hsl(268 48% 26%);
+    --wash-b: hsl(226 50% 22%);
+    --wash-a: hsl(40 44% 22%);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -68,14 +68,14 @@
     inset: 0;
     z-index: 0;
     background:
-      radial-gradient(60rem 26rem at 8% 0%, color-mix(in srgb, var(--wash-top) 80%, transparent), transparent 60%),
-      radial-gradient(46rem 22rem at 94% 2%, color-mix(in srgb, var(--wash-mid) 60%, transparent), transparent 62%),
+      radial-gradient(60rem 26rem at 8% 0%, color-mix(in srgb, var(--wash-c) 80%, transparent), transparent 60%),
+      radial-gradient(46rem 22rem at 94% 2%, color-mix(in srgb, var(--wash-b) 60%, transparent), transparent 62%),
       linear-gradient(180deg,
-        color-mix(in srgb, var(--wash-top) 70%, transparent) 0%,
-        color-mix(in srgb, var(--wash-mid) 42%, transparent) 34%,
-        color-mix(in srgb, var(--wash-mid) 20%, transparent) 58%,
-        color-mix(in srgb, var(--wash-bottom) 46%, transparent) 84%,
-        color-mix(in srgb, var(--wash-bottom) 68%, transparent) 100%);
+        color-mix(in srgb, var(--wash-c) 70%, transparent) 0%,
+        color-mix(in srgb, var(--wash-b) 42%, transparent) 34%,
+        color-mix(in srgb, var(--wash-b) 20%, transparent) 58%,
+        color-mix(in srgb, var(--wash-a) 46%, transparent) 84%,
+        color-mix(in srgb, var(--wash-a) 68%, transparent) 100%);
   }
 
   .sheet { position: relative; z-index: 1; }
@@ -85,7 +85,7 @@
   .brand { display: flex; align-items: center; gap: 12px; }
   .mark {
     width: 34px; height: 34px; border-radius: 9px;
-    background: linear-gradient(140deg, var(--violet), var(--cobalt) 55%, var(--gold));
+    background: linear-gradient(140deg, var(--tangerine), var(--indigo) 55%, var(--teal));
     display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 17px;
   }
   h1 { font-size: 30px; letter-spacing: -0.02em; font-weight: 700; }
@@ -113,17 +113,17 @@
     display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
     text-transform: uppercase; padding: 3px 7px; border-radius: 999px; margin-bottom: 7px;
   }
-  .t-free   { background: color-mix(in srgb, var(--cobalt) 13%, transparent); color: var(--cobalt-ink); }
-  .t-key    { background: color-mix(in srgb, var(--violet) 15%, transparent); color: var(--violet-ink); }
-  .t-out    { background: color-mix(in srgb, var(--gold) 18%, transparent); color: var(--gold-ink); }
+  .t-free   { background: color-mix(in srgb, var(--indigo) 13%, transparent); color: var(--indigo-ink); }
+  .t-key    { background: color-mix(in srgb, var(--tangerine) 15%, transparent); color: var(--tangerine-ink); }
+  .t-out    { background: color-mix(in srgb, var(--teal) 18%, transparent); color: var(--teal-ink); }
 
   /* ---------- triggers ---------- */
   .triggers { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 14px; align-items: stretch; }
   .endpoint {
     border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
     background: linear-gradient(135deg,
-      color-mix(in srgb, var(--violet) 10%, var(--card)),
-      color-mix(in srgb, var(--cobalt) 8%, var(--card)));
+      color-mix(in srgb, var(--tangerine) 10%, var(--card)),
+      color-mix(in srgb, var(--indigo) 8%, var(--card)));
   }
   /* .endpoint isn't .card, so it needs the same type scale explicitly. */
   .endpoint h3 { font-size: 14.5px; font-weight: 680; letter-spacing: -0.01em; }
@@ -142,12 +142,12 @@
   .step:last-child::after { display: none; }
   .step-inner {
     height: 100%; background: var(--card); border: 1px solid var(--border);
-    border-top: 3px solid var(--accent-col, var(--cobalt));
+    border-top: 3px solid var(--accent-col, var(--indigo));
     border-radius: 12px; padding: 13px 14px; box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
   }
   .num {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 11px; font-weight: 700; color: var(--accent-col, var(--cobalt));
+    font-size: 11px; font-weight: 700; color: var(--accent-col, var(--indigo));
   }
   .step h3 { font-size: 14px; margin-top: 2px; }
   .step p { font-size: 11.8px; margin-top: 6px; }
@@ -167,7 +167,7 @@
   .pill {
     display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 10px; padding: 2px 6px; border-radius: 5px;
-    background: color-mix(in srgb, var(--gold) 20%, transparent); color: var(--gold-ink);
+    background: color-mix(in srgb, var(--teal) 20%, transparent); color: var(--teal-ink);
   }
 
   /* ---------- guarantees ---------- */
@@ -178,7 +178,7 @@
   }
   .g h4 { font-size: 12.5px; font-weight: 680; display: flex; align-items: center; gap: 7px; }
   .g h4::before {
-    content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--gold);
+    content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--teal);
   }
   .g p { font-size: 11.5px; color: var(--muted); line-height: 1.55; margin-top: 6px; }
 
@@ -201,38 +201,38 @@
         <h1>Flanker — System Architecture</h1>
       </div>
       <p class="sub">
-        An autonomous competitive-intelligence agent. Polls the App Store for competitor releases,
-        gathers community reaction, reverse-engineers what shipped with an LLM, and delivers a
-        strategic read plus a counter-PRD by email and dashboard.
+        Search any App Store app and see what its team actually shipped. Release notes are
+        reverse-engineered into a strategic read, with genuine launches separated from the
+        &ldquo;bug fixes and improvements&rdquo; filler that most releases are.
       </p>
     </div>
     <div class="meta">
-      <b>30</b> FinTech competitors tracked<br />
-      <b>108</b> unit tests · TDD on detection &amp; idempotency<br />
+      <b>10,000+</b> apps searchable<br />
+      <b>149</b> unit tests · TDD on detection, idempotency &amp; budget<br />
       <b>Every</b> external service on a free tier, no card
     </div>
   </header>
 
   <!-- TRIGGERS -->
   <div class="band">
-    <div class="band-label">1 · Scheduling</div>
+    <div class="band-label">1 · Browse — no LLM, no upstream API, instant</div>
     <div class="triggers">
       <div class="card">
-        <span class="tag t-free">Vercel Cron</span>
-        <h3>Daily, 13:00 UTC</h3>
-        <p>Hobby caps cron at once per day and drifts up to 59 min. More frequent expressions fail at deploy.</p>
+        <span class="tag t-free">Landing</span>
+        <h3>Search 10,000+ apps</h3>
+        <p>Type-ahead capped at three, prefix-matched and popularity-ranked so &ldquo;s&rdquo; offers a decision rather than a directory.</p>
       </div>
       <div class="card">
-        <span class="tag t-free">GitHub Actions</span>
-        <h3>Hourly, :17</h3>
-        <p>Covers the Hobby gap. Off-the-hour because GitHub delays workflows queued on the hour.</p>
+        <span class="tag t-free">Postgres only</span>
+        <h3>Zero cost per keystroke</h3>
+        <p>Search, suggestions and the app header read the catalog table. Nothing here can spend LLM quota.</p>
       </div>
       <div class="endpoint">
-        <span class="tag t-key">Next.js Route Handler</span>
-        <h3><code>GET /api/cron/poll</code></h3>
+        <span class="tag t-key">Catalog build</span>
+        <h3><code>chart feeds + search &rarr; bulk lookup</code></h3>
         <p>
-          Bearer-token auth, timing-safe, fails closed on an empty secret. Both schedulers hit the
-          same endpoint — safe only because the run is idempotent.
+          Discovery across ~50 chart feeds and ~85 search terms, then hydration in batches of 200.
+          Apple accepts <b>200 ids per lookup</b>, so 10,000 apps refresh in 50 requests, not 10,000.
         </p>
       </div>
     </div>
@@ -240,10 +240,10 @@
 
   <!-- PIPELINE -->
   <div class="band">
-    <div class="band-label">2 · Pipeline — per app, sequential, order is the guarantee</div>
+    <div class="band-label">2 · Analyse — on demand, first view only, cached forever</div>
     <div class="pipeline">
 
-      <div class="step" style="--accent-col: var(--cobalt)">
+      <div class="step" style="--accent-col: var(--indigo)">
         <div class="step-inner">
           <div class="num">01</div>
           <h3>Detect</h3>
@@ -256,7 +256,7 @@
         </div>
       </div>
 
-      <div class="step" style="--accent-col: var(--cobalt)">
+      <div class="step" style="--accent-col: var(--indigo)">
         <div class="step-inner">
           <div class="num">02</div>
           <h3>Reconcile</h3>
@@ -268,7 +268,7 @@
         </div>
       </div>
 
-      <div class="step" style="--accent-col: var(--violet)">
+      <div class="step" style="--accent-col: var(--tangerine)">
         <div class="step-inner">
           <div class="num">03</div>
           <h3>Enrich</h3>
@@ -280,31 +280,31 @@
         </div>
       </div>
 
-      <div class="step" style="--accent-col: var(--violet)">
+      <div class="step" style="--accent-col: var(--tangerine)">
         <div class="step-inner">
           <div class="num">04</div>
           <h3>Triage</h3>
           <p>
             Model resolved at runtime, never hardcoded. Falls down a ranked chain on quota
-            exhaustion. Output parsed tolerantly, validated strictly.
+            exhaustion. Teardown by default; a counter-PRD only when the reader names their product.
           </p>
           <div class="src">Gemini API · free tier<br />per-model daily quota</div>
         </div>
       </div>
 
-      <div class="step" style="--accent-col: var(--gold)">
+      <div class="step" style="--accent-col: var(--teal)">
         <div class="step-inner">
           <div class="num">05</div>
-          <h3>Persist &amp; Alert</h3>
+          <h3>Persist</h3>
           <p>
-            Insert the event, send the alert, stamp <code>email_sent_at</code>. A failed send throws so
-            the run is retried, not lost.
+            Insert the event keyed by (app, version). That row is the cache: every later view of
+            this release is served from it.
           </p>
-          <div class="src">Supabase · Resend</div>
+          <div class="src">Supabase · events</div>
         </div>
       </div>
 
-      <div class="step" style="--accent-col: var(--gold)">
+      <div class="step" style="--accent-col: var(--teal)">
         <div class="step-inner">
           <div class="num">06</div>
           <h3>Advance cursor</h3>
@@ -325,22 +325,22 @@
     <div class="outputs">
       <div class="card">
         <span class="tag t-key">Supabase · Postgres</span>
-        <h3>Two tables, RLS on, no permissive policies</h3>
+        <h3>Three tables, RLS on, no permissive policies</h3>
         <div class="schema">
-          <b>tracked_apps</b> — itunes_track_id · name · hn_query<br />
-          &nbsp;&nbsp;last_seen_version · last_checked_at · enabled<br />
-          <b>events</b> — version · release_notes · hn_summary<br />
-          &nbsp;&nbsp;llm_output_json · signal_level · model · email_sent_at<br />
-          <span class="pill">UNIQUE (app_id, version)</span>
+          <b>catalog_apps</b> — 10k+ rows · name · developer · genre<br />
+          &nbsp;&nbsp;icon · version · release_notes · popularity_rank<br />
+          <b>tracked_apps</b> — promoted from catalog on first view<br />
+          <b>events</b> — llm_output_json · signal_level · model<br />
+          <span class="pill">UNIQUE (app_id, version) = the cache key</span>
         </div>
       </div>
       <div class="card">
-        <span class="tag t-out">Resend</span>
-        <h3>HTML + plain-text alert</h3>
+        <span class="tag t-out">Budget guard</span>
+        <h3>Degrade, don&rsquo;t error</h3>
         <p>
-          Inline styles and table layout — mail clients strip <code>&lt;style&gt;</code> blocks. Release
-          notes are HTML-escaped: third-party text landing in our markup.
-          Signal level drives the colour.
+          Free tier is a per-model, per-day quota that resets at midnight Pacific. At the ceiling
+          cached analyses keep serving and new ones say live analysis is paused, rather than
+          throwing. Per-visitor rate limit on top.
         </p>
       </div>
       <div class="card">
@@ -360,15 +360,15 @@
     <div class="guarantees">
       <div class="g">
         <h4>Cursor advances last</h4>
-        <p>The alert is sent before the version is recorded. A crash in between retries the release; the reverse would lose it forever.</p>
+        <p>The event is stored before the version is recorded. A crash in between retries the release; the reverse would lose it forever.</p>
       </div>
       <div class="g">
         <h4>Unique (app_id, version)</h4>
         <p>The database, not application logic, is what makes a duplicate event physically impossible.</p>
       </div>
       <div class="g">
-        <h4>Recoverable half-runs</h4>
-        <p>Event stored but email failed → resend without paying for the LLM again. Both stored → reconcile the cursor, don't re-alert.</p>
+        <h4>Cache before spend</h4>
+        <p>An existing (app, version) row short-circuits the run before the LLM is touched, so a re-view never pays twice.</p>
       </div>
       <div class="g">
         <h4>Failures are isolated</h4>
@@ -379,11 +379,11 @@
 
   <footer>
     <div class="legend">
-      <span><i class="dot" style="background: var(--cobalt)"></i> Detection</span>
-      <span><i class="dot" style="background: var(--violet)"></i> Enrichment &amp; analysis</span>
-      <span><i class="dot" style="background: var(--gold)"></i> Delivery &amp; state</span>
+      <span><i class="dot" style="background: var(--indigo)"></i> Browse &amp; detection</span>
+      <span><i class="dot" style="background: var(--tangerine)"></i> Enrichment &amp; analysis</span>
+      <span><i class="dot" style="background: var(--teal)"></i> Storage &amp; state</span>
     </div>
-    <div>github.com/ChrisPaulus1/flanker-agent · Next.js 14 · TypeScript · Supabase · Gemini · Resend</div>
+    <div>github.com/ChrisPaulus1/flanker-agent · Next.js 14 · TypeScript · Supabase · Gemini</div>
   </footer>
 
 </div>
