@@ -1,180 +1,45 @@
-import { Activity, Radio } from "lucide-react";
-import { EventCard } from "@/components/event-card";
-import { TrackedApps } from "@/components/tracked-apps";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { SearchBox } from "@/components/search-box";
+import { SiteShell } from "@/components/site-shell";
 import { SupabaseFlankerRepo } from "@/lib/storage/repo";
-import { relativeTime } from "@/lib/format";
-import { cn } from "@/lib/utils";
-import type { FlankerEventWithApp, TrackedApp } from "@/lib/storage/types";
 
-// The dashboard reads Supabase directly from the server. No API route and no
-// client-side key: the service role credential never leaves the server.
+// The catalog size is read live, so the headline number is never a stale claim.
 export const dynamic = "force-dynamic";
 
-/**
- * Each tile carries one of the three accents. Spreading the palette across the
- * summary row is what makes it read as a system rather than as a single hue
- * with two decorations bolted on.
- */
-function StatTile({
-  label,
-  value,
-  hint,
-  accent,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  accent: "indigo" | "tangerine" | "teal";
-}) {
-  const dot = {
-    indigo: "bg-indigo",
-    tangerine: "bg-tangerine",
-    teal: "bg-teal",
-  }[accent];
-
-  return (
-    <Card className="panel surface-card p-4">
-      <div className="flex items-center gap-2">
-        <span className={cn("h-2 w-2 rounded-[3px]", dot)} aria-hidden />
-        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          {label}
-        </div>
-      </div>
-      <div className="mt-1.5 text-2xl font-semibold tabular-nums tracking-tight">{value}</div>
-      {hint && <div className="mt-0.5 text-xs text-muted-foreground">{hint}</div>}
-    </Card>
-  );
+async function catalogSize(): Promise<number | null> {
+  try {
+    return await new SupabaseFlankerRepo().countCatalogApps();
+  } catch {
+    // A dead database shouldn't stop the search page rendering — the count is
+    // decoration, the search box is the product.
+    return null;
+  }
 }
 
-function EmptyState() {
+export default async function HomePage() {
+  const total = await catalogSize();
+
   return (
-    <Card className="panel surface-card flex flex-col items-center gap-3 p-12 text-center">
-      <Radio className="h-7 w-7 text-teal" aria-hidden />
-      <div>
-        <h2 className="font-semibold">No releases detected yet</h2>
-        <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          Flanker records an event the first time it sees each tracked app, then on every version
-          change after that. Run <code className="font-mono text-xs">npm run backfill</code> to
-          populate history from current versions.
+    <SiteShell center>
+      {/* Info above the search bar, search-engine style. */}
+      <div className="w-full max-w-2xl text-center">
+        <h1 className="text-gradient text-4xl font-semibold tracking-tight md:text-5xl">Flanker</h1>
+
+        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+          Search {total && total > 0 ? total.toLocaleString() : "any"} App Store apps to see what a
+          company actually shipped — release notes reverse-engineered into a strategic read, with
+          the filler separated from the releases that matter.
+        </p>
+
+        <div className="mx-auto mt-8 max-w-xl">
+          <SearchBox autoFocus />
+        </div>
+
+        <p className="mt-4 text-xs text-muted-foreground">
+          Try <span className="font-medium text-foreground">Snapchat</span>,{" "}
+          <span className="font-medium text-foreground">Spotify</span> or{" "}
+          <span className="font-medium text-foreground">Robinhood</span>
         </p>
       </div>
-    </Card>
-  );
-}
-
-function ErrorState({ message }: { message: string }) {
-  return (
-    <Card className="border-destructive/40 bg-destructive/5 p-6">
-      <h2 className="font-semibold text-destructive">Could not load events</h2>
-      <p className="mt-1 text-sm text-muted-foreground">{message}</p>
-      <p className="mt-3 text-sm text-muted-foreground">
-        Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, and that supabase/schema.sql has been
-        applied.
-      </p>
-    </Card>
-  );
-}
-
-export default async function DashboardPage() {
-  let events: FlankerEventWithApp[] = [];
-  let apps: TrackedApp[] = [];
-  let error: string | null = null;
-
-  try {
-    const repo = new SupabaseFlankerRepo();
-    [events, apps] = await Promise.all([repo.listRecentEvents(100), repo.listTrackedApps()]);
-  } catch (caught) {
-    // A dead database should render a diagnosable page, not a stack trace.
-    error = caught instanceof Error ? caught.message : String(caught);
-  }
-
-  const highSignal = events.filter((e) => e.signalLevel === "high").length;
-  const lastChecked = apps
-    .map((a) => a.lastCheckedAt)
-    .filter((v): v is string => Boolean(v))
-    .sort()
-    .at(-1);
-
-  return (
-    <div className="page-wash min-h-screen bg-background">
-      <div className="brand-bar" aria-hidden />
-      <header className="sticky top-0 z-[9] border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Activity className="h-5 w-5 text-tangerine" aria-hidden />
-            <span className="font-semibold tracking-tight">Flanker</span>
-            <Badge variant="outline" className="hidden font-normal sm:inline-flex">
-              Competitive intelligence
-            </Badge>
-          </div>
-          <ThemeToggle />
-        </div>
-      </header>
-
-      <main className="container py-8 md:py-12">
-        <div className="max-w-3xl">
-          {/* The glow is scoped to the heading rather than the whole block —
-              across the description it washed out the body copy and made the
-              paragraph look like it was floating on the gradient. */}
-          <div className="hero-glow inline-block">
-            <h1 className="text-gradient text-3xl font-semibold tracking-tight md:text-4xl">
-              Release timeline
-            </h1>
-          </div>
-          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-            Every App Store release across {apps.length} tracked FinTech competitors,
-            reverse-engineered into a strategic read and a one-page counter-PRD.
-          </p>
-        </div>
-
-        {error ? (
-          <div className="mt-8">
-            <ErrorState message={error} />
-          </div>
-        ) : (
-          <>
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-              <StatTile label="Releases detected" value={String(events.length)} accent="indigo" />
-              <StatTile
-                label="High signal"
-                value={String(highSignal)}
-                hint={events.length > 0 ? `of ${events.length} releases` : undefined}
-                accent="tangerine"
-              />
-              <StatTile
-                label="Last checked"
-                value={lastChecked ? relativeTime(lastChecked) : "never"}
-                accent="teal"
-              />
-            </div>
-
-            {apps.length > 0 && (
-              <div className="mt-3 sm:mt-4">
-                <TrackedApps apps={apps} />
-              </div>
-            )}
-
-            <div className="mt-8 space-y-3">
-              {events.length === 0 ? (
-                <EmptyState />
-              ) : (
-                events.map((event) => <EventCard key={event.id} event={event} />)
-              )}
-            </div>
-          </>
-        )}
-      </main>
-
-      <footer className="border-t border-border/60">
-        <div className="container py-6 text-xs text-muted-foreground">
-          Flanker polls the iTunes Search API and Hacker News, then uses Gemini to draft the
-          analysis. Feature and strategy sections are inferred from public release notes and may be
-          wrong.
-        </div>
-      </footer>
-    </div>
+    </SiteShell>
   );
 }
