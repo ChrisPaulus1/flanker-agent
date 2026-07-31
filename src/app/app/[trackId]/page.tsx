@@ -121,7 +121,7 @@ function NoAnalysisYet({ app }: { app: CatalogApp }) {
       <h3 className="font-semibold">No analysis for this app yet</h3>
       <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
         Flanker has {app.name} v{app.version ? formatVersion(app.version) : "?"} in the catalog but
-        hasn&apos;t analysed this release. Analysis runs on demand and is cached, so the first
+        hasn&apos;t analyzed this release. Analysis runs on demand and is cached, so the first
         request takes a few seconds and every later view is instant.
       </p>
 

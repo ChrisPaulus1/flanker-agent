@@ -1,0 +1,82 @@
+"use client";
+
+import * as React from "react";
+
+/**
+ * "Your product" — who the analysis is written for.
+ *
+ * Stored in localStorage rather than on the server: there is no auth, and a
+ * visitor shouldn't have to create an account to find out what a counter-PRD
+ * looks like. It also keeps the server stateless, so two people reading the
+ * same app can hold different contexts without a session.
+ */
+export interface ViewerProduct {
+  itunesTrackId: number;
+  name: string;
+  developer: string | null;
+  genre: string | null;
+  iconUrl: string | null;
+}
+
+const STORAGE_KEY = "flanker.viewer";
+const CHANGE_EVENT = "flanker:viewer-change";
+
+export function readViewer(): ViewerProduct | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as ViewerProduct;
+    return typeof parsed?.itunesTrackId === "number" && parsed.name ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeViewer(viewer: ViewerProduct | null): void {
+  if (typeof window === "undefined") return;
+  if (viewer) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(viewer));
+  else window.localStorage.removeItem(STORAGE_KEY);
+
+  // `storage` only fires in *other* tabs, so components in this one need their
+  // own signal or the header and the cards fall out of sync.
+  window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
+}
+
+/**
+ * Subscribe to the current viewer product.
+ *
+ * Starts null on every render and fills in after mount — reading localStorage
+ * during render would produce server/client markup that disagrees.
+ */
+export function useViewer(): [ViewerProduct | null, (v: ViewerProduct | null) => void, boolean] {
+  const [viewer, setViewer] = React.useState<ViewerProduct | null>(null);
+  const [ready, setReady] = React.useState(false);
+
+  React.useEffect(() => {
+    setViewer(readViewer());
+    setReady(true);
+
+    const sync = () => setViewer(readViewer());
+    window.addEventListener(CHANGE_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(CHANGE_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  return [viewer, writeViewer, ready];
+}
+
+/**
+ * Client-side cache for generated counter-PRDs.
+ *
+ * Keyed by app, version and viewer, so switching products regenerates and
+ * switching back doesn't. Kept out of Postgres deliberately: storing one row
+ * per viewer permutation would multiply the events table by the number of
+ * distinct readers for no benefit the browser can't provide.
+ */
+export function counterPrdCacheKey(trackId: number, version: string, viewerId: number): string {
+  return `flanker.prd.${trackId}.${version}.${viewerId}`;
+}

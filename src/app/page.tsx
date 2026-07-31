@@ -22,7 +22,7 @@ export default async function HomePage() {
     <SiteShell center>
       {/* Info above the search bar, search-engine style. */}
       <div className="w-full max-w-2xl text-center">
-        <h1 className="text-gradient text-4xl font-semibold tracking-tight md:text-5xl">Flanker</h1>
+        <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">Flanker</h1>
 
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           {/* Singular when the count is unavailable, or this reads "any App Store apps". */}

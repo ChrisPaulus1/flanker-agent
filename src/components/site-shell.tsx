@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Activity } from "lucide-react";
+import { ProductPicker } from "@/components/product-picker";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -36,7 +37,10 @@ export function SiteShell({
               App Store intelligence
             </Badge>
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ProductPicker />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -49,13 +53,6 @@ export function SiteShell({
         {children}
       </main>
 
-      <footer className="border-t border-border/60">
-        <div className="container py-6 text-xs text-muted-foreground">
-          Flanker reads the iTunes Search API and Hacker News, then uses Gemini to draft the
-          analysis. Feature and strategy sections are inferred from public release notes and may be
-          wrong.
-        </div>
-      </footer>
     </div>
   );
 }

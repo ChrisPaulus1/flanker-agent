@@ -83,12 +83,12 @@ export function AnalyzeButton({ trackId, appName }: { trackId: number; appName: 
       {state === "running" ? (
         <>
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          Analysing {appName}…
+          Analyzing {appName}…
         </>
       ) : (
         <>
           <Sparkles className="h-4 w-4" aria-hidden />
-          Analyse latest release
+          Analyze latest release
         </>
       )}
     </Button>

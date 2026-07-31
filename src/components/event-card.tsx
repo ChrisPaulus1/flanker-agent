@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ChevronDown, ExternalLink } from "lucide-react";
+import { CounterPrdSection } from "@/components/counter-prd";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -168,33 +169,17 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
             */}
             <div className="rounded-xl border border-border/70 bg-gradient-to-br from-indigo/[0.07] via-teal/[0.05] to-tangerine/[0.07] p-4">
               <h4 className="mb-3 text-sm font-semibold tracking-tight">Counter-PRD</h4>
-              {triage.counter_prd ? (
-                <dl className="space-y-3">
-                  {[
-                    ["Problem statement", triage.counter_prd.problem_statement],
-                    ["Why now", triage.counter_prd.why_now],
-                    ["Proposed response", triage.counter_prd.proposed_feature],
-                    ["Success metric", triage.counter_prd.success_metric],
-                  ].map(([label, value]) => (
-                    <div key={label}>
-                      <dt className="text-xs font-semibold text-muted-foreground">{label}</dt>
-                      <dd className="mt-0.5 text-[15px] leading-relaxed text-foreground/90">
-                        {value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              ) : (
-                <p className="text-[15px] leading-relaxed text-muted-foreground">
-                  Tell Flanker what you build and this becomes a counter-PRD written for your
-                  product — problem statement, why now, a buildable response and a success metric.
-                </p>
-              )}
+              <CounterPrdSection
+                stored={triage.counter_prd}
+                trackId={event.app.itunesTrackId}
+                version={event.version}
+                appName={event.app.name}
+              />
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4 text-xs text-muted-foreground">
               <span>
-                Analysed by{" "}
+                Analyzed by{" "}
                 <span className="font-mono">{event.model ?? "an unrecorded model"}</span> · inferred
                 from public release notes and may be wrong
               </span>
