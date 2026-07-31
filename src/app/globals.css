@@ -228,11 +228,19 @@
 
   @supports ((background-clip: text) or (-webkit-background-clip: text)) {
     .text-gradient {
+      /*
+        Stops spread to 0/44/100 rather than 26/58/100. The old ramp was tuned
+        for a long heading ("Release timeline"); across a seven-letter word it
+        compressed so far that only the indigo band was visible and the
+        tangerine end never arrived. Same three tokens, just spaced so all
+        three actually land within a short word.
+      */
       background-image: linear-gradient(
         100deg,
-        hsl(var(--foreground)) 26%,
-        hsl(var(--indigo-ink)) 58%,
-        hsl(var(--tangerine-ink))
+        hsl(var(--foreground)) 0%,
+        hsl(var(--indigo)) 38%,
+        hsl(var(--tangerine)) 88%,
+        hsl(var(--tangerine-ink)) 100%
       );
       -webkit-background-clip: text;
       background-clip: text;

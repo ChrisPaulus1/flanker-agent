@@ -22,7 +22,12 @@ export default async function HomePage() {
     <SiteShell center>
       {/* Info above the search bar, search-engine style. */}
       <div className="w-full max-w-2xl text-center">
-        <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">Flanker</h1>
+        {/*
+          The tri-colour gradient the old "Release timeline" heading used:
+          foreground into indigo into tangerine, so it reads navy-to-orange in
+          light mode and white-to-purple-to-orange in dark.
+        */}
+        <h1 className="text-gradient text-4xl font-semibold tracking-tight md:text-5xl">Flanker</h1>
 
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           {/* Singular when the count is unavailable, or this reads "any App Store apps". */}
