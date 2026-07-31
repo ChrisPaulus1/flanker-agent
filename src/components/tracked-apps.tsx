@@ -16,7 +16,7 @@ function AppChip({ app }: { app: TrackedApp }) {
       href={`https://apps.apple.com/us/app/id${app.itunesTrackId}`}
       target="_blank"
       rel="noreferrer"
-      className="group inline-flex items-center gap-2 rounded-full border border-gold-hairline/60 bg-gradient-to-r from-grad-veil to-grad-violet/35 px-3 py-1.5 text-sm transition-colors hover:border-gold/70 hover:to-grad-violet/60"
+      className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm transition-colors hover:border-cobalt/50 hover:bg-accent/60"
     >
       <span className="font-medium text-foreground/90">{app.name}</span>
       <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
@@ -41,7 +41,7 @@ export function TrackedApps({ apps }: { apps: TrackedApp[] }) {
   const hidden = apps.slice(VISIBLE);
 
   return (
-    <Card className="box-gold surface-card-warm overflow-hidden p-4 sm:p-5">
+    <Card className="panel surface-card overflow-hidden p-4 sm:p-5">
       <Collapsible open={open} onOpenChange={setOpen}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">

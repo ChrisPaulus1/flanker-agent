@@ -5,86 +5,94 @@
 @layer base {
   :root {
     /*
-      Purple base, gold reserved for outlines. The previous pass put gold on
-      every surface — hairlines, washes, badge fills, eyebrow text — and it
-      stopped reading as an accent. Gold is now edges only; colour comes from
-      the purple family.
-    */
-    --background: 265 44% 96%;
-    --foreground: 265 40% 14%;
-    /* Cards sit a shade lighter and cooler than the page so they lift off the
-       purple wash rather than blending into it. */
-    --card: 270 60% 99%;
-    --card-foreground: 265 40% 14%;
+      Porcelain and cobalt.
 
-    --primary: 262 60% 42%;
+      Structure comes from deep navy ink on a cool near-white; colour is spent
+      almost entirely on two accents. Signal orange marks a competitive threat
+      and cobalt marks the middle tier. Green is deliberately absent — in a
+      finance context green reads as "good", which is exactly backwards for a
+      high-signal competitor release.
+    */
+    --background: 214 43% 98%;
+    --foreground: 218 65% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 65% 12%;
+
+    --primary: 225 79% 44%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 265 40% 93%;
-    --secondary-foreground: 265 42% 26%;
-    --muted: 265 34% 93%;
-    --muted-foreground: 264 14% 42%;
-    --accent: 266 44% 93%;
-    --accent-foreground: 265 42% 26%;
-    --destructive: 0 68% 48%;
+    --secondary: 214 38% 95%;
+    --secondary-foreground: 218 50% 22%;
+    --muted: 214 34% 95%;
+    --muted-foreground: 215 17% 43%;
+    --accent: 214 44% 94%;
+    --accent-foreground: 218 50% 22%;
+    --destructive: 0 72% 46%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 265 30% 88%;
-    --input: 265 30% 88%;
-    --ring: 262 60% 48%;
-    --radius: 0.875rem;
+    --border: 216 33% 91%;
+    --input: 216 33% 91%;
+    --ring: 225 79% 50%;
+    --radius: 0.625rem;
 
-    /* Gold: edges and the high-signal mark only. */
-    --gold-hairline: 42 62% 66%;
-    --gold: 40 72% 52%;
-    --gold-ink: 38 80% 30%;
+    /*
+      Two weights per accent. The bright value is for rules, rails and marks;
+      the ink value is the only one dark enough to set text on white at 4.5:1.
+    */
+    --signal-orange: 14 82% 52%;
+    --signal-orange-ink: 14 84% 40%;
+    --cobalt: 225 79% 50%;
+    --cobalt-ink: 225 79% 42%;
 
-    --signal-high: 38 80% 30%;
-    --signal-medium: 262 52% 44%;
-    --signal-low: 264 10% 44%;
+    --signal-high: 14 84% 40%;
+    --signal-medium: 225 79% 42%;
+    --signal-low: 215 17% 43%;
 
-    /* Purple gradient stops for the page wash and surfaces. */
-    --grad-violet: 265 72% 82%;
-    --grad-lilac: 282 62% 86%;
-    --grad-periwinkle: 240 66% 88%;
-    --grad-veil: 268 60% 95%;
+    /* Gradient tints. Structural only — barely-there washes, not decoration. */
+    --tint-cool: 216 60% 94%;
+    --tint-warm: 20 70% 94%;
+    --tint-veil: 214 50% 97%;
   }
 
   .dark {
-    /* Deep aubergine rather than neutral charcoal, so the purple identity
-       survives the theme switch. */
-    --background: 265 32% 8%;
-    --foreground: 270 30% 95%;
-    --card: 264 28% 13%;
-    --card-foreground: 270 30% 95%;
+    /*
+      Deliberately not near-black. A deep slate-navy keeps the porcelain
+      character and stays comfortable to read for long stretches; pure black
+      would make the accents glare.
+    */
+    --background: 218 30% 13%;
+    --foreground: 213 40% 96%;
+    --card: 218 26% 17%;
+    --card-foreground: 213 40% 96%;
 
-    --primary: 265 70% 76%;
-    --primary-foreground: 265 40% 10%;
-    --secondary: 264 22% 20%;
-    --secondary-foreground: 270 30% 95%;
-    --muted: 264 22% 17%;
-    --muted-foreground: 266 16% 68%;
-    --accent: 264 24% 22%;
-    --accent-foreground: 270 30% 95%;
-    --destructive: 0 58% 50%;
+    --primary: 222 90% 72%;
+    --primary-foreground: 218 40% 12%;
+    --secondary: 217 20% 24%;
+    --secondary-foreground: 213 40% 96%;
+    --muted: 217 20% 22%;
+    --muted-foreground: 215 18% 68%;
+    --accent: 217 22% 26%;
+    --accent-foreground: 213 40% 96%;
+    --destructive: 0 60% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 264 20% 24%;
-    --input: 264 20% 24%;
-    --ring: 42 74% 58%;
+    --border: 217 18% 28%;
+    --input: 217 18% 28%;
+    --ring: 222 90% 72%;
 
-    /* Gold has to lift a long way to stay legible on aubergine. */
-    --gold-hairline: 40 34% 38%;
-    --gold: 42 74% 60%;
-    --gold-ink: 44 80% 70%;
+    /* Both accents lift on the dark surface; the light-mode ink tones fall
+       well under 4.5:1 here. */
+    --signal-orange: 16 90% 62%;
+    --signal-orange-ink: 18 92% 68%;
+    --cobalt: 222 92% 70%;
+    --cobalt-ink: 222 92% 74%;
 
-    --signal-high: 44 80% 70%;
-    --signal-medium: 264 62% 78%;
-    --signal-low: 266 12% 62%;
+    --signal-high: 18 92% 68%;
+    --signal-medium: 222 92% 74%;
+    --signal-low: 215 14% 64%;
 
-    --grad-violet: 266 52% 30%;
-    --grad-lilac: 284 44% 28%;
-    --grad-periwinkle: 240 46% 30%;
-    --grad-veil: 266 36% 14%;
+    --tint-cool: 220 40% 20%;
+    --tint-warm: 18 34% 20%;
+    --tint-veil: 218 28% 15%;
   }
 }
 
@@ -101,20 +109,20 @@
 
 @layer components {
   /*
-    Page wash: violet and lilac pooling from the top with a periwinkle band
-    through the middle, plus a diagonal sweep so the whole viewport reads as
-    one gradient. Fixed, so it doesn't travel under the timeline on scroll.
+    Page wash — structural only.
+
+    One cool pool top-left and a much fainter warm one top-right, gone by 40%
+    down the viewport. The previous palette's full-viewport diagonal sweep is
+    what made it read as generic; here the background is nearly flat and the
+    accent colour carries the page.
   */
   .page-wash {
     position: relative;
     isolation: isolate;
-    /*
-      The hero glow is a blurred pseudo-element with negative horizontal
-      insets, which pushed the document 17px wider than the viewport on mobile
-      and produced a horizontal scrollbar. `clip` rather than `hidden`
-      deliberately: `hidden` would establish a scroll container and break the
-      sticky header, `clip` doesn't.
-    */
+    /* The hero glow's blurred pseudo-element has negative horizontal insets
+       and would otherwise widen the document past the viewport on mobile.
+       `clip` rather than `hidden`: hidden establishes a scroll container and
+       breaks the sticky header. */
     overflow-x: clip;
   }
 
@@ -125,154 +133,54 @@
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(
-        58rem 34rem at 4% -8%,
-        hsl(var(--grad-violet) / 0.95),
-        transparent 56%
-      ),
-      radial-gradient(
-        52rem 30rem at 96% -10%,
-        hsl(var(--grad-lilac) / 0.85),
-        transparent 54%
-      ),
-      radial-gradient(
-        44rem 26rem at 50% 6%,
-        hsl(var(--grad-periwinkle) / 0.6),
-        transparent 58%
-      ),
-      /* A wide diagonal sweep across the whole viewport so the page reads as
-         one continuous gradient rather than three separate glows. */
-        linear-gradient(
-          115deg,
-          hsl(var(--grad-violet) / 0.5) 0%,
-          transparent 34%,
-          transparent 62%,
-          hsl(var(--grad-lilac) / 0.42) 100%
-        ),
-      linear-gradient(
-        180deg,
-        hsl(var(--grad-veil) / 0.95) 0%,
-        hsl(var(--grad-veil) / 0.35) 32%,
-        transparent 58%
-      );
+      radial-gradient(48rem 26rem at 12% -10%, hsl(var(--tint-cool) / 0.7), transparent 62%),
+      radial-gradient(38rem 22rem at 88% -12%, hsl(var(--tint-warm) / 0.4), transparent 64%),
+      linear-gradient(180deg, hsl(var(--tint-veil) / 0.8) 0%, transparent 40%);
   }
 
   .dark .page-wash::before {
     background:
-      radial-gradient(
-        58rem 34rem at 4% -8%,
-        hsl(var(--grad-violet) / 0.85),
-        transparent 56%
-      ),
-      radial-gradient(
-        52rem 30rem at 96% -10%,
-        hsl(var(--grad-lilac) / 0.7),
-        transparent 54%
-      ),
-      radial-gradient(
-        44rem 26rem at 50% 6%,
-        hsl(var(--grad-periwinkle) / 0.55),
-        transparent 58%
-      ),
-      linear-gradient(
-        115deg,
-        hsl(var(--grad-violet) / 0.45) 0%,
-        transparent 34%,
-        transparent 62%,
-        hsl(var(--grad-lilac) / 0.4) 100%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(var(--grad-veil) / 0.9) 0%,
-        hsl(var(--grad-veil) / 0.3) 32%,
-        transparent 58%
-      );
+      radial-gradient(48rem 26rem at 12% -10%, hsl(var(--tint-cool) / 0.55), transparent 62%),
+      radial-gradient(38rem 22rem at 88% -12%, hsl(var(--tint-warm) / 0.3), transparent 64%),
+      linear-gradient(180deg, hsl(var(--tint-veil) / 0.75) 0%, transparent 40%);
   }
 
   /*
-    Gradient outline.
-
-    A CSS border can only hold a flat colour, so the ring is a pseudo-element
-    filled with a gradient and masked to just its own 1px padding box —
-    mask-composite punches out the middle and leaves the outline. That's what
-    lets the gold shift hue around the edge of a box rather than sitting flat.
+    Panels are flat with a crisp 1px border. The gradient outlines of the last
+    pass softened every edge; precise hairlines are what make an editorial
+    layout read as deliberate rather than decorative.
   */
-  .box-gold,
-  .box-gold-raised {
-    position: relative;
-    border-color: transparent;
+  .panel {
+    border-color: hsl(var(--border));
+    box-shadow: 0 1px 2px hsl(218 40% 20% / 0.04);
   }
 
-  .box-gold::after,
-  .box-gold-raised::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    pointer-events: none;
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-  }
-
-  .box-gold::after {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--gold) / 0.6) 0%,
-      hsl(var(--gold-hairline) / 0.45) 40%,
-      hsl(var(--grad-violet) / 0.7) 100%
-    );
-  }
-
-  .box-gold {
+  .panel-raised {
+    border-color: hsl(var(--border));
     box-shadow:
-      0 1px 2px hsl(265 40% 25% / 0.05),
-      0 10px 28px -18px hsl(265 45% 30% / 0.22);
+      0 1px 2px hsl(218 40% 20% / 0.05),
+      0 12px 28px -20px hsl(218 45% 25% / 0.22);
   }
 
-  .box-gold-raised::after {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--gold)) 0%,
-      hsl(var(--gold-hairline)) 34%,
-      hsl(var(--gold) / 0.75) 62%,
-      hsl(var(--grad-violet) / 0.85) 100%
-    );
-  }
-
-  .box-gold-raised {
-    box-shadow:
-      0 1px 2px hsl(265 40% 25% / 0.07),
-      0 16px 38px -20px hsl(265 50% 30% / 0.3);
-  }
-
-  /*
-    Card surface. A diagonal three-stop wash rather than the near-flat
-    vertical fade it replaced — the gradient should be legible as a gradient,
-    not just as a slightly uneven fill.
-  */
+  /* A whisper of vertical gradient so white cards aren't perfectly inert. */
   .surface-card {
     background-image: linear-gradient(
-      142deg,
+      180deg,
       hsl(var(--card)) 0%,
-      hsl(var(--grad-veil) / 0.85) 42%,
-      hsl(var(--grad-violet) / 0.35) 100%
+      hsl(var(--tint-veil) / 0.55) 100%
     );
   }
 
-  .surface-card-warm {
-    background-image: linear-gradient(
-      142deg,
-      hsl(var(--card)) 0%,
-      hsl(var(--grad-violet) / 0.4) 52%,
-      hsl(var(--grad-lilac) / 0.42) 100%
-    );
+  /* Signal rails. Solid, not gradient — a 3px rule reads as a mark. */
+  .rail-high {
+    background-color: hsl(var(--signal-orange));
   }
 
-  /* Soft gradient glow sitting behind the page heading. */
+  .rail-medium {
+    background-color: hsl(var(--cobalt));
+  }
+
+  /* Restrained glow behind the heading only. */
   .hero-glow {
     position: relative;
   }
@@ -280,41 +188,19 @@
   .hero-glow::before {
     content: "";
     position: absolute;
-    inset: -40% -12% -60% -6%;
+    inset: -70% -8% -80% -6%;
     z-index: -1;
     pointer-events: none;
     border-radius: 50%;
-    filter: blur(56px);
-    opacity: 0.62;
-    background: radial-gradient(
-        50% 60% at 20% 50%,
-        hsl(var(--grad-violet)),
-        transparent 70%
-      ),
-      radial-gradient(45% 55% at 70% 40%, hsl(var(--grad-lilac)), transparent 72%);
-  }
-
-  .rail-high {
-    background-image: linear-gradient(
-      180deg,
-      hsl(var(--gold-ink)) 0%,
-      hsl(var(--gold)) 50%,
-      hsl(var(--gold-hairline)) 100%
-    );
-  }
-
-  .rail-medium {
-    background-image: linear-gradient(
-      180deg,
-      hsl(var(--signal-medium)),
-      hsl(var(--signal-medium) / 0.5)
-    );
+    filter: blur(48px);
+    opacity: 0.5;
+    background: radial-gradient(55% 60% at 25% 50%, hsl(var(--tint-cool)), transparent 72%);
   }
 
   /*
     Gradient text needs `color: transparent`, so an unsupported
-    background-clip renders the heading invisible rather than merely flat.
-    Solid colour is the base; the gradient sits behind @supports.
+    background-clip would render the heading invisible rather than merely
+    flat. Solid colour is the base; the gradient sits behind @supports.
   */
   .text-gradient {
     color: hsl(var(--foreground));
@@ -324,8 +210,8 @@
     .text-gradient {
       background-image: linear-gradient(
         100deg,
-        hsl(var(--foreground)) 28%,
-        hsl(var(--primary))
+        hsl(var(--foreground)) 40%,
+        hsl(var(--cobalt-ink))
       );
       -webkit-background-clip: text;
       background-clip: text;

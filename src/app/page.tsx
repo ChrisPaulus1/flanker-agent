@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 function StatTile({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <Card className="box-gold surface-card p-4">
+    <Card className="panel surface-card p-4">
       <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </div>
@@ -26,7 +26,7 @@ function StatTile({ label, value, hint }: { label: string; value: string; hint?:
 
 function EmptyState() {
   return (
-    <Card className="box-gold surface-card flex flex-col items-center gap-3 p-12 text-center">
+    <Card className="panel surface-card flex flex-col items-center gap-3 p-12 text-center">
       <Radio className="h-7 w-7 text-primary" aria-hidden />
       <div>
         <h2 className="font-semibold">No releases detected yet</h2>

@@ -47,20 +47,21 @@ const config: Config = {
           medium: "hsl(var(--signal-medium))",
           low: "hsl(var(--signal-low))",
         },
-        // Gold, in three weights: hairline outlines every box, `gold` is for
-        // rails, `ink` is the only one dark enough to set text in.
-        gold: {
-          hairline: "hsl(var(--gold-hairline))",
-          DEFAULT: "hsl(var(--gold))",
-          ink: "hsl(var(--gold-ink))",
+        // Two accents, two weights each. The bright value marks; the `ink`
+        // value is the only one dark enough to set text on white.
+        cobalt: {
+          DEFAULT: "hsl(var(--cobalt))",
+          ink: "hsl(var(--cobalt-ink))",
         },
-        // Gradient stops, exposed to utilities so one-off gradients don't get
-        // written with raw hex values.
-        grad: {
-          violet: "hsl(var(--grad-violet))",
-          lilac: "hsl(var(--grad-lilac))",
-          periwinkle: "hsl(var(--grad-periwinkle))",
-          veil: "hsl(var(--grad-veil))",
+        flare: {
+          DEFAULT: "hsl(var(--signal-orange))",
+          ink: "hsl(var(--signal-orange-ink))",
+        },
+        // Structural tints for the page wash and card surfaces.
+        tint: {
+          cool: "hsl(var(--tint-cool))",
+          warm: "hsl(var(--tint-warm))",
+          veil: "hsl(var(--tint-veil))",
         },
       },
       borderRadius: {

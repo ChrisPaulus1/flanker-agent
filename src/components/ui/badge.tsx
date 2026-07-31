@@ -13,10 +13,10 @@ const badgeVariants = cva(
         outline: "text-foreground",
         // Signal levels get their own variants so the styling lives in one
         // place and can't drift between the timeline and the detail view.
-        // High and medium carry a soft gradient wash; low deliberately doesn't,
-        // so the eye reads saturation as importance.
-        high: "border-gold/55 bg-gradient-to-r from-grad-veil to-grad-violet/45 text-signal-high",
-        medium: "border-signal-medium/25 bg-gradient-to-r from-grad-periwinkle/55 to-grad-lilac/40 text-signal-medium",
+        // High and medium carry a tinted fill and a coloured edge; low is a
+        // flat grey, so the presence of colour alone signals importance.
+        high: "border-flare/35 bg-flare/10 text-signal-high",
+        medium: "border-cobalt/30 bg-cobalt/10 text-signal-medium",
         low: "border-transparent bg-muted text-muted-foreground",
       },
     },
