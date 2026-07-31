@@ -25,9 +25,10 @@ export default async function HomePage() {
         <h1 className="text-gradient text-4xl font-semibold tracking-tight md:text-5xl">Flanker</h1>
 
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          Search {total && total > 0 ? total.toLocaleString() : "any"} App Store apps to see what a
-          company actually shipped — release notes reverse-engineered into a strategic read, with
-          the filler separated from the releases that matter.
+          {/* Singular when the count is unavailable, or this reads "any App Store apps". */}
+          Search {total && total > 0 ? `${total.toLocaleString()} App Store apps` : "any App Store app"}{" "}
+          to see what a company actually shipped — release notes reverse-engineered into a strategic
+          read, with the filler separated from the releases that matter.
         </p>
 
         <div className="mx-auto mt-8 max-w-xl">
