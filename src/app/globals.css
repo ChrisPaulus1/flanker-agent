@@ -4,52 +4,76 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* Near-white with a violet cast rather than pure #fff — it keeps the
+       gradients from looking like a stain on an otherwise neutral page. */
+    --background: 260 60% 99%;
+    --foreground: 250 30% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --primary: 222 47% 11%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 47% 11%;
-    --radius: 0.75rem;
+    --card-foreground: 250 30% 12%;
 
-    --signal-high: 22 92% 50%;
-    --signal-medium: 217 91% 60%;
-    --signal-low: 215 16% 47%;
+    --primary: 258 82% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 258 40% 96%;
+    --secondary-foreground: 252 40% 26%;
+    --muted: 258 35% 96%;
+    --muted-foreground: 250 12% 46%;
+    --accent: 258 45% 95%;
+    --accent-foreground: 252 40% 26%;
+    --destructive: 0 78% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 256 32% 91%;
+    --input: 256 32% 91%;
+    --ring: 258 82% 60%;
+    --radius: 0.875rem;
+
+    /* Signal scale lives in the purple family so the brand colour and the
+       attention colour are the same thing: saturation carries the meaning,
+       and low signal simply drains out of it. */
+    --signal-high: 262 83% 58%;
+    --signal-medium: 232 68% 62%;
+    --signal-low: 250 10% 55%;
+
+    /* Gradient stops, named so the page, header and cards can't drift. */
+    --grad-violet: 262 83% 58%;
+    --grad-periwinkle: 232 72% 66%;
+    --grad-lilac: 275 70% 72%;
+    --grad-haze: 258 60% 97%;
   }
 
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 96%;
-    --card: 222 44% 10%;
-    --card-foreground: 210 40% 96%;
-    --primary: 210 40% 96%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 96%;
-    --muted: 217 33% 15%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 96%;
-    --destructive: 0 63% 45%;
-    --destructive-foreground: 210 40% 96%;
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 213 27% 70%;
+    /* Indigo-tinted near-black, not neutral slate — the light theme's violet
+       cast has to survive the switch or the two feel like different products. */
+    --background: 252 32% 7%;
+    --foreground: 258 30% 95%;
+    --card: 252 28% 11%;
+    --card-foreground: 258 30% 95%;
 
-    --signal-high: 25 95% 58%;
-    --signal-medium: 213 94% 68%;
-    --signal-low: 215 20% 60%;
+    --primary: 258 90% 72%;
+    --primary-foreground: 252 40% 10%;
+    --secondary: 252 22% 18%;
+    --secondary-foreground: 258 30% 95%;
+    --muted: 252 22% 16%;
+    --muted-foreground: 252 15% 66%;
+    --accent: 252 24% 20%;
+    --accent-foreground: 258 30% 95%;
+    --destructive: 0 62% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 252 20% 22%;
+    --input: 252 20% 22%;
+    --ring: 258 90% 72%;
+
+    /* Lifted for contrast against the dark surface — the light-mode values
+       fall under 4.5:1 here. */
+    --signal-high: 262 95% 76%;
+    --signal-medium: 232 90% 76%;
+    --signal-low: 252 12% 62%;
+
+    --grad-violet: 262 85% 62%;
+    --grad-periwinkle: 232 70% 58%;
+    --grad-lilac: 275 65% 62%;
+    --grad-haze: 252 30% 12%;
   }
 }
 
@@ -57,8 +81,131 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /*
+    Page wash. Two soft radial pools bleeding down from the top, fixed so they
+    don't slide under the timeline while scrolling. Kept low-opacity: this
+    should read as tinted paper, not as a decorative background.
+  */
+  .page-wash {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .page-wash::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        68rem 38rem at 8% -10%,
+        hsl(var(--grad-violet) / 0.22),
+        transparent 60%
+      ),
+      radial-gradient(
+        58rem 34rem at 92% -14%,
+        hsl(var(--grad-lilac) / 0.2),
+        transparent 58%
+      ),
+      radial-gradient(
+        44rem 26rem at 50% 4%,
+        hsl(var(--grad-periwinkle) / 0.1),
+        transparent 62%
+      ),
+      linear-gradient(180deg, hsl(var(--grad-haze) / 0.95), transparent 44%);
+  }
+
+  .dark .page-wash::before {
+    /* The same pools need more punch on a dark surface to stay perceptible. */
+    background:
+      radial-gradient(
+        62rem 34rem at 12% -8%,
+        hsl(var(--grad-violet) / 0.22),
+        transparent 60%
+      ),
+      radial-gradient(
+        54rem 30rem at 88% -12%,
+        hsl(var(--grad-lilac) / 0.16),
+        transparent 58%
+      ),
+      linear-gradient(180deg, hsl(var(--grad-haze) / 0.9), transparent 42%);
+  }
+
+  /* Card surface: a barely-there vertical gradient so cards read as raised
+     paper rather than flat fills. */
+  .surface-card {
+    background-image: linear-gradient(
+      168deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--grad-haze) / 0.55) 100%
+    );
+  }
+
+  /* Accent rail for high/medium signal, replacing a flat border colour. */
+  .rail-high {
+    background-image: linear-gradient(
+      180deg,
+      hsl(var(--grad-violet)),
+      hsl(var(--grad-lilac))
+    );
+  }
+
+  .rail-medium {
+    background-image: linear-gradient(
+      180deg,
+      hsl(var(--grad-periwinkle)),
+      hsl(var(--grad-violet) / 0.7)
+    );
+  }
+
+  /*
+    Gradient text, with the solid colour as the base rather than the fallback.
+    `background-clip: text` requires `color: transparent`, so if the clip isn't
+    supported the heading renders invisible rather than merely un-gradiented.
+    Gating the whole treatment behind @supports means the failure mode is a
+    plain foreground-coloured heading.
+  */
+  .text-gradient {
+    color: hsl(var(--foreground));
+  }
+
+  @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+    .text-gradient {
+      background-image: linear-gradient(
+        100deg,
+        hsl(var(--foreground)) 20%,
+        hsl(var(--grad-violet))
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+}
+
+@layer utilities {
+  /*
+    Honour the OS reduced-motion setting globally. The dashboard's motion is
+    decorative (collapsible expand, hover lifts), so removing it costs nothing
+    and leaving it in costs users who asked for less.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

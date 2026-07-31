@@ -12,7 +12,7 @@ import type { FlankerEventWithApp } from "@/lib/storage/types";
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-signal-medium/90">
         {title}
       </h4>
       <div className="text-[15px] leading-relaxed text-foreground/90">{children}</div>
@@ -42,20 +42,29 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
     <Collapsible open={open} onOpenChange={setOpen} asChild>
       <Card
         className={cn(
-          "overflow-hidden border-l-4 transition-colors",
-          meta.accent,
-          // Low-signal releases are the common case. Muting them keeps the
-          // timeline scannable — the eye should land on what actually shipped.
-          isLow && "bg-muted/30",
+          "relative overflow-hidden transition-[box-shadow,transform,background-color] duration-200",
+          // Low-signal releases are the common case. Draining the colour and
+          // the elevation keeps the timeline scannable — the eye should land on
+          // what actually shipped.
+          isLow
+            ? "border-border/60 bg-muted/25"
+            : "surface-card shadow-[0_1px_2px_hsl(var(--grad-violet)/0.06),0_8px_24px_-12px_hsl(var(--grad-violet)/0.22)] hover:shadow-[0_1px_2px_hsl(var(--grad-violet)/0.08),0_14px_36px_-14px_hsl(var(--grad-violet)/0.32)]",
         )}
       >
-        <CollapsibleTrigger className="group flex w-full items-start gap-4 p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
+        {/* Gradient accent rail. A real element rather than border-l-4, because
+            a border can't carry a gradient. */}
+        <span
+          className={cn("absolute inset-y-0 left-0 w-1", meta.rail)}
+          aria-hidden
+        />
+
+        <CollapsibleTrigger className="group flex w-full cursor-pointer items-start gap-4 p-5 pl-6 text-left transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
               <span className={cn("font-semibold tracking-tight", isLow && "text-muted-foreground")}>
                 {event.app.name}
               </span>
-              <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+              <span className="rounded-md border border-border/70 bg-secondary/60 px-1.5 py-0.5 font-mono text-xs text-secondary-foreground/80">
                 v{event.version}
               </span>
               <Badge variant={meta.badge}>{meta.label}</Badge>
@@ -101,9 +110,9 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
         </CollapsibleTrigger>
 
         <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-          <div className="space-y-6 border-t px-5 pb-6 pt-5">
+          <div className="space-y-6 border-t px-5 pb-6 pl-6 pt-5">
             <Section title="What shipped — release notes, verbatim">
-              <blockquote className="whitespace-pre-wrap rounded-md border-l-2 bg-muted/50 px-3.5 py-3 font-mono text-[13px] leading-relaxed text-muted-foreground">
+              <blockquote className="whitespace-pre-wrap rounded-lg border-l-2 border-l-grad-periwinkle/40 bg-muted/60 px-3.5 py-3 font-mono text-[13px] leading-relaxed text-muted-foreground">
                 {event.releaseNotes?.trim() || "The developer published no release notes for this version."}
               </blockquote>
             </Section>
@@ -128,10 +137,15 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
                             href={story.hnUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-baseline gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                            className="inline-flex items-baseline gap-1.5 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
                           >
-                            <span className="font-mono text-xs tabular-nums">
-                              {story.points}▲ {story.numComments}💬
+                            {/* Emoji make poor icons — they render differently
+                                per platform and screen readers announce them. */}
+                            <span className="shrink-0 font-mono text-xs tabular-nums text-signal-medium">
+                              {story.points} pts
+                            </span>
+                            <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground/70">
+                              {story.numComments} comments
                             </span>
                             <span>{story.title}</span>
                           </a>
@@ -147,7 +161,7 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
               )}
             </Section>
 
-            <div className="rounded-lg border bg-muted/40 p-4">
+            <div className="rounded-xl border border-border/70 bg-gradient-to-br from-grad-violet/[0.06] to-grad-lilac/[0.04] p-4">
               <h4 className="mb-3 text-sm font-semibold tracking-tight">Counter-PRD</h4>
               <dl className="space-y-3">
                 {[

@@ -7,24 +7,26 @@ import type { SignalLevel } from "@/lib/llm/schema";
 
 export const SIGNAL_META: Record<
   SignalLevel,
-  { label: string; badge: "high" | "medium" | "low"; accent: string; description: string }
+  { label: string; badge: "high" | "medium" | "low"; rail: string; description: string }
 > = {
   high: {
     label: "High signal",
     badge: "high",
-    accent: "border-l-signal-high",
+    rail: "rail-high",
     description: "New capability, product surface, or business-model change",
   },
   medium: {
     label: "Medium signal",
     badge: "medium",
-    accent: "border-l-signal-medium",
+    rail: "rail-medium",
     description: "Meaningful improvement to an existing capability",
   },
   low: {
+    // No gradient rail on purpose — low signal should recede, and the absence
+    // of colour is what makes the other two read as notable.
     label: "Low signal",
     badge: "low",
-    accent: "border-l-border",
+    rail: "bg-border",
     description: "Bug fixes, performance work, or notes too generic to read",
   },
 };

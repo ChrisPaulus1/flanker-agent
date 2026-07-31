@@ -47,6 +47,14 @@ const config: Config = {
           medium: "hsl(var(--signal-medium))",
           low: "hsl(var(--signal-low))",
         },
+        // Gradient stops, exposed to utilities so one-off gradients don't get
+        // written with raw hex values.
+        grad: {
+          violet: "hsl(var(--grad-violet))",
+          periwinkle: "hsl(var(--grad-periwinkle))",
+          lilac: "hsl(var(--grad-lilac))",
+          haze: "hsl(var(--grad-haze))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
