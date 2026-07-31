@@ -6,17 +6,42 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { SupabaseFlankerRepo } from "@/lib/storage/repo";
 import { relativeTime } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { FlankerEventWithApp, TrackedApp } from "@/lib/storage/types";
 
 // The dashboard reads Supabase directly from the server. No API route and no
 // client-side key: the service role credential never leaves the server.
 export const dynamic = "force-dynamic";
 
-function StatTile({ label, value, hint }: { label: string; value: string; hint?: string }) {
+/**
+ * Each tile carries one of the three accents. Spreading the palette across the
+ * summary row is what makes it read as a system rather than as a single hue
+ * with two decorations bolted on.
+ */
+function StatTile({
+  label,
+  value,
+  hint,
+  accent,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  accent: "indigo" | "tangerine" | "teal";
+}) {
+  const dot = {
+    indigo: "bg-indigo",
+    tangerine: "bg-tangerine",
+    teal: "bg-teal",
+  }[accent];
+
   return (
     <Card className="panel surface-card p-4">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-        {label}
+      <div className="flex items-center gap-2">
+        <span className={cn("h-2 w-2 rounded-[3px]", dot)} aria-hidden />
+        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          {label}
+        </div>
       </div>
       <div className="mt-1.5 text-2xl font-semibold tabular-nums tracking-tight">{value}</div>
       {hint && <div className="mt-0.5 text-xs text-muted-foreground">{hint}</div>}
@@ -27,7 +52,7 @@ function StatTile({ label, value, hint }: { label: string; value: string; hint?:
 function EmptyState() {
   return (
     <Card className="panel surface-card flex flex-col items-center gap-3 p-12 text-center">
-      <Radio className="h-7 w-7 text-primary" aria-hidden />
+      <Radio className="h-7 w-7 text-teal" aria-hidden />
       <div>
         <h2 className="font-semibold">No releases detected yet</h2>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
@@ -75,10 +100,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="page-wash min-h-screen bg-background">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
+      <div className="brand-bar" aria-hidden />
+      <header className="sticky top-0 z-[9] border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Activity className="h-5 w-5 text-primary" aria-hidden />
+            <Activity className="h-5 w-5 text-tangerine" aria-hidden />
             <span className="font-semibold tracking-tight">Flanker</span>
             <Badge variant="outline" className="hidden font-normal sm:inline-flex">
               Competitive intelligence
@@ -111,15 +137,17 @@ export default async function DashboardPage() {
         ) : (
           <>
             <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-              <StatTile label="Releases detected" value={String(events.length)} />
+              <StatTile label="Releases detected" value={String(events.length)} accent="indigo" />
               <StatTile
                 label="High signal"
                 value={String(highSignal)}
                 hint={events.length > 0 ? `of ${events.length} releases` : undefined}
+                accent="tangerine"
               />
               <StatTile
                 label="Last checked"
                 value={lastChecked ? relativeTime(lastChecked) : "never"}
+                accent="teal"
               />
             </div>
 

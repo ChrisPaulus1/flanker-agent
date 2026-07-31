@@ -112,7 +112,7 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
         <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
           <div className="space-y-6 border-t px-5 pb-6 pl-6 pt-5">
             <Section title="What shipped — release notes, verbatim">
-              <blockquote className="whitespace-pre-wrap rounded-lg border-l-2 border-l-violet/45 bg-muted/60 px-3.5 py-3 font-mono text-[13px] leading-relaxed text-muted-foreground">
+              <blockquote className="whitespace-pre-wrap rounded-lg border-l-2 border-l-teal/50 bg-muted/60 px-3.5 py-3 font-mono text-[13px] leading-relaxed text-muted-foreground">
                 {event.releaseNotes?.trim() || "The developer published no release notes for this version."}
               </blockquote>
             </Section>
@@ -141,7 +141,7 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
                           >
                             {/* Emoji make poor icons — they render differently
                                 per platform and screen readers announce them. */}
-                            <span className="shrink-0 font-mono text-xs tabular-nums text-cobalt-ink">
+                            <span className="shrink-0 font-mono text-xs tabular-nums text-teal-ink">
                               {story.points} pts
                             </span>
                             <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground/70">
@@ -161,7 +161,7 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
               )}
             </Section>
 
-            <div className="rounded-xl border border-border/70 bg-gradient-to-br from-violet/[0.07] to-gold/[0.06] p-4">
+            <div className="rounded-xl border border-border/70 bg-gradient-to-br from-indigo/[0.07] via-teal/[0.05] to-tangerine/[0.07] p-4">
               <h4 className="mb-3 text-sm font-semibold tracking-tight">Counter-PRD</h4>
               <dl className="space-y-3">
                 {[

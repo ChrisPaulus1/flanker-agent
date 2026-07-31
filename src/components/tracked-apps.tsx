@@ -16,7 +16,7 @@ function AppChip({ app }: { app: TrackedApp }) {
       href={`https://apps.apple.com/us/app/id${app.itunesTrackId}`}
       target="_blank"
       rel="noreferrer"
-      className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm transition-colors hover:border-cobalt/50 hover:bg-accent/60"
+      className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm transition-colors hover:border-teal/60 hover:bg-teal/[0.07]"
     >
       <span className="font-medium text-foreground/90">{app.name}</span>
       <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
@@ -46,11 +46,11 @@ export function TrackedApps({ apps }: { apps: TrackedApp[] }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Apps tracked
-            <span className="ml-2 font-mono text-xs tabular-nums text-primary">{apps.length}</span>
+            <span className="ml-2 font-mono text-xs tabular-nums text-teal-ink">{apps.length}</span>
           </div>
 
           {hidden.length > 0 && (
-            <CollapsibleTrigger className="inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <CollapsibleTrigger className="inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-teal-ink transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {open ? "See less" : `See ${hidden.length} more`}
               <ChevronDown
                 className={cn("h-3.5 w-3.5 transition-transform duration-200", open && "rotate-180")}

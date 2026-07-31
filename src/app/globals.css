@@ -5,101 +5,98 @@
 @layer base {
   :root {
     /*
-      Porcelain paper, navy ink, three accents.
+      Warm white, indigo ink, and a near-complementary pair: tangerine and
+      teal. Complementary hues sit at opposite ends of the wheel, so they
+      intensify each other instead of blending — which is what makes colour
+      read as deliberate rather than as a wash. Indigo carries structure so the
+      two accents never have to compete for legibility.
 
-      The page runs a vertical gradient: lavender at the top, periwinkle
-      through the middle, champagne gold at the bottom. Each accent belongs to
-      a band of that journey — violet marks the middle signal tier, gold marks
-      the top tier, cobalt carries links and interactive text — so the colour
-      scheme and the background are the same idea rather than two competing
-      ones.
-
-      Green stays absent on purpose: in a finance context it reads as "good",
-      which is backwards for a high-signal competitor release.
+      Deliberately not violet-on-blue: that combination is the house style of
+      most AI products and reads as a template no matter how it's tuned.
     */
-    --background: 220 44% 98%;
-    --foreground: 222 55% 12%;
+    --background: 40 40% 98%;
+    --foreground: 244 46% 16%;
     --card: 0 0% 100%;
-    --card-foreground: 222 55% 12%;
+    --card-foreground: 244 46% 16%;
 
-    --primary: 225 79% 44%;
+    --primary: 244 62% 44%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 38% 95%;
-    --secondary-foreground: 222 46% 22%;
-    --muted: 220 34% 95%;
-    --muted-foreground: 220 14% 42%;
-    --accent: 220 44% 94%;
-    --accent-foreground: 222 46% 22%;
+    --secondary: 40 30% 94%;
+    --secondary-foreground: 244 40% 24%;
+    --muted: 38 26% 94%;
+    --muted-foreground: 240 10% 42%;
+    --accent: 40 36% 93%;
+    --accent-foreground: 244 40% 24%;
     --destructive: 0 72% 46%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 218 32% 90%;
-    --input: 218 32% 90%;
-    --ring: 225 79% 50%;
+    --border: 36 24% 88%;
+    --input: 36 24% 88%;
+    --ring: 18 92% 52%;
     --radius: 0.625rem;
 
     /*
-      Two weights per accent. The bright value marks rails and edges; the ink
-      value is the only one dark enough to set text at 4.5:1 on white.
+      Two weights per accent. The bright value is the mark — rails, bars,
+      icons; the ink value is the only one dark enough to set text at 4.5:1.
     */
-    --violet: 266 72% 60%;
-    --violet-ink: 266 62% 46%;
-    --cobalt: 225 79% 50%;
-    --cobalt-ink: 225 79% 42%;
-    --gold: 40 92% 46%;
-    --gold-ink: 34 88% 33%;
+    --tangerine: 18 92% 54%;
+    --tangerine-ink: 15 86% 40%;
+    --teal: 184 86% 30%;
+    --teal-ink: 185 90% 24%;
+    --indigo: 244 62% 52%;
+    --indigo-ink: 244 58% 38%;
 
-    --signal-high: 34 88% 33%;
-    --signal-medium: 266 62% 46%;
-    --signal-low: 220 14% 42%;
+    --signal-high: 15 86% 40%;
+    --signal-medium: 185 90% 24%;
+    --signal-low: 240 10% 42%;
 
-    /* The three bands of the page gradient, top to bottom. */
-    --wash-top: 268 74% 92%;
-    --wash-mid: 224 74% 93%;
-    --wash-bottom: 42 84% 90%;
+    /* Page tints, drawn from the three accents. */
+    --wash-a: 30 90% 92%;
+    --wash-b: 180 60% 92%;
+    --wash-c: 244 60% 94%;
   }
 
   .dark {
     /*
-      Deep indigo-navy rather than near-black: comfortable to read for long
-      stretches, and it keeps the accents from glaring.
+      Warm-shifted deep indigo rather than neutral charcoal, so the light
+      theme's character survives. Kept off pure black: the accents glare
+      against it and long reading gets uncomfortable.
     */
-    --background: 232 28% 12%;
-    --foreground: 216 40% 96%;
-    --card: 231 24% 16%;
-    --card-foreground: 216 40% 96%;
+    --background: 244 26% 13%;
+    --foreground: 40 30% 95%;
+    --card: 245 22% 17%;
+    --card-foreground: 40 30% 95%;
 
-    --primary: 222 90% 74%;
-    --primary-foreground: 232 40% 12%;
-    --secondary: 230 20% 23%;
-    --secondary-foreground: 216 40% 96%;
-    --muted: 230 20% 21%;
-    --muted-foreground: 220 18% 68%;
-    --accent: 230 22% 25%;
-    --accent-foreground: 216 40% 96%;
-    --destructive: 0 60% 52%;
+    --primary: 244 88% 78%;
+    --primary-foreground: 244 40% 12%;
+    --secondary: 244 16% 24%;
+    --secondary-foreground: 40 30% 95%;
+    --muted: 244 16% 22%;
+    --muted-foreground: 240 14% 70%;
+    --accent: 244 18% 26%;
+    --accent-foreground: 40 30% 95%;
+    --destructive: 0 60% 54%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 230 18% 27%;
-    --input: 230 18% 27%;
-    --ring: 222 90% 74%;
+    --border: 244 14% 28%;
+    --input: 244 14% 28%;
+    --ring: 20 94% 62%;
 
-    /* All three lift substantially — the light-mode ink tones are illegible
-       on this surface. */
-    --violet: 266 88% 76%;
-    --violet-ink: 266 90% 80%;
-    --cobalt: 222 92% 72%;
-    --cobalt-ink: 222 92% 76%;
-    --gold: 44 92% 60%;
-    --gold-ink: 44 94% 66%;
+    /* All three lift hard — the light-mode ink tones are unreadable here. */
+    --tangerine: 22 96% 64%;
+    --tangerine-ink: 24 96% 70%;
+    --teal: 178 72% 52%;
+    --teal-ink: 176 78% 62%;
+    --indigo: 244 90% 76%;
+    --indigo-ink: 244 92% 82%;
 
-    --signal-high: 44 94% 66%;
-    --signal-medium: 266 90% 80%;
-    --signal-low: 220 14% 64%;
+    --signal-high: 24 96% 70%;
+    --signal-medium: 176 78% 62%;
+    --signal-low: 240 12% 66%;
 
-    --wash-top: 268 48% 26%;
-    --wash-mid: 226 50% 22%;
-    --wash-bottom: 40 44% 22%;
+    --wash-a: 24 60% 22%;
+    --wash-b: 180 50% 18%;
+    --wash-c: 244 46% 22%;
   }
 }
 
@@ -116,22 +113,16 @@
 
 @layer components {
   /*
-    Page wash — a vertical journey.
-
-    Lavender at the top, periwinkle through the middle, champagne gold at the
-    bottom. Positioned `absolute` rather than `fixed` on purpose: a fixed layer
-    is only ever one viewport tall, so the gradient would restart on every
-    screen instead of progressing as you scroll. Absolute makes it span the
-    whole document, so moving down the timeline actually moves through the
-    colour.
+    Page wash. All three accents present but at low opacity, pooled at the top
+    where the header sits and thinning out over the timeline so long text is
+    never read against colour.
   */
   .page-wash {
     position: relative;
     isolation: isolate;
-    /* The hero glow's blurred pseudo-element has negative horizontal insets
-       and would otherwise widen the document past the viewport on mobile.
-       `clip` rather than `hidden`: hidden establishes a scroll container and
-       breaks the sticky header. */
+    /* Blurred pseudo-elements with negative horizontal insets would widen the
+       document past the viewport on mobile. `clip` rather than `hidden`:
+       hidden establishes a scroll container and breaks the sticky header. */
     overflow-x: clip;
   }
 
@@ -142,32 +133,36 @@
     z-index: -1;
     pointer-events: none;
     background:
-      /* Two pools at the very top give the lavender some shape rather than
-         letting it sit as a flat band. */
-      radial-gradient(52rem 28rem at 10% 0%, hsl(var(--wash-top) / 0.85), transparent 60%),
-      radial-gradient(42rem 24rem at 92% 2%, hsl(var(--wash-mid) / 0.6), transparent 62%),
-      linear-gradient(
-        180deg,
-        hsl(var(--wash-top) / 0.75) 0%,
-        hsl(var(--wash-mid) / 0.5) 34%,
-        hsl(var(--wash-mid) / 0.28) 58%,
-        hsl(var(--wash-bottom) / 0.5) 84%,
-        hsl(var(--wash-bottom) / 0.72) 100%
-      );
+      radial-gradient(46rem 24rem at 2% -4%, hsl(var(--wash-c) / 0.9), transparent 58%),
+      radial-gradient(40rem 22rem at 52% -8%, hsl(var(--wash-a) / 0.75), transparent 60%),
+      radial-gradient(44rem 24rem at 99% -4%, hsl(var(--wash-b) / 0.8), transparent 58%),
+      linear-gradient(180deg, hsl(var(--wash-a) / 0.3) 0%, transparent 26%);
   }
 
   .dark .page-wash::before {
     background:
-      radial-gradient(52rem 28rem at 10% 0%, hsl(var(--wash-top) / 0.7), transparent 60%),
-      radial-gradient(42rem 24rem at 92% 2%, hsl(var(--wash-mid) / 0.5), transparent 62%),
-      linear-gradient(
-        180deg,
-        hsl(var(--wash-top) / 0.6) 0%,
-        hsl(var(--wash-mid) / 0.42) 34%,
-        hsl(var(--wash-mid) / 0.22) 58%,
-        hsl(var(--wash-bottom) / 0.4) 84%,
-        hsl(var(--wash-bottom) / 0.6) 100%
-      );
+      radial-gradient(46rem 24rem at 2% -4%, hsl(var(--wash-c) / 0.85), transparent 58%),
+      radial-gradient(40rem 22rem at 52% -8%, hsl(var(--wash-a) / 0.6), transparent 60%),
+      radial-gradient(44rem 24rem at 99% -4%, hsl(var(--wash-b) / 0.7), transparent 58%),
+      linear-gradient(180deg, hsl(var(--wash-a) / 0.25) 0%, transparent 26%);
+  }
+
+  /*
+    A 3px tri-colour rule across the top of the page. The cheapest possible way
+    to state the whole palette at once, and it anchors the accents that appear
+    further down as a system rather than as one-offs.
+  */
+  .brand-bar {
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--indigo)) 0%,
+      hsl(var(--indigo)) 26%,
+      hsl(var(--tangerine)) 42%,
+      hsl(var(--tangerine)) 62%,
+      hsl(var(--teal)) 78%,
+      hsl(var(--teal)) 100%
+    );
   }
 
   /*
@@ -192,17 +187,17 @@
     background-image: linear-gradient(
       180deg,
       hsl(var(--card)) 0%,
-      hsl(var(--wash-mid) / 0.18) 100%
+      hsl(var(--wash-a) / 0.14) 100%
     );
   }
 
   /* Signal rails. Solid, not gradient — a 3px rule reads as a mark. */
   .rail-high {
-    background-color: hsl(var(--gold));
+    background-color: hsl(var(--tangerine));
   }
 
   .rail-medium {
-    background-color: hsl(var(--violet));
+    background-color: hsl(var(--teal));
   }
 
   /* Restrained glow behind the heading only. */
@@ -219,7 +214,7 @@
     border-radius: 50%;
     filter: blur(48px);
     opacity: 0.5;
-    background: radial-gradient(55% 60% at 25% 50%, hsl(var(--wash-top)), transparent 72%);
+    background: radial-gradient(55% 60% at 25% 50%, hsl(var(--wash-c)), transparent 72%);
   }
 
   /*
@@ -235,9 +230,9 @@
     .text-gradient {
       background-image: linear-gradient(
         100deg,
-        hsl(var(--foreground)) 30%,
-        hsl(var(--violet-ink)) 70%,
-        hsl(var(--gold-ink))
+        hsl(var(--foreground)) 26%,
+        hsl(var(--indigo-ink)) 58%,
+        hsl(var(--tangerine-ink))
       );
       -webkit-background-clip: text;
       background-clip: text;

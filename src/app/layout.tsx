@@ -21,7 +21,12 @@ export default function RootLayout({
     // onto <html> before React hydrates, which is a deliberate mismatch.
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        {/*
+          Defaults to light rather than system. The light palette is the
+          designed default; inheriting a dark OS setting meant most visitors
+          never saw it. The toggle still switches and the choice persists.
+        */}
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           {children}
         </ThemeProvider>
       </body>

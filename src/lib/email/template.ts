@@ -18,8 +18,8 @@ import type { SignalLevel } from "@/lib/llm/schema";
   same scale, so the email and the dashboard read as one product.
 */
 const SIGNAL_STYLE: Record<SignalLevel, { color: string; bg: string; label: string }> = {
-  high: { color: "#8a5a09", bg: "#fbf1dc", label: "HIGH SIGNAL" },
-  medium: { color: "#5b2bbf", bg: "#f0e9fc", label: "MEDIUM SIGNAL" },
+  high: { color: "#be3d0f", bg: "#fdeee6", label: "HIGH SIGNAL" },
+  medium: { color: "#0a6a70", bg: "#e4f4f5", label: "MEDIUM SIGNAL" },
   low: { color: "#5a6a80", bg: "#eef1f6", label: "LOW SIGNAL" },
 };
 
@@ -89,8 +89,8 @@ export function buildAlertHtml({
 
   return `<!doctype html>
 <html>
-<body style="margin:0;padding:0;background:#f0eef8;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0eef8;padding:24px 12px;">
+<body style="margin:0;padding:0;background:#f7f4ee;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7f4ee;padding:24px 12px;">
     <tr><td align="center">
       <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:12px;border:1px solid #e1e7f0;overflow:hidden;">
 
@@ -109,7 +109,7 @@ export function buildAlertHtml({
         <tr>
           <td style="padding:20px 28px 0;">
             <div style="font:600 11px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">What shipped — release notes, verbatim</div>
-            <div style="background:#f8f7fc;border-left:3px solid #7c3aed;border-radius:0 6px 6px 0;padding:12px 14px;font:400 14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#334155;white-space:pre-wrap;">${notes ? escapeHtml(notes) : "<em style='color:#94a3b8'>The developer published no release notes for this version.</em>"}</div>
+            <div style="background:#fbf9f5;border-left:3px solid #0b868e;border-radius:0 6px 6px 0;padding:12px 14px;font:400 14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#334155;white-space:pre-wrap;">${notes ? escapeHtml(notes) : "<em style='color:#94a3b8'>The developer published no release notes for this version.</em>"}</div>
           </td>
         </tr>
 
@@ -133,7 +133,7 @@ export function buildAlertHtml({
 
         <tr>
           <td style="padding:8px 28px 28px;">
-            <a href="${escapeHtml(dashboardUrl)}" style="display:inline-block;background:#0b1a33;color:#ffffff;text-decoration:none;padding:11px 20px;border-radius:8px;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Open dashboard</a>
+            <a href="${escapeHtml(dashboardUrl)}" style="display:inline-block;background:#2b2593;color:#ffffff;text-decoration:none;padding:11px 20px;border-radius:8px;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Open dashboard</a>
             <a href="${escapeHtml(release.trackViewUrl)}" style="display:inline-block;margin-left:8px;color:#475569;text-decoration:none;padding:11px 12px;font:500 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">View on App Store</a>
           </td>
         </tr>
