@@ -116,6 +116,14 @@
   .page-wash {
     position: relative;
     isolation: isolate;
+    /*
+      The hero glow is a blurred pseudo-element with negative horizontal
+      insets, which pushed the document 17px wider than the viewport on mobile
+      and produced a horizontal scrollbar. `clip` rather than `hidden`
+      deliberately: `hidden` would establish a scroll container and break the
+      sticky header, `clip` doesn't.
+    */
+    overflow-x: clip;
   }
 
   .page-wash::before {
@@ -126,75 +134,181 @@
     pointer-events: none;
     background:
       radial-gradient(
-        70rem 40rem at 6% -12%,
-        hsl(var(--grad-champagne) / 0.75),
-        transparent 58%
-      ),
-      radial-gradient(
-        60rem 34rem at 94% -14%,
-        hsl(var(--grad-blush) / 0.6),
+        58rem 34rem at 4% -8%,
+        hsl(var(--grad-champagne) / 0.95),
         transparent 56%
       ),
       radial-gradient(
-        50rem 30rem at 52% 2%,
-        hsl(var(--grad-mist) / 0.45),
-        transparent 60%
+        52rem 30rem at 96% -10%,
+        hsl(var(--grad-blush) / 0.85),
+        transparent 54%
       ),
-      linear-gradient(180deg, hsl(var(--grad-cream) / 0.9), transparent 46%);
+      radial-gradient(
+        44rem 26rem at 50% 6%,
+        hsl(var(--grad-mist) / 0.6),
+        transparent 58%
+      ),
+      /* A wide diagonal sweep across the whole viewport so the page reads as
+         one continuous gradient rather than three separate glows. */
+        linear-gradient(
+          115deg,
+          hsl(var(--grad-champagne) / 0.5) 0%,
+          transparent 34%,
+          transparent 62%,
+          hsl(var(--grad-blush) / 0.42) 100%
+        ),
+      linear-gradient(
+        180deg,
+        hsl(var(--grad-cream) / 0.95) 0%,
+        hsl(var(--grad-cream) / 0.35) 32%,
+        transparent 58%
+      );
   }
 
   .dark .page-wash::before {
     background:
       radial-gradient(
-        70rem 40rem at 6% -12%,
-        hsl(var(--grad-champagne) / 0.55),
-        transparent 58%
-      ),
-      radial-gradient(
-        60rem 34rem at 94% -14%,
-        hsl(var(--grad-blush) / 0.45),
+        58rem 34rem at 4% -8%,
+        hsl(var(--grad-champagne) / 0.85),
         transparent 56%
       ),
       radial-gradient(
-        50rem 30rem at 52% 2%,
-        hsl(var(--grad-mist) / 0.4),
-        transparent 60%
+        52rem 30rem at 96% -10%,
+        hsl(var(--grad-blush) / 0.7),
+        transparent 54%
       ),
-      linear-gradient(180deg, hsl(var(--grad-cream) / 0.85), transparent 46%);
+      radial-gradient(
+        44rem 26rem at 50% 6%,
+        hsl(var(--grad-mist) / 0.55),
+        transparent 58%
+      ),
+      linear-gradient(
+        115deg,
+        hsl(var(--grad-champagne) / 0.45) 0%,
+        transparent 34%,
+        transparent 62%,
+        hsl(var(--grad-blush) / 0.4) 100%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(var(--grad-cream) / 0.9) 0%,
+        hsl(var(--grad-cream) / 0.3) 32%,
+        transparent 58%
+      );
   }
 
   /*
-    Every box carries a gold hairline. Done with an inset ring rather than a
-    border so it sits inside the radius and doesn't fight the layout's box
-    sizing, and so the card's own border stays available for state changes.
+    Gradient outline.
+
+    A CSS border can only hold a flat colour, so the ring is a pseudo-element
+    filled with a gradient and masked to just its own 1px padding box —
+    mask-composite punches out the middle and leaves the outline. That's what
+    lets the gold shift hue around the edge of a box rather than sitting flat.
   */
+  .box-gold,
+  .box-gold-raised {
+    position: relative;
+    border-color: transparent;
+  }
+
+  .box-gold::after,
+  .box-gold-raised::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .box-gold::after {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gold) / 0.55),
+      hsl(var(--gold-hairline) / 0.35) 45%,
+      hsl(var(--grad-mist) / 0.5) 100%
+    );
+  }
+
   .box-gold {
-    border-color: hsl(var(--gold-hairline) / 0.85);
     box-shadow:
-      inset 0 0 0 1px hsl(var(--gold-hairline) / 0.35),
       0 1px 2px hsl(224 40% 20% / 0.04),
       0 10px 28px -18px hsl(224 40% 20% / 0.18);
   }
 
-  .box-gold-raised {
-    border-color: hsl(var(--gold) / 0.55);
-    box-shadow:
-      inset 0 0 0 1px hsl(var(--gold) / 0.28),
-      0 1px 2px hsl(38 60% 30% / 0.07),
-      0 14px 34px -18px hsl(38 60% 30% / 0.28);
-  }
-
-  /* Barely-there vertical gradient so cards read as paper, not flat fill. */
-  .surface-card {
-    background-image: linear-gradient(
-      168deg,
-      hsl(var(--card)) 0%,
-      hsl(var(--grad-cream) / 0.7) 100%
+  .box-gold-raised::after {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gold)) 0%,
+      hsl(var(--gold-ink) / 0.75) 38%,
+      hsl(var(--gold) / 0.5) 68%,
+      hsl(var(--grad-blush) / 0.8) 100%
     );
   }
 
+  .box-gold-raised {
+    box-shadow:
+      0 1px 2px hsl(38 60% 30% / 0.08),
+      0 16px 38px -20px hsl(38 60% 30% / 0.34);
+  }
+
+  /*
+    Card surface. A diagonal three-stop wash rather than the near-flat
+    vertical fade it replaced — the gradient should be legible as a gradient,
+    not just as a slightly uneven fill.
+  */
+  .surface-card {
+    background-image: linear-gradient(
+      142deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--grad-cream) / 0.85) 42%,
+      hsl(var(--grad-champagne) / 0.35) 100%
+    );
+  }
+
+  .surface-card-warm {
+    background-image: linear-gradient(
+      142deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--grad-champagne) / 0.45) 55%,
+      hsl(var(--grad-blush) / 0.4) 100%
+    );
+  }
+
+  /* Soft gradient glow sitting behind the page heading. */
+  .hero-glow {
+    position: relative;
+  }
+
+  .hero-glow::before {
+    content: "";
+    position: absolute;
+    inset: -40% -12% -60% -6%;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(56px);
+    opacity: 0.62;
+    background: radial-gradient(
+        50% 60% at 20% 50%,
+        hsl(var(--grad-champagne)),
+        transparent 70%
+      ),
+      radial-gradient(45% 55% at 70% 40%, hsl(var(--grad-blush)), transparent 72%);
+  }
+
   .rail-high {
-    background-image: linear-gradient(180deg, hsl(var(--gold)), hsl(var(--gold-ink)));
+    background-image: linear-gradient(
+      180deg,
+      hsl(var(--gold-ink)) 0%,
+      hsl(var(--gold)) 45%,
+      hsl(var(--grad-blush)) 100%
+    );
   }
 
   .rail-medium {

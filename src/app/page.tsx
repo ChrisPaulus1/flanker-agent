@@ -1,5 +1,6 @@
 import { Activity, Radio } from "lucide-react";
 import { EventCard } from "@/components/event-card";
+import { TrackedApps } from "@/components/tracked-apps";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -88,7 +89,7 @@ export default async function DashboardPage() {
       </header>
 
       <main className="container py-8 md:py-12">
-        <div className="max-w-2xl">
+        <div className="hero-glow max-w-2xl">
           <h1 className="text-gradient text-2xl font-semibold tracking-tight md:text-3xl">Release timeline</h1>
           <p className="mt-2 text-muted-foreground">
             Every App Store release detected across the tracked FinTech set, reverse-engineered into
@@ -102,8 +103,7 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <>
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              <StatTile label="Apps tracked" value={String(apps.length)} />
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
               <StatTile label="Releases detected" value={String(events.length)} />
               <StatTile
                 label="High signal"
@@ -115,6 +115,12 @@ export default async function DashboardPage() {
                 value={lastChecked ? relativeTime(lastChecked) : "never"}
               />
             </div>
+
+            {apps.length > 0 && (
+              <div className="mt-3 sm:mt-4">
+                <TrackedApps apps={apps} />
+              </div>
+            )}
 
             <div className="mt-8 space-y-3">
               {events.length === 0 ? (
