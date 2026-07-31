@@ -1,0 +1,51 @@
+name: Poll competitors
+
+# Vercel's Hobby plan caps cron jobs at once per day, so this workflow does the
+# frequent polling and vercel.json keeps a daily run as a backstop. Hitting the
+# same endpoint from two schedulers is safe: /api/cron/poll is idempotent, and
+# a run with nothing new costs one iTunes lookup per app and no LLM calls.
+on:
+  schedule:
+    # Deliberately not on the hour — GitHub delays workflows queued at popular
+    # times, and :17 is noticeably less contended.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  # Never let a slow run overlap the next tick.
+  group: flanker-poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger the pipeline
+        env:
+          DEPLOYMENT_URL: ${{ secrets.DEPLOYMENT_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOYMENT_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::DEPLOYMENT_URL and CRON_SECRET repository secrets must both be set."
+            exit 1
+          fi
+
+          # --fail-with-body so a non-2xx fails the step but still shows why.
+          curl --silent --show-error --fail-with-body \
+            --max-time 300 \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "${DEPLOYMENT_URL%/}/api/cron/poll" > response.json
+
+          jq -r '"summary: \(.summary | tostring)"' response.json
+          jq -r '.results[] | "  \(.app)  \(.status)  \(.version // "")\(if .detail then "  — " + .detail else "" end)"' response.json
+
+          # Surface per-app failures as a red run. The cursor is untouched for
+          # those apps, so the next tick retries them.
+          failed=$(jq '[.results[] | select(.status == "failed")] | length' response.json)
+          if [ "$failed" -gt 0 ]; then
+            echo "::error::${failed} app(s) failed this run"
+            exit 1
+          fi
