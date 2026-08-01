@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { SupabaseFlankerRepo } from "@/lib/storage/repo";
 import { GeminiTriageEngine } from "@/lib/llm/gemini";
 import { fetchLatestRelease } from "@/lib/sources/itunes";
-import { fetchReaction } from "@/lib/sources/hn";
+import { deriveHnQuery, fetchReaction } from "@/lib/sources/hn";
 import { budgetState, rateLimit } from "@/lib/pipeline/budget";
 import { pacificDayStart } from "@/lib/pipeline/budget";
 import type { ViewerContext } from "@/lib/llm/prompt";
@@ -63,9 +63,12 @@ export async function POST(request: Request) {
       tracked = await repo.createTrackedApp({
         itunesTrackId: trackId,
         name: catalogApp.name,
-        // Most brand names are unsearchable on HN; the catalog has no curated
-        // query, so skip enrichment rather than summarising noise.
-        hnQuery: null,
+        // Derived from the store title rather than left null. Disabling HN for
+        // every searched app meant community reaction never ran outside the
+        // original seeded set — the section said "no discussion found" whether
+        // or not any existed. deriveHnQuery returns null for names too generic
+        // to search, so noise is still avoided where it matters.
+        hnQuery: deriveHnQuery(catalogApp.name),
       });
     }
 

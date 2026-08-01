@@ -174,3 +174,45 @@ describe("parseTriageResponse", () => {
     });
   });
 });
+
+describe("reading analyses stored before newer fields existed", () => {
+  // Regression: `.nullable()` accepts null but rejects a missing key, so rows
+  // written before a field was added failed validation on read and took the
+  // whole page down with them. Absent must be as acceptable as null.
+  const legacy = {
+    headline: "x",
+    signal_level: "low",
+    feature_analysis: "x",
+    strategic_read: "x",
+    hn_reaction_summary: null,
+    counter_prd: {
+      problem_statement: "x",
+      why_now: "x",
+      proposed_feature: "x",
+      success_metric: "x",
+    },
+  };
+
+  it("parses a row with no category_implication key at all", () => {
+    expect(() => parseTriageResponse(JSON.stringify(legacy))).not.toThrow();
+  });
+
+  it("parses a counter_prd with no relationship key at all", () => {
+    const parsed = parseTriageResponse(JSON.stringify(legacy));
+    expect(parsed.counter_prd?.relationship ?? null).toBeNull();
+  });
+
+  it("still accepts an explicit null for both", () => {
+    const explicit = {
+      ...legacy,
+      category_implication: null,
+      counter_prd: { ...legacy.counter_prd, relationship: null },
+    };
+    expect(() => parseTriageResponse(JSON.stringify(explicit))).not.toThrow();
+  });
+
+  it("still rejects a relationship outside the allowed set", () => {
+    const bad = { ...legacy, counter_prd: { ...legacy.counter_prd, relationship: "frenemy" } };
+    expect(() => parseTriageResponse(JSON.stringify(bad))).toThrow(/relationship/);
+  });
+});

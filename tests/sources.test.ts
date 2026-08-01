@@ -5,6 +5,7 @@ import {
   rankStories,
   stripHtml,
   toAlgoliaQuery,
+  deriveHnQuery,
 } from "@/lib/sources/hn";
 import { SEED_APPS } from "@/lib/tracked-apps";
 
@@ -164,5 +165,60 @@ describe("rankStories", () => {
 
   it("returns an empty array when nothing is relevant, rather than falling back to noise", () => {
     expect(rankStories(hits, ["Monzo"], 10)).toEqual([]);
+  });
+});
+
+describe("deriveHnQuery", () => {
+  it("takes the brand from before the separator", () => {
+    expect(deriveHnQuery("Tinder Dating App: Date & Chat")).toBe("Tinder");
+    expect(deriveHnQuery("Chime® – Mobile Banking")).toBe("Chime");
+    expect(deriveHnQuery("Bumble Dating App: Meet & Date")).toBe("Bumble");
+    expect(deriveHnQuery("Robinhood: Trading & Investing")).toBe("Robinhood");
+  });
+
+  it("strips trademark marks", () => {
+    expect(deriveHnQuery("Zelle®")).toBe("Zelle");
+  });
+
+  it("keeps multi-word brands intact", () => {
+    expect(deriveHnQuery("Cash App")).toBe("Cash App");
+  });
+
+  it("returns null for names too generic to search", () => {
+    // "Current" matches 18k unrelated HN stories and the title filter can't
+    // help, because the word legitimately appears in all of them.
+    expect(deriveHnQuery("Current - Mobile Banking")).toBeNull();
+    expect(deriveHnQuery("Public: Invest & Trade")).toBeNull();
+  });
+
+  it("returns null for a name that is only generic words", () => {
+    expect(deriveHnQuery("Photos")).toBeNull();
+    expect(deriveHnQuery("Weather")).toBeNull();
+  });
+
+  it("returns null for very short names rather than matching everything", () => {
+    expect(deriveHnQuery("X")).toBeNull();
+    expect(deriveHnQuery("Hi")).toBeNull();
+  });
+
+  it("handles a title with no separator at all", () => {
+    expect(deriveHnQuery("Spotify")).toBe("Spotify");
+  });
+});
+
+describe("deriveHnQuery descriptor stripping", () => {
+  it("peels category words that never appear in HN titles", () => {
+    expect(deriveHnQuery("Tinder Dating App")).toBe("Tinder");
+    expect(deriveHnQuery("Venmo Mobile")).toBe("Venmo");
+  });
+
+  it("keeps a descriptor when removing it would leave an unsearchable word", () => {
+    // "Cash" alone matches everything, so "Cash App" stays whole.
+    expect(deriveHnQuery("Cash App")).toBe("Cash App");
+  });
+
+  it("never reduces a name to nothing", () => {
+    expect(deriveHnQuery("App")).toBeNull();
+    expect(deriveHnQuery("Mobile Banking App")).toBeNull();
   });
 });

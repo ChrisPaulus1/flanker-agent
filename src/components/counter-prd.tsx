@@ -34,7 +34,18 @@ export function AdviceSection({
   const [state, setState] = React.useState<"idle" | "running" | "error" | "paused">("idle");
   const [message, setMessage] = React.useState<string | null>(null);
 
-  const cacheKey = viewer ? counterPrdCacheKey(trackId, version, viewer.itunesTrackId) : null;
+  /*
+    You can't write a competitive response to your own release.
+
+    Handled here rather than in the prompt because it needs no model call at
+    all: comparing an app to itself has one correct answer and it's the same
+    every time. Left to the model it came back classified "unrelated", which
+    rendered the nonsense "X isn't a competitor to X".
+  */
+  const isSelf = viewer?.itunesTrackId === trackId;
+
+  const cacheKey =
+    viewer && !isSelf ? counterPrdCacheKey(trackId, version, viewer.itunesTrackId) : null;
 
   React.useEffect(() => {
     setGenerated(null);
@@ -123,17 +134,25 @@ export function AdviceSection({
     not a threat to answer.
   */
   const unrelated = prd?.relationship === "unrelated";
-  const heading = !prd || !viewer
-    ? "What this means for competitors"
-    : unrelated
-      ? `What ${viewer.name} could borrow`
-      : `Counter-PRD for ${viewer.name}`;
+  const heading = isSelf
+    ? "This is your own release"
+    : !prd || !viewer
+      ? "What this means for competitors"
+      : unrelated
+        ? `What ${viewer.name} could borrow`
+        : `Counter-PRD for ${viewer.name}`;
 
   return (
     <div className="rounded-xl border border-border/70 bg-gradient-to-br from-indigo/[0.07] via-teal/[0.05] to-tangerine/[0.07] p-4">
       <h4 className="mb-3 text-sm font-semibold tracking-tight">{heading}</h4>
 
-      {prd ? (
+      {isSelf ? (
+        <p className="text-[15px] leading-relaxed text-foreground/90">
+          You&apos;ve set {appName} as your own product, so there&apos;s no competitor to respond
+          to here — this is your release. Pick a different app to see how it reads against
+          yours, or switch your product to compare from another position.
+        </p>
+      ) : prd ? (
         <>
           {/*
             One statement, not three. The heading already frames this as

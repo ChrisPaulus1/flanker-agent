@@ -28,8 +28,15 @@ export const RELATIONSHIPS = ["direct-competitor", "adjacent", "unrelated"] as c
 export type Relationship = (typeof RELATIONSHIPS)[number];
 
 export const counterPrdSchema = z.object({
-  /** Nullable for counter-PRDs stored before this field existed. */
-  relationship: z.enum(RELATIONSHIPS).nullable(),
+  /*
+    `.nullish()`, not `.nullable()`.
+
+    Nullable accepts an explicit null but still rejects a missing key, and rows
+    written before this field existed have no key at all. Using nullable here
+    took every previously-stored analysis down with a validation error on read
+    — the app page rendered "Could not load this app" for all of them.
+  */
+  relationship: z.enum(RELATIONSHIPS).nullish(),
   problem_statement: z.string().min(1),
   why_now: z.string().min(1),
   proposed_feature: z.string().min(1),

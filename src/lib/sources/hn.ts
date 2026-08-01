@@ -81,6 +81,82 @@ export function extractRequiredPhrases(query: string): string[] {
  * `Cash App` matches either word anywhere, which is how you end up
  * summarising a thread about cash registers.
  */
+/**
+ * Derive a searchable brand phrase from an App Store title.
+ *
+ * Store titles carry SEO tails — "Chime® – Mobile Banking", "Tinder Dating
+ * App: Date & Chat" — and searching the whole string matches nothing. The
+ * brand is the part before the first separator.
+ *
+ * Returns null when what's left is too generic to search. The client-side
+ * title filter catches most noise, but it can't save a one-word name that is
+ * also an ordinary English word: "Current" matches 18k unrelated stories and
+ * every one of them has the word in the title.
+ */
+const UNSEARCHABLE = new Set([
+  "current", "public", "step", "dave", "albert", "one", "line", "wallet", "cash",
+  "photos", "notes", "mail", "music", "news", "files", "home", "health", "maps",
+  "weather", "clock", "calculator", "shop", "store", "phone", "chat", "video",
+]);
+
+/**
+ * Category words tacked onto a brand for store search. "Tinder Dating App"
+ * appears nowhere on Hacker News; "Tinder" appears constantly.
+ */
+const DESCRIPTORS = new Set([
+  "app", "apps", "dating", "mobile", "banking", "bank", "online", "free",
+  "official", "tracker", "manager", "pro", "plus", "lite", "hd", "browser",
+  "messenger", "player", "editor", "camera", "keyboard", "vpn", "wallet",
+]);
+
+function usable(candidate: string): boolean {
+  if (candidate.length < 3) return false;
+
+  const lower = candidate.toLowerCase();
+  if (UNSEARCHABLE.has(lower)) return false;
+
+  /*
+    A single ordinary word matches everything — "Current", "Photos" — and the
+    title filter can't help, because the word really is in all those titles.
+
+    A multi-word phrase is a different case: the query is quoted, so Algolia
+    matches the phrase rather than the words. "Cash App" is distinctive even
+    though "cash" and "app" are not, which is why the test for it exists.
+    Only a phrase made *entirely* of category words is rejected, since that
+    describes a genre rather than a product.
+  */
+  const words = lower.split(" ");
+  if (words.length === 1) return !DESCRIPTORS.has(lower);
+  return !words.every((w) => DESCRIPTORS.has(w));
+}
+
+export function deriveHnQuery(appName: string): string | null {
+  // Everything before the first separator is the brand plus its descriptors.
+  let brand = appName
+    .split(/[:\u2013\u2014\-|(]/)[0]
+    .replace(/[\u00ae\u2122\u00a9]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  /*
+    Peel trailing category words, but only while the remainder is still
+    searchable. "Tinder Dating App" reduces to "Tinder"; "Cash App" does not
+    reduce to "Cash", because "cash" on its own matches everything — so the
+    descriptor stays and the full phrase is used.
+  */
+  for (;;) {
+    const words = brand.split(" ");
+    if (words.length < 2) break;
+    if (!DESCRIPTORS.has(words[words.length - 1].toLowerCase())) break;
+
+    const shorter = words.slice(0, -1).join(" ");
+    if (!usable(shorter)) break;
+    brand = shorter;
+  }
+
+  return usable(brand) ? brand : null;
+}
+
 export function toAlgoliaQuery(query: string): string {
   const trimmed = query.trim();
   return trimmed.includes('"') ? trimmed : `"${trimmed}"`;
