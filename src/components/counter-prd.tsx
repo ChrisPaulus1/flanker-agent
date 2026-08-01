@@ -136,9 +136,15 @@ export function AdviceSection({
       {prd ? (
         <>
           {unrelated && viewer && (
+            {/*
+              One statement, not three. The heading already frames this as
+              borrowing and the classification is the only fact worth adding;
+              spelling out "adapts the mechanic rather than matching the
+              feature" repeated the same idea a third time, with a long App
+              Store name in it twice.
+            */}
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-              {appName} isn&apos;t a competitor to {viewer.name}. What follows adapts the
-              underlying mechanic to {viewer.name} rather than matching the feature itself.
+              {appName} isn&apos;t a competitor to {viewer.name}.
             </p>
           )}
           <dl className="space-y-3">
