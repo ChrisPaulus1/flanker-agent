@@ -20,8 +20,6 @@ function event(version: string, releaseDate: string | null, detectedAt = "2026-0
     version,
     releaseNotes: "notes",
     releaseDate,
-    hnSummary: null,
-    hnStoryRefs: [],
     llmOutput: makeTriage(),
     signalLevel: "high",
     model: "test",

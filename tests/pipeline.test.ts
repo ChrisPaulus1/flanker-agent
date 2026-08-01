@@ -1,14 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { runPipelineForApp, runPipeline } from "@/lib/pipeline/run";
 import {
-  FakeReactionSource,
   FakeReleaseSource,
   FakeRepo,
   FakeTriageEngine,
   fixedClock,
   makeApp,
   makeRelease,
-  makeReaction,
 } from "./fakes";
 
 const NOW = "2026-07-30T12:00:00.000Z";
@@ -16,16 +14,14 @@ const NOW = "2026-07-30T12:00:00.000Z";
 function harness(options: {
   app?: ReturnType<typeof makeApp>;
   release?: ReturnType<typeof makeRelease> | Error;
-  reaction?: ReturnType<typeof makeReaction> | Error;
   triage?: Error;
 } = {}) {
   const app = options.app ?? makeApp();
   const repo = new FakeRepo([app]);
   const releases = new FakeReleaseSource(options.release ?? makeRelease());
-  const reactions = new FakeReactionSource(options.reaction ?? makeReaction());
   const triage = new FakeTriageEngine(options.triage ?? undefined);
-  const deps = { repo, releases, reactions, triage, clock: fixedClock(NOW) };
-  return { app, repo, releases, reactions, triage, deps };
+  const deps = { repo, releases, triage, clock: fixedClock(NOW) };
+  return { app, repo, releases, triage, deps };
 }
 
 describe("runPipelineForApp", () => {
@@ -172,37 +168,6 @@ describe("runPipelineForApp", () => {
     });
   });
 
-  describe("HN reaction is optional", () => {
-    it("still produces an event when the reaction lookup fails", async () => {
-      // Community reaction is enrichment, not a dependency. Losing it must not
-      // cost us the release alert.
-      const h = harness({ reaction: new Error("algolia timeout") });
-
-      const result = await runPipelineForApp(h.app, h.deps);
-
-      expect(result.status).toBe("processed");
-      expect(h.repo.events[0].hnStoryRefs).toEqual([]);
-      expect(h.repo.apps[0].lastSeenVersion).toBe("5.337.0");
-    });
-
-    it("skips HN entirely when the app has no usable query", async () => {
-      // Some brand names ("Current") are too generic to search — the honest
-      // move is to skip, not to summarise 18k unrelated stories.
-      const h = harness({ app: makeApp({ hnQuery: null }) });
-
-      const result = await runPipelineForApp(h.app, h.deps);
-
-      expect(result.status).toBe("processed");
-      expect(h.reactions.calls).toBe(0);
-      expect(h.repo.events[0].hnStoryRefs).toEqual([]);
-    });
-
-    it("stores no summary when there was no discussion to summarise", async () => {
-      const h = harness();
-      await runPipelineForApp(h.app, h.deps);
-      expect(h.repo.events[0].hnSummary).toBeNull();
-    });
-  });
 
   describe("guarding against bad upstream data", () => {
     it("refuses to advance the cursor to an empty version", async () => {
@@ -232,7 +197,6 @@ describe("runPipeline", () => {
           return makeRelease({ version: "10.141" });
         },
       },
-      reactions: new FakeReactionSource(),
       triage: new FakeTriageEngine(),
       clock: fixedClock(NOW),
     };

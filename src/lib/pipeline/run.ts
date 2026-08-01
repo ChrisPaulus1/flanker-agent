@@ -1,13 +1,11 @@
-import type { HnReaction } from "@/lib/sources/hn";
 import type { FlankerRepo, TrackedApp } from "@/lib/storage/types";
 import { detectRelease } from "@/lib/pipeline/detect";
-import type { Clock, ReactionSource, ReleaseSource, TriageEngine } from "@/lib/pipeline/ports";
+import type { Clock, ReleaseSource, TriageEngine } from "@/lib/pipeline/ports";
 import type { ViewerContext } from "@/lib/llm/prompt";
 
 export interface PipelineDeps {
   repo: FlankerRepo;
   releases: ReleaseSource;
-  reactions: ReactionSource;
   triage: TriageEngine;
   clock?: Clock;
   /** Scheduled runs have no reader, so they produce teardowns. */
@@ -35,7 +33,6 @@ export interface PipelineResult {
  *
  *   1. detect     — cheap, avoids all downstream work when nothing changed
  *   2. reconcile  — an existing event short-circuits the expensive steps
- *   3. enrich     — HN reaction, non-fatal
  *   4. triage     — the LLM call, the expensive step
  *   5. persist    — insert the event
  *   6. advance    — move the cursor, LAST
@@ -49,7 +46,7 @@ export async function runPipelineForApp(
   app: TrackedApp,
   deps: PipelineDeps,
 ): Promise<PipelineResult> {
-  const { repo, releases, reactions, triage, clock = () => new Date(), viewer = null } = deps;
+  const { repo, releases, triage, clock = () => new Date(), viewer = null } = deps;
   const now = () => clock().toISOString();
 
   try {
@@ -79,27 +76,13 @@ export async function runPipelineForApp(
       return { app: app.name, status: "already-processed", version };
     }
 
-    // Enrichment: a failure here costs us context, not the alert. A null
-    // hnQuery means this brand can't be searched usefully, so we skip rather
-    // than hand the model noise to summarise.
-    let reaction: HnReaction | null = null;
-    if (app.hnQuery) {
-      try {
-        reaction = await reactions.fetchReaction(app.hnQuery);
-      } catch {
-        reaction = null;
-      }
-    }
-
-    const { output: llmOutput, model } = await triage.triage({ app, release, reaction, viewer });
+    const { output: llmOutput, model } = await triage.triage({ app, release, viewer });
 
     const event = await repo.insertEvent({
       appId: app.id,
       version,
       releaseNotes: release.releaseNotes,
       releaseDate: release.releaseDate,
-      hnSummary: llmOutput.hn_reaction_summary,
-      hnStoryRefs: reaction?.stories ?? [],
       llmOutput,
       signalLevel: llmOutput.signal_level,
       model,

@@ -5,7 +5,6 @@ import { parseTriageResponse } from "@/lib/llm/parse";
 import { listAvailableModels, rankModels } from "@/lib/llm/model";
 import type { TriageEngine, TriageResult } from "@/lib/pipeline/ports";
 import type { AppRelease } from "@/lib/sources/itunes";
-import type { HnReaction } from "@/lib/sources/hn";
 import type { TrackedApp } from "@/lib/storage/types";
 
 /** Retried by falling down the candidate list rather than hammering one model. */
@@ -73,15 +72,13 @@ export class GeminiTriageEngine implements TriageEngine {
   async triage({
     app,
     release,
-    reaction,
     viewer = null,
   }: {
     app: TrackedApp;
     release: AppRelease;
-    reaction: HnReaction | null;
     viewer?: ViewerContext | null;
   }): Promise<TriageResult> {
-    const prompt = buildTriagePrompt({ app, release, reaction, viewer });
+    const prompt = buildTriagePrompt({ app, release, viewer });
 
     const queue = [...(await this.getCandidates())];
     const tried: string[] = [];

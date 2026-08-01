@@ -1,5 +1,4 @@
 import type { AppRelease } from "@/lib/sources/itunes";
-import type { HnReaction } from "@/lib/sources/hn";
 import type { LlmTriage } from "@/lib/llm/schema";
 import type { ViewerContext } from "@/lib/llm/prompt";
 import type { TrackedApp } from "@/lib/storage/types";
@@ -16,10 +15,6 @@ export interface ReleaseSource {
   fetchLatestRelease(trackId: number): Promise<AppRelease>;
 }
 
-export interface ReactionSource {
-  fetchReaction(query: string): Promise<HnReaction>;
-}
-
 export interface TriageResult {
   output: LlmTriage;
   /**
@@ -34,7 +29,6 @@ export interface TriageEngine {
   triage(input: {
     app: TrackedApp;
     release: AppRelease;
-    reaction: HnReaction | null;
     /**
      * Who is reading. Null produces a teardown with no counter-PRD; supplying
      * a product produces advice written from that product's position.

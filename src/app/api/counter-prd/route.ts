@@ -81,9 +81,6 @@ export async function POST(request: Request) {
     const { output } = await new GeminiTriageEngine().triage({
       app: tracked,
       release,
-      // Reaction is already summarised on the stored teardown; re-fetching it
-      // here would spend two upstream calls to change nothing about the advice.
-      reaction: null,
       viewer: {
         name: viewerName,
         genre: body.viewer?.genre ?? null,

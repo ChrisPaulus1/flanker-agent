@@ -2,11 +2,9 @@ import { NextResponse } from "next/server";
 import { SupabaseFlankerRepo } from "@/lib/storage/repo";
 import { GeminiTriageEngine } from "@/lib/llm/gemini";
 import { fetchLatestRelease } from "@/lib/sources/itunes";
-import { deriveHnQuery, fetchReaction } from "@/lib/sources/hn";
 import { budgetState, rateLimit } from "@/lib/pipeline/budget";
 import { pacificDayStart } from "@/lib/pipeline/budget";
 import type { ViewerContext } from "@/lib/llm/prompt";
-import type { HnReaction } from "@/lib/sources/hn";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,12 +61,6 @@ export async function POST(request: Request) {
       tracked = await repo.createTrackedApp({
         itunesTrackId: trackId,
         name: catalogApp.name,
-        // Derived from the store title rather than left null. Disabling HN for
-        // every searched app meant community reaction never ran outside the
-        // original seeded set — the section said "no discussion found" whether
-        // or not any existed. deriveHnQuery returns null for names too generic
-        // to search, so noise is still avoided where it matters.
-        hnQuery: deriveHnQuery(catalogApp.name),
       });
     }
 
@@ -94,19 +86,9 @@ export async function POST(request: Request) {
       );
     }
 
-    let reaction: HnReaction | null = null;
-    if (tracked.hnQuery) {
-      try {
-        reaction = await fetchReaction(tracked.hnQuery);
-      } catch {
-        reaction = null;
-      }
-    }
-
     const { output, model } = await new GeminiTriageEngine().triage({
       app: tracked,
       release,
-      reaction,
       viewer: body.viewer ?? null,
     });
 
@@ -115,8 +97,6 @@ export async function POST(request: Request) {
       version: release.version.trim(),
       releaseNotes: release.releaseNotes,
       releaseDate: release.releaseDate,
-      hnSummary: output.hn_reaction_summary,
-      hnStoryRefs: reaction?.stories ?? [],
       llmOutput: output,
       signalLevel: output.signal_level,
       model,

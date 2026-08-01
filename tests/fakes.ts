@@ -1,5 +1,4 @@
 import type { AppRelease } from "@/lib/sources/itunes";
-import type { HnReaction } from "@/lib/sources/hn";
 import type { LlmTriage } from "@/lib/llm/schema";
 import type {
   CatalogApp,
@@ -11,7 +10,6 @@ import type {
   TrackedApp,
 } from "@/lib/storage/types";
 import type {
-  ReactionSource,
   ReleaseSource,
   TriageEngine,
   TriageResult,
@@ -22,7 +20,6 @@ export function makeApp(overrides: Partial<TrackedApp> = {}): TrackedApp {
     id: "app-1",
     itunesTrackId: 836215269,
     name: "Chime",
-    hnQuery: "Chime",
     lastSeenVersion: null,
     lastCheckedAt: null,
     enabled: true,
@@ -51,7 +48,6 @@ export function makeTriage(overrides: Partial<LlmTriage> = {}): LlmTriage {
     signal_level: "high",
     feature_analysis: "Short-term liquidity product fronting earned wages.",
     strategic_read: "Deepens primary-account behaviour ahead of a bank charter.",
-    hn_reaction_summary: null,
     category_implication:
       "Earned-wage access is becoming a baseline expectation for consumer banking apps rather than a differentiator.",
     counter_prd: {
@@ -63,10 +59,6 @@ export function makeTriage(overrides: Partial<LlmTriage> = {}): LlmTriage {
     },
     ...overrides,
   };
-}
-
-export function makeReaction(overrides: Partial<HnReaction> = {}): HnReaction {
-  return { query: "Chime", stories: [], comments: [], ...overrides };
 }
 
 /**
@@ -105,8 +97,6 @@ export class FakeRepo implements FlankerRepo {
       version: input.version,
       releaseNotes: input.releaseNotes,
       releaseDate: input.releaseDate,
-      hnSummary: input.hnSummary,
-      hnStoryRefs: input.hnStoryRefs,
       llmOutput: input.llmOutput,
       signalLevel: input.signalLevel,
       model: input.model,
@@ -159,7 +149,6 @@ export class FakeRepo implements FlankerRepo {
   async createTrackedApp(input: {
     itunesTrackId: number;
     name: string;
-    hnQuery: string | null;
   }): Promise<TrackedApp> {
     const existing = this.apps.find((a) => a.itunesTrackId === input.itunesTrackId);
     if (existing) return existing;
@@ -167,7 +156,6 @@ export class FakeRepo implements FlankerRepo {
       id: `app-${this.apps.length + 1}`,
       itunesTrackId: input.itunesTrackId,
       name: input.name,
-      hnQuery: input.hnQuery,
       lastSeenVersion: null,
       lastCheckedAt: null,
       enabled: true,
@@ -274,16 +262,6 @@ export class FakeReleaseSource implements ReleaseSource {
     this.calls++;
     if (this.release instanceof Error) throw this.release;
     return this.release;
-  }
-}
-
-export class FakeReactionSource implements ReactionSource {
-  calls = 0;
-  constructor(private readonly reaction: HnReaction | Error = makeReaction()) {}
-  async fetchReaction(): Promise<HnReaction> {
-    this.calls++;
-    if (this.reaction instanceof Error) throw this.reaction;
-    return this.reaction;
   }
 }
 

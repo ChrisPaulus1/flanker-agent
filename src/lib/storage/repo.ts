@@ -1,6 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabase } from "@/lib/storage/client";
-import type { HnStory } from "@/lib/sources/hn";
 import { llmTriageSchema, type SignalLevel } from "@/lib/llm/schema";
 import type {
   CatalogApp,
@@ -12,17 +11,16 @@ import type {
   TrackedApp,
 } from "@/lib/storage/types";
 
-const APP_COLUMNS = "id, itunes_track_id, name, hn_query, last_seen_version, last_checked_at, enabled";
+const APP_COLUMNS = "id, itunes_track_id, name, last_seen_version, last_checked_at, enabled";
 const CATALOG_COLUMNS =
   "itunes_track_id, name, developer, genre, icon_url, version, release_notes, release_date, popularity_rank";
 const EVENT_COLUMNS =
-  "id, app_id, version, release_notes, release_date, hn_summary, hn_story_refs, llm_output_json, signal_level, model, detected_at, email_sent_at";
+  "id, app_id, version, release_notes, release_date, llm_output_json, signal_level, model, detected_at, email_sent_at";
 
 type AppRow = {
   id: string;
   itunes_track_id: number;
   name: string;
-  hn_query: string;
   last_seen_version: string | null;
   last_checked_at: string | null;
   enabled: boolean;
@@ -34,8 +32,6 @@ type EventRow = {
   version: string;
   release_notes: string | null;
   release_date: string | null;
-  hn_summary: string | null;
-  hn_story_refs: unknown;
   llm_output_json: unknown;
   signal_level: string;
   model: string | null;
@@ -58,7 +54,6 @@ function toApp(row: AppRow): TrackedApp {
     id: row.id,
     itunesTrackId: Number(row.itunes_track_id),
     name: row.name,
-    hnQuery: row.hn_query,
     lastSeenVersion: row.last_seen_version,
     lastCheckedAt: row.last_checked_at,
     enabled: row.enabled,
@@ -72,8 +67,6 @@ function toEvent(row: EventRow): FlankerEvent {
     version: row.version,
     releaseNotes: row.release_notes,
     releaseDate: row.release_date,
-    hnSummary: row.hn_summary,
-    hnStoryRefs: Array.isArray(row.hn_story_refs) ? (row.hn_story_refs as HnStory[]) : [],
     // Validate on the way out too: a row written by an older prompt version
     // shouldn't be able to crash the dashboard with a missing field.
     llmOutput: llmTriageSchema.parse(row.llm_output_json),
@@ -154,8 +147,6 @@ export class SupabaseFlankerRepo implements FlankerRepo {
         version: input.version,
         release_notes: input.releaseNotes,
         release_date: input.releaseDate,
-        hn_summary: input.hnSummary,
-        hn_story_refs: input.hnStoryRefs,
         llm_output_json: input.llmOutput,
         signal_level: input.signalLevel,
         model: input.model,
@@ -236,7 +227,6 @@ export class SupabaseFlankerRepo implements FlankerRepo {
   async createTrackedApp(input: {
     itunesTrackId: number;
     name: string;
-    hnQuery: string | null;
   }): Promise<TrackedApp> {
     // Upsert rather than insert: two visitors can open the same new app at the
     // same moment, and the unique constraint on itunes_track_id would make one
@@ -247,8 +237,7 @@ export class SupabaseFlankerRepo implements FlankerRepo {
         {
           itunes_track_id: input.itunesTrackId,
           name: input.name,
-          hn_query: input.hnQuery,
-          enabled: true,
+            enabled: true,
         },
         { onConflict: "itunes_track_id" },
       )

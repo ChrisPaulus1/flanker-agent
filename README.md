@@ -1,9 +1,9 @@
 # Flanker
 
 Search any App Store app and see what its team actually shipped. Flanker reads
-release notes, gathers community reaction, and reverse-engineers each release
-into a strategic read — separating the genuine launches from the "bug fixes and
-improvements" filler that most releases are.
+release notes and reverse-engineers each release into a strategic read,
+separating the genuine launches from the "bug fixes and improvements" filler
+that most releases are.
 
 Tell it what you build and the analysis becomes a counter-PRD written for your
 product.
@@ -17,7 +17,7 @@ Built with Next.js, Supabase, Gemini & Vercel Cron.
 <!-- GitHub swaps these automatically with the reader's colour scheme. -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.png">
-  <img src="docs/architecture.png" alt="Flanker system architecture: an instant browse path over a 10,000-app catalog, then on-demand analysis through a six-stage idempotent pipeline — detect, reconcile, enrich, triage, persist, advance cursor — backed by Supabase and Gemini, with a daily budget guard that degrades to cached results instead of erroring.">
+  <img src="docs/architecture.png" alt="Flanker system architecture: an instant browse path over a 10,000-app catalog, then on-demand analysis through a six-stage idempotent pipeline — detect, reconcile, triage, persist, advance cursor — backed by Supabase and Gemini, with a daily budget guard that degrades to cached results instead of erroring.">
 </picture>
 
 The diagram is authored as HTML in [docs/architecture.html](docs/architecture.html) and rendered
@@ -33,12 +33,10 @@ release — on demand, cached afterwards:
    compare it to the stored cursor.
 2. **Reconcile** — an event already stored for that version short-circuits the
    run, which is what makes a re-run safe.
-3. **Enrich** — search Hacker News for organic discussion of that competitor.
-4. **Triage** — send the release notes plus reaction to Gemini with a structured
-   prompt, and get back a signal level, feature analysis, strategic read and
-   counter-PRD.
-5. **Persist** — store the event, keyed by `(app, version)` so it's cached forever.
-6. **Advance the cursor** — last, and only once the event is durably stored.
+3. **Triage** — send the release notes to Gemini with a structured prompt, and
+   get back a signal level, feature analysis, strategic read and counter-PRD.
+4. **Persist** — store the event, keyed by `(app, version)` so it's cached forever.
+5. **Advance the cursor** — last, and only once the event is durably stored.
 
 The version cursor advances **only after** the event is written, so a failure
 anywhere in the pipeline means the release is retried rather than silently
@@ -60,7 +58,7 @@ signals, with no "we" anywhere. Name your own product and it becomes a real
 | Storage | Supabase (Postgres) |
 | LLM | Gemini, model resolved at runtime |
 | Scheduling | Vercel Cron (daily) + GitHub Actions (hourly) |
-| Sources | iTunes Search API, Hacker News Algolia API |
+| Sources | iTunes Search API (catalog, releases, batched lookup) |
 
 Every external service is on a free tier and none require a credit card.
 
@@ -68,7 +66,7 @@ Every external service is on a free tier and none require a credit card.
 
 ```
 src/lib/
-  sources/     iTunes, Hacker News and catalog-discovery adapters
+  sources/     iTunes adapters — single lookup, batched lookup, catalog discovery
   catalog/     search + type-ahead over the app catalog
   llm/         model resolution, prompt, schema, tolerant parser
   storage/     Supabase repo behind a FlankerRepo interface
@@ -111,10 +109,8 @@ npm run build-catalog        # ~12 min, keyless, respects Apple's 20 req/min
 Verify each layer independently:
 
 ```bash
-npx tsx scripts/check-sources.ts   # live iTunes + HN, no keys needed
 npx tsx scripts/check-storage.ts   # schema, seed data, unique constraint
 npm run resolve-model              # which Gemini models this key can use
-npx tsx scripts/check-triage.ts    # real triage, no DB writes
 ```
 
 Then run it:
@@ -133,12 +129,10 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/poll
 | `npm run simulate-release <app>` | Rewind memory so the next run re-detects a release |
 | `npm run resolve-model` | Discover and verify an available Gemini model |
 | `npm run build-catalog` | Discover and hydrate the searchable app catalog |
-| `npm run discover-apps` | Resolve and validate competitor candidates against the App Store |
-| `npm run seed-apps` | Sync the validated competitor set into Supabase |
 | `npm run diagram` | Re-render the architecture diagram to PNG |
 
 `simulate-release` fakes no API data. It only rewinds Flanker's own memory; the
-pipeline then re-runs against whatever the App Store and HN actually return at
+pipeline then re-runs against whatever the App Store actually returns at
 that moment. Pass `--keep-event` to leave the stored event in place, which
 demonstrates the idempotency check rejecting the duplicate.
 
@@ -155,13 +149,6 @@ and deploy. `vercel.json` registers a daily cron; the hourly polling comes from
 
 Things that were true in practice and not obvious up front:
 
-- **Algolia's HN index has no boolean operators.** A query of
-  `"Chime" AND (bank OR fintech)` returns zero hits — `AND`, `OR` and the
-  parentheses are matched as literal words. Queries are plain phrases, and
-  disambiguation happens client-side by requiring the phrase in the story title.
-- **HN reaction is usually absent**, and some brand names ("Current") are
-  unsearchable entirely. Both cases render an explicit empty state rather than
-  letting the model invent sentiment.
 - **Most releases are filler.** "Bug Fixes and Improvements" is a real, current
   release note. The prompt is written to make *low signal* a comfortable answer,
   because a prompt that inflates every bugfix into a strategic threat produces a
@@ -172,9 +159,10 @@ Things that were true in practice and not obvious up front:
 - **Vercel Hobby caps cron at once per day**, hence the GitHub Actions companion.
 - **iTunes lookup accepts 200 ids per request.** That's the difference between
   refreshing 10,000 apps in 50 requests and doing it in 10,000.
-- **Fuzzy search will hand back a different company.** Resolving on "first
-  finance-genre hit" returned Klarna for Affirm and Venmo for Zelle; a hit now
-  has to name the brand before it can win.
+- **Community reaction was a dead end.** Hacker News had near-zero relevant
+  discussion (Stripe's only hit was a 2-point story about a dashboard outage),
+  and App Store reviews mention an actual update in roughly 1 of 50. The section
+  was removed rather than padded with content that read as insight and wasn't.
 - **Newer Supabase projects don't auto-grant** table privileges to `service_role`
   for tables created in the SQL editor; without explicit `GRANT`s every request
   returns `42501`.

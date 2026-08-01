@@ -52,12 +52,6 @@ export const llmTriageSchema = z.object({
   /** The inferred business goal behind shipping it. */
   strategic_read: z.string().min(1),
   /**
-   * Null when no relevant community discussion was found. The model is
-   * instructed never to invent reaction, because HN coverage of any specific
-   * release is usually genuinely absent.
-   */
-  hn_reaction_summary: z.string().min(1).nullable(),
-  /**
    * What the release implies for anyone competing in this category.
    *
    * Written in both modes, and it's what keeps the advice section from being

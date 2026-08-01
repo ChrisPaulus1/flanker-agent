@@ -92,12 +92,6 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
                 detected {relativeTime(event.detectedAt)}
               </span>
               <span>released {formatDate(event.releaseDate)}</span>
-              {event.hnStoryRefs.length > 0 && (
-                <span>
-                  {event.hnStoryRefs.length} HN thread
-                  {event.hnStoryRefs.length === 1 ? "" : "s"}
-                </span>
-              )}
             </div>
           </div>
 
@@ -126,41 +120,6 @@ export function EventCard({ event }: { event: FlankerEventWithApp }) {
               <Prose text={triage.strategic_read} />
             </Section>
 
-            <Section title="Community reaction">
-              {triage.hn_reaction_summary ? (
-                <>
-                  <Prose text={triage.hn_reaction_summary} />
-                  {event.hnStoryRefs.length > 0 && (
-                    <ul className="mt-3 space-y-1.5">
-                      {event.hnStoryRefs.map((story) => (
-                        <li key={story.objectId}>
-                          <a
-                            href={story.hnUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-baseline gap-1.5 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-                          >
-                            {/* Emoji make poor icons — they render differently
-                                per platform and screen readers announce them. */}
-                            <span className="shrink-0 font-mono text-xs tabular-nums text-teal-ink">
-                              {story.points} pts
-                            </span>
-                            <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground/70">
-                              {story.numComments} comments
-                            </span>
-                            <span>{story.title}</span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              ) : (
-                <p className="italic text-muted-foreground">
-                  No relevant Hacker News discussion found for this release.
-                </p>
-              )}
-            </Section>
 
             <AdviceSection
               categoryImplication={triage.category_implication}

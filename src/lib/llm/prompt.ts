@@ -1,20 +1,16 @@
 import type { AppRelease } from "@/lib/sources/itunes";
-import type { HnReaction } from "@/lib/sources/hn";
 import type { TrackedApp } from "@/lib/storage/types";
 
 /**
  * The triage prompt.
  *
- * Three things it works hard at, all learned from what the real data looks
+ * Two things it works hard at, both learned from what the real data looks
  * like:
  *
  *  - Most releases are filler. "Bug Fixes and Improvements" is Cash App's
  *    current release note verbatim. The prompt has to make "low signal, nothing
  *    to see here" a comfortable answer, or every bugfix gets inflated into a
  *    strategic threat and the dashboard becomes noise.
- *  - Community reaction is usually absent. Rather than let the model
- *    hallucinate sentiment, absence is stated explicitly and the model is told
- *    to return null.
  *  - A counter-PRD is advice to a specific team. An earlier version hardcoded
  *    its reader as "a product team that builds a consumer FinTech app", so
  *    every output said "our app should ship X" for a company that was never
@@ -51,7 +47,6 @@ function analysisFields(counterPrd: string): string {
   "signal_level": "high | medium | low",
   "feature_analysis": "what the change most likely does mechanically, and what you are inferring vs. what the notes actually say",
   "strategic_read": "the business goal you infer behind shipping this, and why now",
-  "hn_reaction_summary": "2-4 sentences summarising the community reaction, or null if no relevant discussion was supplied",
   "category_implication": "2-3 sentences: what this release implies for anyone building in this category. Third person, no 'we' or 'our'. Concrete — name the capability or expectation that just shifted, not 'companies should stay competitive'",
   "counter_prd": ${counterPrd}
 }`;
@@ -64,34 +59,6 @@ const COUNTER_PRD_SHAPE = `{
     "proposed_feature": "a concrete, buildable response — not 'investigate' or 'monitor'",
     "success_metric": "one measurable metric with a direction, e.g. 'X up N% in 90 days'"
   }`;
-
-function formatReaction(reaction: HnReaction | null): string {
-  if (!reaction || reaction.stories.length === 0) {
-    return `No relevant Hacker News discussion was found for this app in the search window.
-Set "hn_reaction_summary" to null. Do not speculate about how the community
-reacted, and do not substitute general knowledge about this company.`;
-  }
-
-  const stories = reaction.stories
-    .map((s) => `- "${s.title}" (${s.points} points, ${s.numComments} comments) ${s.hnUrl}`)
-    .join("\n");
-
-  const comments =
-    reaction.comments.length > 0
-      ? reaction.comments.map((c, i) => `[${i + 1}] ${c}`).join("\n\n")
-      : "(no comment text available)";
-
-  return `Hacker News stories mentioning this company (past 180 days):
-${stories}
-
-Comment excerpts:
-${comments}
-
-Note: these threads are about the company generally and are very unlikely to
-discuss this specific release. Summarise the sentiment you can actually see and
-say plainly if it is unrelated to this release. Do not claim the community
-reacted to this update unless the text shows that.`;
-}
 
 function subject(app: TrackedApp, release: AppRelease): string {
   const notes = release.releaseNotes?.trim();
@@ -110,17 +77,13 @@ ${notes && notes.length > 0 ? notes : "(the developer published no release notes
 export function buildTriagePrompt({
   app,
   release,
-  reaction,
   viewer,
 }: {
   app: TrackedApp;
   release: AppRelease;
-  reaction: HnReaction | null;
   viewer?: ViewerContext | null;
 }): string {
-  const body = `${subject(app, release)}
-
-${formatReaction(reaction)}`;
+  const body = subject(app, release);
 
   // ---------------------------------------------------------------------
   // Teardown mode: nobody has told us who is reading, so the output must not
@@ -139,8 +102,7 @@ YOUR TASK
    If the notes are too vague to infer a capability, say so rather than guessing.
 2. Infer the strategic goal behind the change: what business outcome does this
    company want, and why would they ship it now?
-3. Summarise community reaction from the supplied material only, or null.
-4. State what this implies for the category: if a rival product team read this,
+3. State what this implies for the category: if a rival product team read this,
    what expectation or baseline just moved? Name the specific capability at
    stake. If the release genuinely changes nothing for anyone, say that plainly
    rather than manufacturing significance.
@@ -194,11 +156,10 @@ YOUR TASK
    If the notes are too vague to infer a capability, say so rather than guessing.
 2. Infer the strategic goal behind the change: what business outcome does the
    analysed company want, and why would they ship it now?
-3. Summarise community reaction from the supplied material only, or null.
-4. State what this implies for the category generally, in the third person and
+3. State what this implies for the category generally, in the third person and
    independent of any one company. Name the specific capability or expectation
    that moved.
-5. First classify how the two products relate, then write the response that
+4. First classify how the two products relate, then write the response that
    classification allows:
 
    direct-competitor — same category, competing for the same users. Write a
@@ -233,8 +194,8 @@ YOUR TASK
    response, say that in the problem statement and still propose the smallest
    sensible defensive action.
 
-Keep the two products distinct. Steps 1-4 are about ${app.name} and its
-category. Step 5 is about ${viewer.name}. Do not write the counter-PRD for
+Keep the two products distinct. Steps 1-3 are about ${app.name} and its
+category. Step 4 is about ${viewer.name}. Do not write the counter-PRD for
 ${app.name}.
 
 ${SIGNAL_GUIDANCE}

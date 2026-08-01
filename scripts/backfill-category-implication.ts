@@ -65,7 +65,6 @@ async function main() {
       const { output } = await engine.triage({
         app: tracked,
         release,
-        reaction: null,
         viewer: null,
       });
 

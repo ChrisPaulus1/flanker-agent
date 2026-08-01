@@ -1,12 +1,9 @@
-import type { HnStory } from "@/lib/sources/hn";
 import type { LlmTriage, SignalLevel } from "@/lib/llm/schema";
 
 export interface TrackedApp {
   id: string;
   itunesTrackId: number;
   name: string;
-  /** Null when the brand name is too generic to search HN reliably. */
-  hnQuery: string | null;
   lastSeenVersion: string | null;
   lastCheckedAt: string | null;
   enabled: boolean;
@@ -33,8 +30,6 @@ export interface FlankerEvent {
   version: string;
   releaseNotes: string | null;
   releaseDate: string | null;
-  hnSummary: string | null;
-  hnStoryRefs: HnStory[];
   llmOutput: LlmTriage;
   signalLevel: SignalLevel;
   /** Which Gemini model produced llmOutput; null for rows written before this was tracked. */
@@ -52,8 +47,6 @@ export interface NewEventInput {
   version: string;
   releaseNotes: string | null;
   releaseDate: string | null;
-  hnSummary: string | null;
-  hnStoryRefs: HnStory[];
   llmOutput: LlmTriage;
   signalLevel: SignalLevel;
   model: string;
@@ -94,7 +87,6 @@ export interface FlankerRepo {
   createTrackedApp(input: {
     itunesTrackId: number;
     name: string;
-    hnQuery: string | null;
   }): Promise<TrackedApp>;
   /** Generations since a timestamp, for the daily budget guard. */
   countEventsSince(sinceIso: string): Promise<number>;

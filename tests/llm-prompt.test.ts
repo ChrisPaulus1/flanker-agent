@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildTriagePrompt } from "@/lib/llm/prompt";
-import { makeApp, makeRelease, makeReaction } from "./fakes";
+import { makeApp, makeRelease } from "./fakes";
 
 const base = { app: makeApp({ name: "Varo Bank" }), release: makeRelease(), reaction: null };
 
@@ -83,28 +83,6 @@ describe("buildTriagePrompt — shared behaviour", () => {
     }
   });
 
-  it("states the empty-reaction rule when no HN discussion was found", () => {
-    const prompt = buildTriagePrompt({ ...base, viewer: null });
-    expect(prompt).toMatch(/hn_reaction_summary" to null/i);
-  });
-
-  it("passes through supplied HN reaction", () => {
-    const reaction = makeReaction({
-      stories: [
-        {
-          objectId: "1",
-          title: "Varo wins charter",
-          url: null,
-          hnUrl: "https://news.ycombinator.com/item?id=1",
-          points: 40,
-          numComments: 12,
-          createdAt: "2026-07-01T00:00:00Z",
-        },
-      ],
-    });
-    const prompt = buildTriagePrompt({ ...base, reaction, viewer: null });
-    expect(prompt).toContain("Varo wins charter");
-  });
 
   it("handles an app that published no release notes", () => {
     const prompt = buildTriagePrompt({

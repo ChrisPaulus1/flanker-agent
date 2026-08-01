@@ -13,8 +13,6 @@
     "resolve-model": "tsx scripts/resolve-model.ts",
     "backfill": "tsx scripts/backfill.ts",
     "simulate-release": "tsx scripts/simulate-release.ts",
-    "seed-apps": "tsx scripts/seed-apps.ts",
-    "discover-apps": "tsx scripts/discover-apps.ts",
     "build-catalog": "tsx scripts/build-catalog.ts",
     "diagram": "tsx scripts/render-architecture.ts"
   },

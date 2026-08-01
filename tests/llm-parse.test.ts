@@ -6,7 +6,6 @@ const valid = {
   signal_level: "high",
   feature_analysis: "Short-term liquidity product fronting earned wages.",
   strategic_read: "Deepens primary-account behaviour ahead of a bank charter.",
-  hn_reaction_summary: null,
   category_implication: "Earned-wage access is becoming table stakes for consumer banking apps.",
   counter_prd: {
     relationship: "direct-competitor",
@@ -82,7 +81,6 @@ describe("parseTriageResponse", () => {
       "signal_level": "low",
       "feature_analysis": "x",
       "strategic_read": "x",
-      "hn_reaction_summary": null,
       "category_implication": "x",
       "counter_prd": {
         "relationship": "unrelated",
@@ -93,15 +91,6 @@ describe("parseTriageResponse", () => {
       },
     }`;
     expect(parseTriageResponse(trailing).signal_level).toBe("low");
-  });
-
-  it("keeps a null hn_reaction_summary null rather than inventing a string", () => {
-    expect(parseTriageResponse(json).hn_reaction_summary).toBeNull();
-  });
-
-  it("accepts a populated hn_reaction_summary", () => {
-    const withReaction = JSON.stringify({ ...valid, hn_reaction_summary: "Mostly sceptical." });
-    expect(parseTriageResponse(withReaction).hn_reaction_summary).toBe("Mostly sceptical.");
   });
 
   it("accepts a null category_implication", () => {
@@ -184,7 +173,6 @@ describe("reading analyses stored before newer fields existed", () => {
     signal_level: "low",
     feature_analysis: "x",
     strategic_read: "x",
-    hn_reaction_summary: null,
     counter_prd: {
       problem_statement: "x",
       why_now: "x",
