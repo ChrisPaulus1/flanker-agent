@@ -78,3 +78,20 @@ export function formatVersion(version: string): string {
   const trimmed = version.trim();
   return trimmed.replace(/^v/i, "");
 }
+
+/**
+ * Short display name for an App Store title.
+ *
+ * Store titles carry marketing tails — "Bumble Dating App: Meet & Date",
+ * "Chime® – Mobile Banking" — which overflow any inline label. The brand is
+ * the part before the first separator; the tail is for App Store search, not
+ * for us.
+ */
+export function shortAppName(name: string): string {
+  const brand = name
+    .split(/[:\u2013\u2014|(]/)[0]
+    .replace(/[\u00ae\u2122\u00a9]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return brand.length >= 2 ? brand : name.trim();
+}

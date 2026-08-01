@@ -4,6 +4,7 @@ import * as React from "react";
 import { Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { counterPrdCacheKey, openProductPicker, useViewer } from "@/lib/viewer";
+import { shortAppName } from "@/lib/format";
 import type { CounterPrd } from "@/lib/llm/schema";
 
 /**
@@ -139,8 +140,8 @@ export function AdviceSection({
     : !prd || !viewer
       ? "What this means for competitors"
       : unrelated
-        ? `What ${viewer.name} could borrow`
-        : `Counter-PRD for ${viewer.name}`;
+        ? `What ${shortAppName(viewer.name)} could borrow`
+        : `Counter-PRD for ${shortAppName(viewer.name)}`;
 
   return (
     <div className="rounded-xl border border-border/70 bg-gradient-to-br from-indigo/[0.07] via-teal/[0.05] to-tangerine/[0.07] p-4">
@@ -148,7 +149,7 @@ export function AdviceSection({
 
       {isSelf ? (
         <p className="text-[15px] leading-relaxed text-foreground/90">
-          You&apos;ve set {appName} as your own product, so there&apos;s no competitor to respond
+          You&apos;ve set {shortAppName(appName)} as your own product, so there&apos;s no competitor to respond
           to here — this is your release. Pick a different app to see how it reads against
           yours, or switch your product to compare from another position.
         </p>
@@ -163,7 +164,7 @@ export function AdviceSection({
           */}
           {unrelated && viewer && (
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-              {appName} isn&apos;t a competitor to {viewer.name}.
+              {shortAppName(appName)} isn&apos;t a competitor to {shortAppName(viewer.name)}.
             </p>
           )}
           <dl className="space-y-3">
@@ -193,7 +194,10 @@ export function AdviceSection({
             <Button
               size="sm"
               variant={viewer ? "default" : "outline"}
-              className="mt-4 cursor-pointer"
+              /* Button is whitespace-nowrap by default, which sent a long store
+                 title off the right edge on mobile. Wrapping with auto height
+                 keeps the label inside the card at any name length. */
+              className="mt-4 h-auto max-w-full cursor-pointer whitespace-normal py-2 text-left"
               onClick={() => (viewer ? void generate() : openProductPicker())}
               disabled={state === "running"}
             >
@@ -205,7 +209,9 @@ export function AdviceSection({
               ) : (
                 <>
                   <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                  {viewer ? `Write a counter-PRD for ${viewer.name}` : "Get a counter-PRD for your product"}
+                  {viewer
+                    ? `Write a counter-PRD for ${shortAppName(viewer.name)}`
+                    : "Get a counter-PRD for your product"}
                 </>
               )}
             </Button>

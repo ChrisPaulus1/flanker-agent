@@ -4,6 +4,7 @@ import * as React from "react";
 import { Check, ChevronDown, Loader2, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { shortAppName } from "@/lib/format";
 import { onOpenProductPicker, useViewer, type ViewerProduct } from "@/lib/viewer";
 import type { Suggestion } from "@/lib/catalog/search";
 
@@ -103,7 +104,7 @@ export function ProductPicker() {
                  artwork on arbitrary CDN hosts. */
               <img src={viewer.iconUrl} alt="" width={16} height={16} className="h-4 w-4 rounded-[4px]" />
             )}
-            <span className="max-w-[9rem] truncate">{viewer.name}</span>
+            <span className="max-w-[9rem] truncate">{shortAppName(viewer.name)}</span>
           </>
         ) : (
           <span>Set your product</span>
@@ -111,8 +112,18 @@ export function ProductPicker() {
         <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} aria-hidden />
       </Button>
 
+      {/*
+        Panel is fixed and gutter-anchored on mobile, button-anchored from sm up.
+
+        Anchoring to the trigger at every size put its left edge at -36px on a
+        375px screen: it's ~343px wide and the button's right edge is only
+        307px in, so it hung off the left and the page's overflow-x clip
+        silently cut the text off rather than scrolling. Pinning it to the
+        viewport gutters on small screens keeps it on-screen regardless of
+        where the trigger sits.
+      */}
       {open && (
-        <div className="panel absolute right-0 z-30 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-xl border bg-card p-3 shadow-lg">
+        <div className="panel fixed inset-x-4 top-[calc(var(--header-h)+0.5rem)] z-30 rounded-xl border bg-card p-3 shadow-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[22rem]">
           <p className="mb-2.5 text-xs leading-relaxed text-muted-foreground">
             Pick the app you work on. Every analysis then includes a counter-PRD written from its
             position instead of a neutral teardown.
