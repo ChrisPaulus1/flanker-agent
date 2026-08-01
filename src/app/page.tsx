@@ -39,7 +39,7 @@ export default async function HomePage() {
           <span className="font-semibold text-foreground">
             {total && total > 0 ? `${total.toLocaleString()} iOS apps` : "any iOS app"}
           </span>{" "}
-          to see exactly what companies are shipping. Flanker decodes product updates into
+          to see exactly what companies are shipping. Flanker reverse-engineers product updates into
           strategic insights and actionable counter-PRDs.
         </p>
 
