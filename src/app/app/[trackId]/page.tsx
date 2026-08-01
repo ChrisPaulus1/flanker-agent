@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { SupabaseFlankerRepo } from "@/lib/storage/repo";
 import { formatVersion, relativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { buildHistory, newestUnanalyzed } from "@/lib/pipeline/history";
+import { buildHistory, lastCheckedAt, newestUnanalyzed } from "@/lib/pipeline/history";
 import type { CatalogApp, FlankerEventWithApp, ObservedRelease } from "@/lib/storage/types";
 
 export const dynamic = "force-dynamic";
@@ -149,6 +149,7 @@ export default async function AppPage({ params }: { params: { trackId: string } 
   let app: CatalogApp | null = null;
   let events: FlankerEventWithApp[] = [];
   let releases: ObservedRelease[] = [];
+  let lastSweepAt: string | null = null;
   let error: string | null = null;
 
   try {
@@ -157,9 +158,10 @@ export default async function AppPage({ params }: { params: { trackId: string } 
 
     if (app) {
       const tracked = await repo.findTrackedByItunesId(trackId);
-      [releases, events] = await Promise.all([
+      [releases, events, lastSweepAt] = await Promise.all([
         repo.listReleases(trackId, 25),
         tracked ? repo.listEventsForApp(tracked.id, 50) : Promise.resolve([]),
+        repo.getLastMonitorRun(),
       ]);
     }
   } catch (caught) {
@@ -171,7 +173,7 @@ export default async function AppPage({ params }: { params: { trackId: string } 
   const history = buildHistory(releases, events);
   const pendingVersion = newestUnanalyzed(history);
   const highSignal = events.filter((e) => e.signalLevel === "high").length;
-  const lastChecked = events[0]?.detectedAt ?? releases[0]?.firstSeenAt ?? null;
+  const { at: lastChecked, monitored } = lastCheckedAt(releases, events, lastSweepAt);
 
   return (
     <SiteShell>
@@ -202,6 +204,7 @@ export default async function AppPage({ params }: { params: { trackId: string } 
               <StatTile
                 label="Last checked"
                 value={lastChecked ? relativeTime(lastChecked) : "never"}
+                hint={monitored ? "monitored continuously" : "checked on demand"}
                 accent="teal"
               />
             </div>

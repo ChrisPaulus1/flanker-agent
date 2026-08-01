@@ -100,6 +100,14 @@ export interface FlankerRepo {
   deleteEvent(appId: string, version: string): Promise<boolean>;
   /** Bulk-record observed versions. Existing (track, version) pairs are left alone. */
   recordReleases(releases: Omit<ObservedRelease, "firstSeenAt">[]): Promise<number>;
+  /** Record that a detection sweep ran. */
+  recordMonitorRun(input: {
+    appsChecked: number;
+    newReleases: number;
+    failedBatches: number;
+  }): Promise<void>;
+  /** When the agent last looked, or null before the first sweep. */
+  getLastMonitorRun(): Promise<string | null>;
   /** Track IDs of the most popular catalogue apps — the watch set. */
   listPopularTrackIds(limit: number): Promise<number[]>;
   /** Observed history for one app, newest release first. */

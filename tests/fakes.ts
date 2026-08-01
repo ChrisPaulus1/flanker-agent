@@ -225,6 +225,16 @@ export class FakeRepo implements FlankerRepo {
     return inserted;
   }
 
+  monitorRuns: string[] = [];
+
+  async recordMonitorRun(): Promise<void> {
+    this.monitorRuns.push("2026-08-01T00:00:00.000Z");
+  }
+
+  async getLastMonitorRun(): Promise<string | null> {
+    return this.monitorRuns.at(-1) ?? null;
+  }
+
   async listPopularTrackIds(limit: number): Promise<number[]> {
     return this.apps.slice(0, limit).map((a) => a.itunesTrackId);
   }

@@ -89,3 +89,28 @@ export function newestUnanalyzed(entries: HistoryEntry[]): string | null {
   const first = entries.find((e) => e.kind === "detected");
   return first ? first.version : null;
 }
+
+/**
+ * When this app was last actually checked for a new release.
+ *
+ * Not the same as when it was last *analysed*, which is what this used to
+ * report: an app the sweep had checked an hour ago showed "17h ago" because
+ * the newest event was 17 hours old. The sweep writes nothing when a version
+ * is unchanged — which is the common case — so its own run timestamp is the
+ * only honest source.
+ *
+ * Only the sweep writes release rows, so having any is what makes an app
+ * monitored. Everything else is checked when someone opens it, and there the
+ * newest analysis genuinely is the last check.
+ */
+export function lastCheckedAt(
+  releases: ObservedRelease[],
+  events: FlankerEventWithApp[],
+  lastSweepAt: string | null,
+): { at: string | null; monitored: boolean } {
+  const monitored = releases.length > 0;
+  return {
+    at: monitored ? lastSweepAt : (events[0]?.detectedAt ?? null),
+    monitored,
+  };
+}

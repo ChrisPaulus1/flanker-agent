@@ -40,6 +40,17 @@ async function handle(request: Request) {
 
     const result = await runWatchSweep(trackIds, { repo });
 
+    // Written after the sweep, not before, so the timestamp means "last
+    // completed check" rather than "last attempt". A sweep that saw no new
+    // versions writes no releases and no events — without this row there'd be
+    // no evidence it ran at all, which is exactly why the dashboard used to
+    // report an app as unchecked for 17 hours an hour after checking it.
+    await repo.recordMonitorRun({
+      appsChecked: result.appsChecked,
+      newReleases: result.newReleases,
+      failedBatches: result.failedBatches,
+    });
+
     console.log(
       `[flanker] watch sweep: ${result.appsChecked} apps, ${result.newReleases} new releases, ` +
         `${result.failedBatches} failed batches, ${result.durationMs}ms`,

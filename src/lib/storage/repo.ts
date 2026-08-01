@@ -310,6 +310,38 @@ export class SupabaseFlankerRepo implements FlankerRepo {
    * 1,000 and the sweep quietly watches half the set it reported. Found by the
    * first live sweep coming back with watchSetSize 1000 for a 2,000 request.
    */
+  async recordMonitorRun(input: {
+    appsChecked: number;
+    newReleases: number;
+    failedBatches: number;
+  }): Promise<void> {
+    const { error } = await this.db.from("monitor_runs").insert({
+      apps_checked: input.appsChecked,
+      new_releases: input.newReleases,
+      failed_batches: input.failedBatches,
+    });
+    // A sweep that worked shouldn't fail because bookkeeping did.
+    if (error) console.error(`[flanker] recordMonitorRun failed: ${error.message}`);
+  }
+
+  async getLastMonitorRun(): Promise<string | null> {
+    const { data, error } = await this.db
+      .from("monitor_runs")
+      .select("ran_at")
+      .order("ran_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // Non-fatal on purpose. This feeds one stat tile; a deploy that lands
+    // before the migration does shouldn't turn the whole app page into an
+    // error card over it.
+    if (error) {
+      console.error(`[flanker] getLastMonitorRun failed: ${error.message}`);
+      return null;
+    }
+    return (data?.ran_at as string | undefined) ?? null;
+  }
+
   async listPopularTrackIds(limit: number): Promise<number[]> {
     const PAGE = 1_000;
     const ids: number[] = [];

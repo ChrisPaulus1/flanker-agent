@@ -150,3 +150,28 @@ create index if not exists releases_track_date_idx
 
 alter table public.releases enable row level security;
 grant select, insert, update, delete on public.releases to service_role;
+
+-- ---------------------------------------------------------------------------
+-- monitor_runs: one row per detection sweep.
+--
+-- Exists so the dashboard can say when the agent last looked, rather than
+-- inferring it. Before this, "Last checked" showed the newest event's
+-- detected_at — i.e. when an analysis last ran — which read as 17 hours on an
+-- app the sweep had checked an hour earlier. The monitoring was healthy; the
+-- instrumentation was lying about it.
+--
+-- One sweep covers the whole watch set, so a single global timestamp is
+-- correct for any monitored app.
+-- ---------------------------------------------------------------------------
+create table if not exists public.monitor_runs (
+  id             uuid primary key default gen_random_uuid(),
+  ran_at         timestamptz not null default now(),
+  apps_checked   integer     not null default 0,
+  new_releases   integer     not null default 0,
+  failed_batches integer     not null default 0
+);
+
+create index if not exists monitor_runs_ran_at_idx on public.monitor_runs (ran_at desc);
+
+alter table public.monitor_runs enable row level security;
+grant select, insert on public.monitor_runs to service_role;

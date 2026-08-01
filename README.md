@@ -163,6 +163,11 @@ Things that were true in practice and not obvious up front:
   discussion (Stripe's only hit was a 2-point story about a dashboard outage),
   and App Store reviews mention an actual update in roughly 1 of 50. The section
   was removed rather than padded with content that read as insight and wasn't.
+- **A sweep that finds nothing leaves no trace.** Unchanged versions write no
+  rows, so "Last checked" was being inferred from the newest *analysis* — and
+  read as 17 hours on an app the sweep had checked an hour earlier. The
+  monitoring was healthy; the instrumentation wasn't. Sweeps now record their
+  own run, because the absence of a finding is not the absence of a check.
 - **Newer Supabase projects don't auto-grant** table privileges to `service_role`
   for tables created in the SQL editor; without explicit `GRANT`s every request
   returns `42501`.

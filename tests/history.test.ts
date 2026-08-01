@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildHistory, newestUnanalyzed } from "@/lib/pipeline/history";
+import { buildHistory, lastCheckedAt, newestUnanalyzed } from "@/lib/pipeline/history";
 import { makeTriage } from "./fakes";
 import type { FlankerEventWithApp, ObservedRelease } from "@/lib/storage/types";
 
@@ -122,5 +122,45 @@ describe("newestUnanalyzed", () => {
       [event("2.0", "2026-07-20T00:00:00Z")],
     );
     expect(newestUnanalyzed(entries)).toBe("3.0");
+  });
+});
+
+describe("lastCheckedAt", () => {
+  const SWEEP = "2026-08-01T12:00:00.000Z";
+
+  it("reports the sweep time for a monitored app, not its newest analysis", () => {
+    // The bug this exists to prevent: an app checked an hour ago reading as
+    // "17h ago" because that's when its last analysis ran.
+    const result = lastCheckedAt(
+      [release("3.0", "2026-07-30T00:00:00Z")],
+      [event("3.0", "2026-07-30T00:00:00Z", "2026-07-31T19:00:00.000Z")],
+      SWEEP,
+    );
+    expect(result).toEqual({ at: SWEEP, monitored: true });
+  });
+
+  it("reports the sweep time even when nothing has ever been analysed", () => {
+    const result = lastCheckedAt([release("3.0", "2026-07-30T00:00:00Z")], [], SWEEP);
+    expect(result).toEqual({ at: SWEEP, monitored: true });
+  });
+
+  it("falls back to the newest analysis for an app outside the watch set", () => {
+    // No release rows means the sweep never touched it, so claiming the
+    // sweep's timestamp would be a lie about coverage.
+    const result = lastCheckedAt([], [event("1.0", null, "2026-07-31T19:00:00.000Z")], SWEEP);
+    expect(result).toEqual({ at: "2026-07-31T19:00:00.000Z", monitored: false });
+  });
+
+  it("reports nothing when the app has never been checked at all", () => {
+    expect(lastCheckedAt([], [], SWEEP)).toEqual({ at: null, monitored: false });
+  });
+
+  it("reports nothing for a monitored app before the first sweep is recorded", () => {
+    // Deploying this ahead of the first sweep must read as "never", not as a
+    // stale analysis timestamp dressed up as a check.
+    expect(lastCheckedAt([release("3.0", null)], [event("3.0", null)], null)).toEqual({
+      at: null,
+      monitored: true,
+    });
   });
 });
