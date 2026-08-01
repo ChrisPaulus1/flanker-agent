@@ -15,7 +15,7 @@ const APP_COLUMNS = "id, itunes_track_id, name, last_seen_version, last_checked_
 const CATALOG_COLUMNS =
   "itunes_track_id, name, developer, genre, icon_url, version, release_notes, release_date, popularity_rank";
 const EVENT_COLUMNS =
-  "id, app_id, version, release_notes, release_date, llm_output_json, signal_level, model, detected_at, email_sent_at";
+  "id, app_id, version, release_notes, release_date, llm_output_json, signal_level, model, detected_at";
 
 type AppRow = {
   id: string;
@@ -36,7 +36,6 @@ type EventRow = {
   signal_level: string;
   model: string | null;
   detected_at: string;
-  email_sent_at: string | null;
   // supabase-js types an embedded relation as an array even when the foreign
   // key guarantees at most one row, so accept both shapes and normalise.
   tracked_apps?: EmbeddedApp | EmbeddedApp[] | null;
@@ -73,7 +72,6 @@ function toEvent(row: EventRow): FlankerEvent {
     signalLevel: row.signal_level as SignalLevel,
     model: row.model,
     detectedAt: row.detected_at,
-    emailSentAt: row.email_sent_at,
   };
 }
 
@@ -156,11 +154,6 @@ export class SupabaseFlankerRepo implements FlankerRepo {
 
     if (error) fail("insertEvent", error);
     return toEvent(data as EventRow);
-  }
-
-  async markEmailSent(eventId: string, sentAt: string): Promise<void> {
-    const { error } = await this.db.from("events").update({ email_sent_at: sentAt }).eq("id", eventId);
-    if (error) fail("markEmailSent", error);
   }
 
   async advanceLastSeenVersion(appId: string, version: string, checkedAt: string): Promise<void> {

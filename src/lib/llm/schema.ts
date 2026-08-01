@@ -4,7 +4,7 @@ import { z } from "zod";
  * The contract Flanker requires back from the LLM.
  *
  * This is the single source of truth for the shape: the prompt is generated
- * from it, the parser validates against it, and the dashboard and email both
+ * from it, the parser validates against it, and the dashboard
  * read the validated type. A model that returns something else is a failed
  * pipeline run, not a half-populated event row.
  */

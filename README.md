@@ -17,7 +17,7 @@ Built with Next.js, Supabase, Gemini & Vercel Cron.
 <!-- GitHub swaps these automatically with the reader's colour scheme. -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.png">
-  <img src="docs/architecture.png" alt="Flanker system architecture: an instant browse path over a 10,000-app catalog, then on-demand analysis through a six-stage idempotent pipeline — detect, reconcile, triage, persist, advance cursor — backed by Supabase and Gemini, with a daily budget guard that degrades to cached results instead of erroring.">
+  <img src="docs/architecture.png" alt="Flanker system architecture: an instant browse path over a 16,700-app catalog, on-demand analysis through a five-stage idempotent pipeline — detect, reconcile, triage, persist, advance cursor — and a continuous monitoring sweep that checks 2,000 apps in ten keyless requests with no model calls, backed by Supabase and Gemini, with a daily budget guard that degrades to cached results instead of erroring.">
 </picture>
 
 The diagram is authored as HTML in [docs/architecture.html](docs/architecture.html) and rendered

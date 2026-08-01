@@ -131,7 +131,7 @@
   .endpoint code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
 
   /* ---------- pipeline ---------- */
-  .pipeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; align-items: stretch; }
+  .pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; align-items: stretch; }
   .step { position: relative; padding-right: 26px; }
   .step:last-child { padding-right: 0; }
   .step::after {
@@ -207,8 +207,8 @@
       </p>
     </div>
     <div class="meta">
-      <b>10,000+</b> apps searchable<br />
-      <b>149</b> unit tests · TDD on detection, idempotency &amp; budget<br />
+      <b>16,700+</b> apps searchable<br />
+      <b>174</b> unit tests · TDD on detection, idempotency &amp; budget<br />
       <b>Every</b> external service on a free tier, no card
     </div>
   </header>
@@ -219,7 +219,7 @@
     <div class="triggers">
       <div class="card">
         <span class="tag t-free">Landing</span>
-        <h3>Search 10,000+ apps</h3>
+        <h3>Search 16,700+ apps</h3>
         <p>Type-ahead capped at three, prefix-matched and popularity-ranked so &ldquo;s&rdquo; offers a decision rather than a directory.</p>
       </div>
       <div class="card">
@@ -232,7 +232,7 @@
         <h3><code>chart feeds + search &rarr; bulk lookup</code></h3>
         <p>
           Discovery across ~50 chart feeds and ~85 search terms, then hydration in batches of 200.
-          Apple accepts <b>200 ids per lookup</b>, so 10,000 apps refresh in 50 requests, not 10,000.
+          Apple accepts <b>200 ids per lookup</b>, so the whole catalogue refreshes in 84 requests, not 16,729.
         </p>
       </div>
     </div>
@@ -271,17 +271,6 @@
       <div class="step" style="--accent-col: var(--tangerine)">
         <div class="step-inner">
           <div class="num">03</div>
-          <h3>Enrich</h3>
-          <p>
-            Community reaction, title-filtered for relevance. Fails soft. Brands too generic to
-            search are skipped rather than summarised as noise.
-          </p>
-        </div>
-      </div>
-
-      <div class="step" style="--accent-col: var(--tangerine)">
-        <div class="step-inner">
-          <div class="num">04</div>
           <h3>Triage</h3>
           <p>
             Model resolved at runtime, never hardcoded. Falls down a ranked chain on quota
@@ -293,7 +282,7 @@
 
       <div class="step" style="--accent-col: var(--teal)">
         <div class="step-inner">
-          <div class="num">05</div>
+          <div class="num">04</div>
           <h3>Persist</h3>
           <p>
             Insert the event keyed by (app, version). That row is the cache: every later view of
@@ -305,7 +294,7 @@
 
       <div class="step" style="--accent-col: var(--teal)">
         <div class="step-inner">
-          <div class="num">06</div>
+          <div class="num">05</div>
           <h3>Advance cursor</h3>
           <p>
             <b>Last.</b> Anything that throws before this leaves <code>last_seen_version</code> untouched,
@@ -318,17 +307,51 @@
     </div>
   </div>
 
+  <!-- CONTINUOUS MONITORING -->
+  <div class="band">
+    <div class="band-label">3 &middot; Monitor &mdash; continuous, no LLM, $0</div>
+    <div class="outputs">
+      <div class="card">
+        <span class="tag t-free">Scheduled sweep</span>
+        <h3>2,000 apps, 10 requests</h3>
+        <p>
+          <code>/lookup</code> takes 200 app ids per request, so the whole watch set costs ten
+          keyless calls. Detection never touches the model &mdash; the sweep module has no LLM
+          import at all, so it cannot spend analysis budget even by mistake.
+        </p>
+      </div>
+      <div class="card">
+        <span class="tag t-key">releases</span>
+        <h3>History accrues on its own</h3>
+        <p>
+          Every observed version is written keyed by <code>(track_id, version)</code>, whether or not
+          it was ever analysed. Timelines fill without anyone visiting &mdash; and Apple exposes only
+          the <i>current</i> version, so a release missed between sweeps is gone permanently.
+        </p>
+      </div>
+      <div class="card">
+        <span class="tag t-out">Budget guard</span>
+        <h3>Scheduled work yields to people</h3>
+        <p>
+          Background runs stop at 75% of the daily quota and leave the rest for live visitors, so a
+          busy sweep can never leave the page reporting &ldquo;analysis paused&rdquo;.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- STORAGE + OUTPUTS -->
   <div class="band">
-    <div class="band-label">3 · Storage &amp; delivery</div>
+    <div class="band-label">4 · Storage &amp; delivery</div>
     <div class="outputs">
       <div class="card">
         <span class="tag t-key">Supabase · Postgres</span>
-        <h3>Three tables, RLS on, no permissive policies</h3>
+        <h3>Four tables, RLS on, no permissive policies</h3>
         <div class="schema">
-          <b>catalog_apps</b> — 10k+ rows · name · developer · genre<br />
+          <b>catalog_apps</b> — 16.7k rows · name · developer · genre<br />
           &nbsp;&nbsp;icon · version · release_notes · popularity_rank<br />
           <b>tracked_apps</b> — promoted from catalog on first view<br />
+          <b>releases</b> — every observed version, analysed or not<br />
           <b>events</b> — llm_output_json · signal_level · model<br />
           <span class="pill">UNIQUE (app_id, version) = the cache key</span>
         </div>
@@ -355,7 +378,7 @@
 
   <!-- GUARANTEES -->
   <div class="band">
-    <div class="band-label">4 · What makes it safe to re-run</div>
+    <div class="band-label">5 · What makes it safe to re-run</div>
     <div class="guarantees">
       <div class="g">
         <h4>Cursor advances last</h4>
@@ -379,7 +402,7 @@
   <footer>
     <div class="legend">
       <span><i class="dot" style="background: var(--indigo)"></i> Browse &amp; detection</span>
-      <span><i class="dot" style="background: var(--tangerine)"></i> Enrichment &amp; analysis</span>
+      <span><i class="dot" style="background: var(--tangerine)"></i> Analysis</span>
       <span><i class="dot" style="background: var(--teal)"></i> Storage &amp; state</span>
     </div>
     <div>github.com/ChrisPaulus1/flanker-agent · Next.js 14 · TypeScript · Supabase · Gemini</div>

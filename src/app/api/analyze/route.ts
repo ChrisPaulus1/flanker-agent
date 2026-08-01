@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       model,
     });
 
-    // Nothing is emailed any more, so the cursor can advance as soon as the
+    // The cursor advances as soon as the
     // event is stored — there is no later step left to fail.
     await repo.advanceLastSeenVersion(tracked.id, event.version, new Date().toISOString());
 

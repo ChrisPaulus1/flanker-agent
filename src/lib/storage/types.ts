@@ -35,7 +35,6 @@ export interface FlankerEvent {
   /** Which Gemini model produced llmOutput; null for rows written before this was tracked. */
   model: string | null;
   detectedAt: string;
-  emailSentAt: string | null;
 }
 
 export interface FlankerEventWithApp extends FlankerEvent {
@@ -75,7 +74,6 @@ export interface FlankerRepo {
   listTrackedApps(options?: { enabledOnly?: boolean }): Promise<TrackedApp[]>;
   findEvent(appId: string, version: string): Promise<FlankerEvent | null>;
   insertEvent(input: NewEventInput): Promise<FlankerEvent>;
-  markEmailSent(eventId: string, sentAt: string): Promise<void>;
   /** Advances the change-detection cursor. Only ever called after a full success. */
   advanceLastSeenVersion(appId: string, version: string, checkedAt: string): Promise<void>;
   /** Records that we looked, without moving the cursor. */

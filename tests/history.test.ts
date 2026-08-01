@@ -24,7 +24,6 @@ function event(version: string, releaseDate: string | null, detectedAt = "2026-0
     signalLevel: "high",
     model: "test",
     detectedAt,
-    emailSentAt: null,
     app: { id: "app-1", name: "Test", itunesTrackId: 1 },
   };
 }

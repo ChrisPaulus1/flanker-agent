@@ -88,7 +88,7 @@ export async function runPipelineForApp(
       model,
     });
 
-    // The cursor advances only after the event is durably stored. With email
+    // The cursor advances only after the event is durably stored. The
     // gone there is no later step that can fail, but the ordering still
     // matters: a crash before the insert must leave the cursor untouched so
     // the release is retried rather than skipped.

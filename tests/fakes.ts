@@ -101,16 +101,9 @@ export class FakeRepo implements FlankerRepo {
       signalLevel: input.signalLevel,
       model: input.model,
       detectedAt: "2026-07-30T00:00:00.000Z",
-      emailSentAt: null,
     };
     this.events.push(event);
     return event;
-  }
-
-  async markEmailSent(eventId: string, sentAt: string): Promise<void> {
-    this.calls.push("markEmailSent");
-    const event = this.events.find((e) => e.id === eventId);
-    if (event) event.emailSentAt = sentAt;
   }
 
   async advanceLastSeenVersion(appId: string, version: string, checkedAt: string): Promise<void> {
