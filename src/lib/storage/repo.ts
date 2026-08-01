@@ -320,17 +320,37 @@ export class SupabaseFlankerRepo implements FlankerRepo {
     return data?.length ?? 0;
   }
 
+  /**
+   * The watch set, most popular first.
+   *
+   * Paginated with `.range()` rather than a single `.limit()`: PostgREST caps
+   * a response at 1,000 rows by default, so asking for 2,000 silently returns
+   * 1,000 and the sweep quietly watches half the set it reported. Found by the
+   * first live sweep coming back with watchSetSize 1000 for a 2,000 request.
+   */
   async listPopularTrackIds(limit: number): Promise<number[]> {
-    const { data, error } = await this.db
-      .from("catalog_apps")
-      .select("itunes_track_id")
-      // Chart-ranked apps first; unranked ones have no popularity signal and
-      // are the long tail nobody searches for.
-      .order("popularity_rank", { ascending: true, nullsFirst: false })
-      .limit(limit);
+    const PAGE = 1_000;
+    const ids: number[] = [];
 
-    if (error) fail("listPopularTrackIds", error);
-    return (data ?? []).map((row) => Number(row.itunes_track_id));
+    for (let offset = 0; offset < limit; offset += PAGE) {
+      const upper = Math.min(offset + PAGE, limit) - 1;
+      const { data, error } = await this.db
+        .from("catalog_apps")
+        .select("itunes_track_id")
+        // Chart-ranked apps first; unranked ones have no popularity signal and
+        // are the long tail nobody searches for.
+        .order("popularity_rank", { ascending: true, nullsFirst: false })
+        .order("itunes_track_id", { ascending: true })
+        .range(offset, upper);
+
+      if (error) fail("listPopularTrackIds", error);
+      const page = (data ?? []).map((row) => Number(row.itunes_track_id));
+      ids.push(...page);
+      // Short page means the catalogue is smaller than the requested watch set.
+      if (page.length < upper - offset + 1) break;
+    }
+
+    return ids;
   }
 
   async listReleases(itunesTrackId: number, limit = 20): Promise<ObservedRelease[]> {
